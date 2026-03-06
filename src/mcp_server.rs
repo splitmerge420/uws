@@ -735,9 +735,9 @@ async fn handle_tools_call(params: &Value, config: &ServerConfig) -> Result<Valu
         })?;
 
     let parts: Vec<&str> = rest.split('-').collect();
-    if parts.is_empty() {
+    if parts.len() < 2 || parts.iter().any(|p| p.is_empty()) {
         return Err(GwsError::Validation(format!(
-            "Invalid API tool name: {}",
+            "Invalid API tool name: '{}'. Expected format: <service>-<resource...>-<method>",
             tool_name
         )));
     }
