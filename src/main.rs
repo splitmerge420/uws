@@ -12,12 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//! Google Workspace CLI (gws)
+//! Universal Workspace CLI (uws)
 //!
-//! A dynamic, schema-driven CLI for Google Workspace APIs.
-//! This tool dynamically parses Google API Discovery Documents to construct CLI commands.
-//! It supports deep schema validation, OAuth / Service Account authentication,
-//! interactive prompts, and integration with Model Armor.
+//! A dynamic, schema-driven CLI for Google Workspace, Microsoft 365, Apple, Android, and Chrome.
+//! This tool dynamically parses API Discovery Documents to construct CLI commands across all
+//! major productivity ecosystems. It supports deep schema validation, multi-provider OAuth,
+//! Service Account authentication, interactive prompts, and first-class AI agent integration
+//! with Claude and Manus.
 
 mod auth;
 pub(crate) mod auth_commands;
@@ -99,9 +100,8 @@ async fn run() -> Result<(), GwsError> {
         return Ok(());
     }
 
-    if is_version_flag(&first_arg) {
-        println!("gws {}", env!("CARGO_PKG_VERSION"));
-        println!("This is not an officially supported Google product.");
+    if is_version_flag(&first_arg) {        println!("uws {}", env!("CARGO_PKG_VERSION"));
+        println!("Universal Workspace CLI — not affiliated with Google, Microsoft, or Apple.");
         return Ok(());
     }
 

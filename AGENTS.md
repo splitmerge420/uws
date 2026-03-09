@@ -1,39 +1,189 @@
-# AGENTS.md
+# AGENTS.md — AI Agent Integration Guide
+
+`uws` is designed from the ground up to be the **universal tool layer for AI agents**. Every response is structured JSON. Every command is deterministic and composable. Every ecosystem is accessible through the same grammar.
+
+This document covers integration with Claude, Manus, Gemini, and Microsoft Copilot, followed by the original developer notes for contributors.
+
+---
+
+## Design Principles for AI Agent Use
+
+1. **Always use `--dry-run` before write operations.** Confirm the request shape before executing.
+2. **Always use `--format json`** (the default) for machine-readable output.
+3. **Use `--params` for query/URL parameters** and `--json` for request bodies.
+4. **Use `--page-all` to retrieve complete datasets** when you need all results, not just the first page.
+5. **Check `uws auth status` and `uws ms-auth status`** before attempting API calls to confirm authentication.
+
+---
+
+## Claude (Anthropic)
+
+### Tool Definition
+
+```json
+{
+  "name": "uws",
+  "description": "Universal Workspace CLI. Provides read and write access to Google Workspace (Gmail, Drive, Calendar, Docs, Sheets, Slides, Tasks, Chat, Keep, Meet), Microsoft 365 (Outlook Mail, OneDrive, Teams, To Do, OneNote, SharePoint), Apple iCloud (Calendar, Contacts, Drive, Notes, Reminders), Android (device management, Messages), and Chrome (policy, management, extensions). All output is JSON. Use --dry-run before any write operation.",
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "command": {
+        "type": "string",
+        "description": "Full uws command string excluding the 'uws' binary name. Examples: 'gmail users messages list --params {\"userId\":\"me\",\"maxResults\":10}', 'ms-mail messages list --params {\"$top\":5}', 'drive files list --format table'"
+      }
+    },
+    "required": ["command"]
+  }
+}
+```
+
+### System Prompt Addition
+
+```
+You have access to the `uws` tool which gives you read and write access to the user's
+Google Workspace, Microsoft 365, Apple iCloud, Android, and Chrome accounts.
+
+Rules for using uws:
+- Always use --dry-run first to preview write operations before executing them.
+- Always confirm with the user before sending emails, creating calendar events, or deleting files.
+- Use --format json (default) for all calls; parse the JSON response to extract relevant data.
+- Use --page-all when you need complete lists, not just the first page.
+- If a command fails with an auth error, tell the user to run: uws auth status / uws ms-auth status
+- Prefer --params for filtering (e.g. search queries, date ranges) to minimize response size.
+```
+
+---
+
+## Manus
+
+### Skill Installation
+
+```bash
+cp -r skills/uws-core ~/.manus/skills/
+cp -r skills/ms-outlook ~/.manus/skills/
+cp -r skills/ms-onedrive ~/.manus/skills/
+cp -r skills/ms-teams ~/.manus/skills/
+cp -r skills/apple-calendar ~/.manus/skills/
+cp -r skills/apple-contacts ~/.manus/skills/
+```
+
+Or symlink to stay in sync with the repo:
+
+```bash
+ln -s $(pwd)/skills/uws-* ~/.manus/skills/
+```
+
+### Manus Invocation Pattern
+
+```bash
+# Read operation
+uws <service> <resource> <method> --params '<json>' --format json
+
+# Write operation — always dry-run first
+uws <service> <resource> <method> --params '<json>' --json '<body>' --dry-run
+uws <service> <resource> <method> --params '<json>' --json '<body>'
+```
+
+---
+
+## Gemini (Google AI Studio)
+
+### Python Function Tool
+
+```python
+import subprocess, json, os
+
+def uws(command: str) -> dict:
+    """Execute a uws Universal Workspace CLI command."""
+    result = subprocess.run(
+        ["uws"] + command.split(),
+        capture_output=True, text=True, env={**os.environ}
+    )
+    if result.returncode != 0:
+        return {"error": result.stderr.strip(), "exit_code": result.returncode}
+    try:
+        return json.loads(result.stdout)
+    except json.JSONDecodeError:
+        return {"raw_output": result.stdout.strip()}
+```
+
+### Gemini Extension
+
+```bash
+gemini extensions install https://github.com/splitmerge420/uws
+```
+
+---
+
+## Microsoft Copilot
+
+### System Prompt
+
+```
+You have access to the uws Universal Workspace CLI tool. Use it to read and manage
+emails across Gmail and Outlook, create and manage calendar events across Google Calendar
+and Outlook Calendar, list and manage files across Google Drive and OneDrive, manage tasks
+across Google Tasks and Microsoft To Do, access Teams channels and messages, and read and
+manage iCloud Calendar and Contacts.
+
+Always use --dry-run before write operations. Always confirm with the user before
+sending emails or deleting data. Parse JSON responses to extract relevant information.
+```
+
+---
+
+## The Aluminum Agent Runtime
+
+The `alum ai` command (Phase 4) provides a unified natural language interface:
+
+```bash
+alum ai "summarize my unread emails"
+alum ai "what meetings do I have tomorrow?"
+alum ai "find all files related to the uws project"
+alum ai "create a task to review the Q1 report by Friday"
+```
+
+Configure the AI backend:
+
+```bash
+export ANTHROPIC_API_KEY=sk-ant-...    # Use Claude
+export GEMINI_API_KEY=AIza...           # Use Gemini
+export OPENAI_API_KEY=sk-...            # Use GPT
+```
+
+---
+
+## Security Notes
+
+- All credentials are stored encrypted (AES-256-GCM) in `~/.config/uws/`
+- Use `--dry-run` before any destructive operation
+- The Model Armor integration (`--sanitize`) scans responses for prompt injection
+- Never pass raw API responses directly to an LLM without sanitization in production
+
+---
+
+---
+
+# Developer Notes (Original gws Architecture)
+
+The following section preserves the original `gws` developer documentation for contributors building on the core Rust architecture.
 
 ## Project Overview
 
-`gws` is a Rust CLI tool for interacting with Google Workspace APIs. It dynamically generates its command surface at runtime by parsing Google Discovery Service JSON documents.
+`uws` is built on the `gws` Rust CLI core, which dynamically generates its command surface at runtime by parsing Google Discovery Service JSON documents.
 
-> [!IMPORTANT]
-> **Dynamic Discovery**: This project does NOT use generated Rust crates (e.g., `google-drive3`) for API interaction. Instead, it fetches the Discovery JSON at runtime and builds `clap` commands dynamically. When adding a new service, you only need to register it in `src/services.rs` and verify the Discovery URL pattern in `src/discovery.rs`. Do NOT add new crates to `Cargo.toml` for standard Google APIs.
+> **Dynamic Discovery**: This project does NOT use generated Rust crates (e.g., `google-drive3`) for API interaction. It fetches the Discovery JSON at runtime and builds `clap` commands dynamically. When adding a new Google service, only register it in `src/services.rs`. Do NOT add new crates to `Cargo.toml` for standard Google APIs.
 
-> [!NOTE]
-> **Package Manager**: Use `pnpm` instead of `npm` for Node.js package management in this repository.
+> **Package Manager**: Use `pnpm` instead of `npm` for Node.js package management.
 
 ## Build & Test
 
-> [!IMPORTANT]
-> **Test Coverage**: The `codecov/patch` check requires that new or modified lines are covered by tests. When adding code, extract testable helper functions rather than embedding logic in `main`/`run` where it's hard to unit-test. Run `cargo test` locally and verify new branches are exercised.
-
 ```bash
-cargo build          # Build in dev mode
-cargo clippy -- -D warnings  # Lint check
-cargo test           # Run tests
+cargo build                       # dev build
+cargo clippy -- -D warnings       # lint
+cargo test                        # unit tests
+./scripts/coverage.sh             # HTML coverage report
 ```
-
-## Changesets
-
-Every PR must include a changeset file. Create one at `.changeset/<descriptive-name>.md`:
-
-```markdown
----
-"@googleworkspace/cli": patch
----
-
-Brief description of the change
-```
-
-Use `patch` for fixes/chores, `minor` for new features, `major` for breaking changes. The CI policy check will fail without a changeset.
 
 ## Architecture
 
@@ -44,69 +194,35 @@ The CLI uses a **two-phase argument parsing** strategy:
 
 ### Source Layout
 
-| File                      | Purpose                                                                                   |
-| ------------------------- | ----------------------------------------------------------------------------------------- |
-| `src/main.rs`             | Entrypoint, two-phase CLI parsing, method resolution                                      |
-| `src/discovery.rs`        | Serde models for Discovery Document + fetch/cache                                         |
-| `src/services.rs`         | Service alias → Discovery API name/version mapping                                        |
-| `src/auth.rs`             | OAuth2 token acquisition via env vars, encrypted credentials, or ADC                      |
-| `src/credential_store.rs` | AES-256-GCM encryption/decryption of credential files                                     |
-| `src/auth_commands.rs`    | `gws auth` subcommands: `login`, `logout`, `setup`, `status`, `export`                    |
-| `src/commands.rs`         | Recursive `clap::Command` builder from Discovery resources                                |
-| `src/executor.rs`         | HTTP request construction, response handling, schema validation                           |
-| `src/schema.rs`           | `gws schema` command — introspect API method schemas                                      |
-| `src/error.rs`            | Structured JSON error output                                                              |
-
-## Demo Videos
-
-Demo recordings are generated with [VHS](https://github.com/charmbracelet/vhs) (`.tape` files).
-
-```bash
-vhs docs/demo.tape
-```
-
-### VHS quoting rules
-
-- Use **double quotes** for simple strings: `Type "gws --help" Enter`
-- Use **backtick quotes** when the typed text contains JSON with double quotes:
-  ```
-  Type `gws drive files list --params '{"pageSize":5}'` Enter
-  ```
-  `\"` escapes inside double-quoted `Type` strings are **not supported** by VHS and will cause parse errors.
-
-### Scene art
-
-ASCII art title cards live in `art/`. The `scripts/show-art.sh` helper clears the screen and cats the file. Portrait scenes use `scene*.txt`; landscape chapters use `long-*.txt`.
+| File | Purpose |
+|---|---|
+| `src/main.rs` | Entrypoint, two-phase CLI parsing, method resolution |
+| `src/discovery.rs` | Serde models for Discovery Document + fetch/cache |
+| `src/services.rs` | Service alias → Discovery API name/version mapping |
+| `src/auth.rs` | OAuth2 token acquisition via env vars, encrypted credentials, or ADC |
+| `src/credential_store.rs` | AES-256-GCM encryption/decryption of credential files |
+| `src/auth_commands.rs` | `uws auth` subcommands: login, logout, setup, status, export |
+| `src/commands.rs` | Recursive `clap::Command` builder from Discovery resources |
+| `src/executor.rs` | HTTP request construction, response handling, schema validation |
+| `src/ms_graph.rs` | Microsoft Graph API integration module |
+| `src/apple.rs` | Apple CalDAV/CardDAV/CloudKit integration module |
+| `src/android_chrome.rs` | Android Management API and Chrome Policy integration module |
+| `src/schema.rs` | `uws schema` command — introspect API method schemas |
+| `src/error.rs` | Structured JSON error output |
 
 ## Input Validation & URL Safety
 
-> [!IMPORTANT]
-> This CLI is frequently invoked by AI/LLM agents. Always assume inputs can be adversarial — validate paths against traversal (`../../.ssh`), restrict format strings to allowlists, reject control characters, and encode user values before embedding them in URLs.
-
-> [!NOTE]
-> **Environment variables are trusted inputs.** The validation rules above apply to **CLI arguments** that may be passed by untrusted AI agents. Environment variables (e.g. `GOOGLE_WORKSPACE_CLI_CONFIG_DIR`) are set by the user themselves — in their shell profile, `.env` file, or deployment config — and are not subject to path traversal validation. This is consistent with standard conventions like `XDG_CONFIG_HOME`, `CARGO_HOME`, etc.
+This CLI is frequently invoked by AI/LLM agents. Always assume inputs can be adversarial — validate paths against traversal (`../../.ssh`), restrict format strings to allowlists, reject control characters, and encode user values before embedding them in URLs.
 
 ### Path Safety (`src/validate.rs`)
 
-When adding new helpers or CLI flags that accept file paths, **always validate** using the shared helpers:
-
-| Scenario                               | Validator                                | Rejects                                                              |
-| -------------------------------------- | ---------------------------------------- | -------------------------------------------------------------------- |
-| File path for writing (`--output-dir`) | `validate::validate_safe_output_dir()`   | Absolute paths, `../` traversal, symlinks outside CWD, control chars |
-| File path for reading (`--dir`)        | `validate::validate_safe_dir_path()`     | Absolute paths, `../` traversal, symlinks outside CWD, control chars |
-| Enum/allowlist values (`--msg-format`) | clap `value_parser` (see `gmail/mod.rs`) | Any value not in the allowlist                                       |
-
-```rust
-// In your argument parser:
-if let Some(output_dir) = matches.get_one::<String>("output-dir") {
-    crate::validate::validate_safe_output_dir(output_dir)?;
-    builder.output_dir(Some(output_dir.clone()));
-}
-```
+| Scenario | Validator | Rejects |
+|---|---|---|
+| File path for writing (`--output-dir`) | `validate::validate_safe_output_dir()` | Absolute paths, `../` traversal, symlinks outside CWD, control chars |
+| File path for reading (`--dir`) | `validate::validate_safe_dir_path()` | Absolute paths, `../` traversal, symlinks outside CWD, control chars |
+| Enum/allowlist values | clap `value_parser` | Any value not in the allowlist |
 
 ### URL Encoding (`src/helpers/mod.rs`)
-
-User-supplied values embedded in URL **path segments** must be percent-encoded. Use the shared helper:
 
 ```rust
 // CORRECT — encodes slashes, spaces, and special characters
@@ -114,91 +230,49 @@ let url = format!(
     "https://www.googleapis.com/drive/v3/files/{}",
     crate::helpers::encode_path_segment(file_id),
 );
-
-// WRONG — raw user input in URL path
-let url = format!("https://www.googleapis.com/drive/v3/files/{}", file_id);
 ```
-
-For **query parameters**, use reqwest's `.query()` builder which handles encoding automatically:
-
-```rust
-// CORRECT — reqwest encodes query values
-client.get(url).query(&[("q", user_query)]).send().await?;
-
-// WRONG — manual string interpolation in query strings
-let url = format!("{}?q={}", base_url, user_query);
-```
-
-### Resource Name Validation (`src/helpers/mod.rs`)
-
-When a user-supplied string is used as a GCP resource identifier (project ID, topic name, space name, etc.) that gets embedded in a URL path, validate it first:
-
-```rust
-// Validates the string does not contain path traversal segments (`..`), control characters, or URL-breaking characters like `?` and `#`.
-let project = crate::helpers::validate_resource_name(&project_id)?;
-let url = format!("https://pubsub.googleapis.com/v1/projects/{}/topics/my-topic", project);
-```
-
-This prevents injection of query parameters, path traversal, or other malicious payloads through resource name arguments like `--project` or `--space`.
-
-### Checklist for New Features
-
-When adding a new helper or CLI command:
-
-1. **File paths** → Use `validate_safe_output_dir` / `validate_safe_dir_path`
-2. **Enum flags** → Constrain via clap `value_parser` or `validate_msg_format`
-3. **URL path segments** → Use `encode_path_segment()`
-4. **Query parameters** → Use reqwest `.query()` builder
-5. **Resource names** (project IDs, space names, topic names) → Use `validate_resource_name()`
-6. **Write tests** for both the happy path AND the rejection path (e.g., pass `../../.ssh` and assert `Err`)
-
-## PR Labels
-
-Use these labels to categorize pull requests and issues:
-
-- `area: discovery` — Discovery document fetching, caching, parsing
-- `area: http` — Request execution, URL building, response handling
-- `area: docs` — README, contributing guides, documentation
-- `area: tui` — Setup wizard, picker, input fields
-- `area: distribution` — Nix flake, cargo-dist, npm packaging, install methods
-- `area: auth` — OAuth, credentials, multi-account, ADC
-- `area: skills` — AI skill generation and management
 
 ## Environment Variables
 
-### Authentication
+### Google Authentication
 
 | Variable | Description |
 |---|---|
-| `GOOGLE_WORKSPACE_CLI_TOKEN` | Pre-obtained OAuth2 access token (highest priority; bypasses all credential file loading) |
-| `GOOGLE_WORKSPACE_CLI_CREDENTIALS_FILE` | Path to OAuth credentials JSON (no default; if unset, falls back to credentials secured by the OS Keyring and encrypted in `~/.config/gws/`) |
-
-| `GOOGLE_APPLICATION_CREDENTIALS` | Standard Google ADC path; used as fallback when no gws-specific credentials are configured |
-
-### Configuration
-
-| Variable | Description |
-|---|---|
-| `GOOGLE_WORKSPACE_CLI_CONFIG_DIR` | Override the config directory (default: `~/.config/gws`) |
-
-### OAuth Client
-
-| Variable | Description |
-|---|---|
-| `GOOGLE_WORKSPACE_CLI_CLIENT_ID` | OAuth client ID (for `gws auth login` when no `client_secret.json` is saved) |
-| `GOOGLE_WORKSPACE_CLI_CLIENT_SECRET` | OAuth client secret (paired with `CLIENT_ID` above) |
-
-### Sanitization (Model Armor)
-
-| Variable | Description |
-|---|---|
-| `GOOGLE_WORKSPACE_CLI_SANITIZE_TEMPLATE` | Default Model Armor template (overridden by `--sanitize` flag) |
+| `GOOGLE_WORKSPACE_CLI_TOKEN` | Pre-obtained OAuth2 access token (highest priority) |
+| `GOOGLE_WORKSPACE_CLI_CREDENTIALS_FILE` | Path to OAuth credentials JSON |
+| `GOOGLE_WORKSPACE_CLI_CONFIG_DIR` | Override config directory (default: `~/.config/uws`) |
+| `GOOGLE_WORKSPACE_CLI_SANITIZE_TEMPLATE` | Default Model Armor template |
 | `GOOGLE_WORKSPACE_CLI_SANITIZE_MODE` | `warn` (default) or `block` |
 
-### Helpers
+### Microsoft Authentication
 
 | Variable | Description |
 |---|---|
-| `GOOGLE_WORKSPACE_PROJECT_ID` | GCP project ID override for quota/billing and fallback for helper commands (overridden by `--project` flag) |
+| `UWS_MS_CLIENT_ID` | Azure app client ID |
+| `UWS_MS_CLIENT_SECRET` | Azure app client secret |
+| `UWS_MS_TENANT_ID` | Azure AD tenant ID |
+| `UWS_MS_TOKEN` | Pre-obtained Microsoft Graph token |
 
-All variables can also live in a `.env` file (loaded via `dotenvy`).
+### Apple Authentication
+
+| Variable | Description |
+|---|---|
+| `UWS_APPLE_ID` | Apple ID email |
+| `UWS_APPLE_APP_PASSWORD` | App-specific password |
+| `UWS_APPLE_CLIENT_ID` | Sign in with Apple client ID |
+| `UWS_APPLE_TEAM_ID` | Apple Developer team ID |
+| `UWS_APPLE_KEY_ID` | Apple private key ID |
+| `UWS_APPLE_PRIVATE_KEY_FILE` | Path to Apple .p8 private key |
+
+### AI Agents
+
+| Variable | Description |
+|---|---|
+| `ANTHROPIC_API_KEY` | Claude API key |
+| `GEMINI_API_KEY` | Gemini API key |
+| `OPENAI_API_KEY` | OpenAI/GPT API key |
+
+---
+
+*See [README.md](README.md) for installation and full command reference.*
+*See [ALUMINUM.md](ALUMINUM.md) for the full Aluminum OS architecture specification.*

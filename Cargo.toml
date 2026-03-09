@@ -13,20 +13,20 @@
 # limitations under the License.
 
 [package]
-name = "gws"
-version = "0.8.1"
+name = "uws"
+version = "0.1.0"
 edition = "2021"
-description = "Google Workspace CLI — dynamic command surface from Discovery Service"
+description = "Universal Workspace CLI — Google, Microsoft 365, Apple, Android & Chrome. Built for humans and AI agents (Claude, Manus, Gemini)."
 license = "Apache-2.0"
-repository = "https://github.com/googleworkspace/cli"
-homepage = "https://github.com/googleworkspace/cli"
+repository = "https://github.com/splitmerge420/uws"
+homepage = "https://github.com/splitmerge420/uws"
 readme = "README.md"
-authors = ["Justin Poehnelt"]
-keywords = ["cli", "google-workspace", "google", "drive", "gmail"]
+authors = ["Daavud Sheldon <therealdavesheldon@gmail.com>", "Justin Poehnelt"]
+keywords = ["cli", "google-workspace", "microsoft-365", "apple", "ai-agent"]
 categories = ["command-line-utilities", "web-programming"]
 
 [[bin]]
-name = "gws"
+name = "uws"
 path = "src/main.rs"
 
 
