@@ -237,3 +237,48 @@ This is the architecture that makes the AI-native OS real.
 - **[4] Apple CalDAV / CardDAV:** [developer.apple.com/documentation/devicemanagement](https://developer.apple.com/documentation/devicemanagement)
 - **[5] Kubernetes Provider Abstraction Pattern:** [kubernetes.io/docs/concepts/architecture/](https://kubernetes.io/docs/concepts/architecture/)
 - **[6] Architectural Review:** Microsoft Copilot, March 2026
+
+
+## Appendix C: Apple CLI Integration
+
+> **Date:** March 9, 2026
+
+The Apple CLI is a first-class provider for the Aluminum OS, offering deep, seamless integration with the entire Apple ecosystem. It is built as a TypeScript package that plugs into both the Gemini CLI SDK and the `uws` Rust core, providing a unified command surface for all Apple services.
+
+### Architecture
+
+The Apple CLI is a TypeScript package that implements the Aluminum OS ProviderDriver contract. It uses a combination of official and unofficial APIs to interact with iCloud services:
+
+- **Calendar:** CalDAV (RFC 4791)
+- **Contacts:** CardDAV (RFC 6352)
+- **Notes:** CloudKit Web Services
+- **Reminders:** CalDAV VTODO
+- **Find My:** iCloud Find My API
+- **HomeKit:** HomeKit Accessory Protocol (HAP) + iCloud Home API
+- **Shortcuts:** iCloud Shortcuts Sharing API
+- **Mail:** IMAP/SMTP
+- **iCloud Drive:** CloudKit + iCloud Drive Web Services
+
+### The Aluminum Bridge
+
+The `AluminumAppleBridge` is the core of the integration. It connects the TypeScript providers to the broader Aluminum OS ecosystem, handling:
+
+- **Unified Authentication:** Manages Apple ID and app-specific passwords.
+- **Consistent JSON Output:** All operations return a standard `AluminumProviderResult`.
+- **Rate Limiting & Retries:** Prevents API abuse and handles transient errors.
+- **Offline Caching:** Provides a seamless experience even when offline.
+- **Audit Logging:** Logs all operations for governance and compliance.
+
+## Appendix D: Gemini CLI Fork
+
+> **Date:** March 9, 2026
+
+This is the Aluminum OS fork of the official Google Gemini CLI. It has been extended to serve as the primary TypeScript-based runtime for the Aluminum OS, integrating seamlessly with the `uws` Rust core and the broader council architecture.
+
+### Key Enhancements
+
+- **Aluminum OS Provider Model:** The CLI has been extended with a provider model that allows for the integration of third-party services like the Apple CLI.
+- **Council Integration:** The CLI is fully aware of the Aluminum OS council and its roles, delegating tasks to the appropriate agent.
+- **A2A (Agent-to-Agent) Protocol:** The built-in A2A server is used for direct communication between council members.
+- **Unified Auth:** The CLI uses the Aluminum OS unified auth system to manage credentials for all providers.
+- **Cross-Platform:** The CLI runs on macOS, Linux, and Windows, providing a consistent experience across all platforms.

@@ -1,0 +1,32 @@
+GEMINI CLI RESEARCH — March 9, 2026
+====================================
+
+Repository: https://github.com/google-gemini/gemini-cli
+Stars: 97k | Forks: 12.1k | Commits: 5,122 | Branches: 560 | Tags: 415
+License: Apache-2.0
+Language: TypeScript (Node.js monorepo)
+
+KEY FEATURES:
+- Open-source AI agent in terminal
+- Gemini 3 models with 1M token context window
+- Built-in tools: Google Search grounding, file operations, shell commands, web fetching
+- MCP (Model Context Protocol) support — both client AND server
+- Plan Mode (enabled by default)
+- Custom slash commands
+- Subagent delegation with concurrency safety
+- Integration tests framework
+- Evals framework
+- Schemas directory
+
+DIRECTORY STRUCTURE:
+- packages/ — monorepo packages (core, cli, etc.)
+- docs/ — documentation
+- evals/ — evaluation framework
+- integration-tests/ — integration testing
+- schemas/ — JSON schemas
+- .gemini/ — Gemini skills/configuration
+
+TOPICS: cli, ai, gemini, ai-agents, gemini-api, mcp-server, mcp-client
+
+KEY INSIGHT: Gemini CLI already supports MCP natively — both as client and server.
+This means our uws MCP server can plug directly into Gemini CLI as a tool provider.
