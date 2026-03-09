@@ -1,0 +1,61 @@
+UWS DIAGNOSTIC AUDIT — March 8, 2026
+======================================
+
+CODEBASE STATS
+--------------
+Total Rust source: 14,969 lines across 23 .rs files
+Total project (Rust + Markdown + TOML): ~20,000+ lines
+
+GOOGLE WORKSPACE APIS (via Discovery Documents — dynamically generated)
+-----------------------------------------------------------------------
+gmail:v1           79 methods
+drive:v3           57 methods
+calendar:v3        37 methods
+sheets:v4          17 methods
+docs:v1             3 methods
+slides:v1           5 methods
+tasks:v1           14 methods
+people:v1          24 methods
+chat:v1            37 methods
+classroom:v1      104 methods
+forms:v1            0 methods (restricted)
+keep:v1             0 methods (restricted)
+meet:v2             0 methods (restricted)
+admin:reports_v1    6 methods
+admin:directory_v1 128 methods
+driveactivity:v2    1 method
+drivelabels:v2      0 methods
+groupssettings:v1   3 methods
+groupsmigration:v1  1 method
+alertcenter:v1b1   11 methods
+workspaceevents:v1  0 methods
+reseller:v1        17 methods
+admin:datatransfer  5 methods
+---------------------------------
+SUBTOTAL:          549 counted methods (core Workspace)
+
+DYNAMIC DISCOVERY (any Google API):
+  303 unique API names
+  508 API versions
+  Estimated 10,000-18,000+ total methods across all Google APIs
+
+MICROSOFT 365 (ms_graph.rs scaffold):
+  7 service groups: Outlook, OneDrive, Teams, To Do, OneNote, SharePoint, Planner
+  Microsoft Graph API: ~2,000+ endpoints
+  Auth: MSAL (device code, auth code, client credentials)
+
+APPLE ECOSYSTEM (apple.rs scaffold):
+  3 service groups: CalDAV, CardDAV, CloudKit
+  Estimated 50-100 operations
+
+ANDROID + CHROME (android_chrome.rs scaffold):
+  3 service groups: Android Management, Chrome Management, Chrome Policy
+  Estimated 100+ operations
+
+TOTAL UNIFIED FEATURE SURFACE:
+  Google (dynamic): 10,000-18,000+ methods
+  Microsoft Graph:  ~2,000+ endpoints
+  Apple iCloud:     ~50-100 operations
+  Android/Chrome:   ~100+ operations
+  =========================================
+  ESTIMATED TOTAL:  12,000-20,000+ unified operations
