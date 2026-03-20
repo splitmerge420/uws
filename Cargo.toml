@@ -1,68 +1,40 @@
-# Copyright 2026 Google LLC
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
 [package]
 name = "uws"
 version = "0.1.0"
 edition = "2021"
-description = "Universal Workspace CLI — Google, Microsoft 365, Apple, Android & Chrome. Built for humans and AI agents (Claude, Manus, Gemini)."
-license = "Apache-2.0"
+authors = ["Dave Sheldon <splitmerge420@gmail.com>"]
+description = "Universal Workspace CLI — Constitutional operating system for AI-augmented life"
+license = "MIT"
 repository = "https://github.com/splitmerge420/uws"
-homepage = "https://github.com/splitmerge420/uws"
 readme = "README.md"
-authors = ["Daavud Sheldon <therealdavesheldon@gmail.com>", "Justin Poehnelt"]
-keywords = ["cli", "google-workspace", "microsoft-365", "apple", "ai-agent"]
-categories = ["command-line-utilities", "web-programming"]
+
+[lib]
+name = "uws"
+path = "src/lib.rs"
 
 [[bin]]
 name = "uws"
 path = "src/main.rs"
 
-
+[features]
+default = ["std"]
+std = []
 
 [dependencies]
-aes-gcm = "0.10"
-anyhow = "1"
-clap = { version = "4", features = ["derive", "string"] }
-dirs = "5"
-dotenvy = "0.15"
-hostname = "0.4"
-reqwest = { version = "0.12", features = ["json", "stream", "rustls-tls"], default-features = false }
-rand = "0.8"
-serde = { version = "1", features = ["derive"] }
-serde_json = "1"
-sha2 = "0.10"
-thiserror = "2"
-tokio = { version = "1", features = ["full"] }
-yup-oauth2 = "12"
-futures-util = "0.3"
-base64 = "0.22.1"
-derive_builder = "0.20.2"
-ratatui = "0.30.0"
-crossterm = "0.29.0"
-chrono = "0.4.44"
-keyring = "3.6.3"
-async-trait = "0.1.89"
-serde_yaml = "0.9.34"
-percent-encoding = "2.3.2"
+# constitutional_engine.rs uses serde behind cfg(feature = "std")
+serde = { version = "1", features = ["derive"], optional = true }
 
-
-# The profile that 'cargo dist' will build with
-[profile.dist]
-inherits = "release"
-lto = "thin"
+# Phase 2 (uncomment when ready):
+# sha3 = "0.10"              # Replace FNV-1a with real SHA3-256 in audit_chain.rs
+# serde_json = "1"           # JSON export for audit chain
+# reqwest = { version = "0.12", features = ["json"] }  # GitHub API calls
+# tokio = { version = "1", features = ["full"] }        # Async runtime
+# clap = { version = "4", features = ["derive"] }       # CLI argument parsing
 
 [dev-dependencies]
-serial_test = "3.4.0"
-tempfile = "3"
+# Tests use only std for now
+
+[profile.release]
+opt-level = 3
+lto = true
+strip = true
