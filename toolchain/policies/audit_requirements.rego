@@ -3,6 +3,9 @@ package policies.audit_requirements
 name = "audit_requirements"
 description = "Enforce audit logging for destructive operations (INV-3)"
 
+# Default-deny posture (INV-35)
+default allow = false
+
 allow_deletion_with_audit = (
     input.get('operation_type', '') == 'delete' and
     input.get('audit_logging_enabled', False) == True

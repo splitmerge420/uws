@@ -632,7 +632,10 @@ mod tests {
 
     #[test]
     fn test_critical_op_requires_approval() {
-        let mut client = CouncilGitHubClient::new("splitmerge420".to_string(), test_actor());
+        // The client is intentionally not used after construction — this test
+        // only verifies the *operation*'s requires_dave_approval() predicate,
+        // not any client-level behaviour.  _client suppresses the unused-var lint.
+        let _client = CouncilGitHubClient::new("splitmerge420".to_string(), test_actor());
         let op = GitHubOperation::SetVisibility {
             repo: "uws".to_string(),
             public: true,

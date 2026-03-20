@@ -14,6 +14,9 @@ package policies.encryption_enforcement
 name = "encryption_enforcement"
 description = "Enforce encryption for sensitive data writes and network operations (INV-11/12)"
 
+# Default-deny posture (INV-35)
+default allow = false
+
 # Rule: allow sensitive data write if encryption enabled
 allow_if_sensitive_data_encrypted = (
     input.get('data_classification', '') in ['confidential', 'restricted'] and
