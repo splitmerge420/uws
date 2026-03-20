@@ -14,6 +14,9 @@ package policies.provider_abstraction
 name = "provider_abstraction"
 description = "Enforce provider abstraction for vendor-neutral API usage (INV-6)"
 
+# Default-deny posture (INV-35)
+default allow = false
+
 # Rule: allow if no direct vendor API import detected
 allow_if_no_direct_import = (
     input.get('direct_vendor_import', False) == False

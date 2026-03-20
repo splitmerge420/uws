@@ -3,6 +3,9 @@ package policies.consent_enforcement
 name = "consent_enforcement"
 description = "Enforce user consent for state-changing operations (INV-2)"
 
+# Default-deny posture (INV-35)
+default allow = false
+
 allow_if_read_only = input.get('operation_type', '') == 'read'
 
 allow_if_state_change_with_consent = (

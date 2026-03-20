@@ -18,15 +18,15 @@ path = "src/main.rs"
 
 [features]
 default = ["std"]
-std = []
+# "std" pulls in serde so constitutional_engine.rs can derive Serialize/Deserialize
+std = ["serde", "sha3", "serde_json"]
 
 [dependencies]
-# constitutional_engine.rs uses serde behind cfg(feature = "std")
 serde = { version = "1", features = ["derive"], optional = true }
+sha3 = { version = "0.10", optional = true }   # Real SHA3-256 for audit_chain.rs
+serde_json = { version = "1", optional = true } # JSON export for audit chain
 
-# Phase 2 (uncomment when ready):
-# sha3 = "0.10"              # Replace FNV-1a with real SHA3-256 in audit_chain.rs
-# serde_json = "1"           # JSON export for audit chain
+# Phase 3 (uncomment when async runtime is needed):
 # reqwest = { version = "0.12", features = ["json"] }  # GitHub API calls
 # tokio = { version = "1", features = ["full"] }        # Async runtime
 # clap = { version = "4", features = ["derive"] }       # CLI argument parsing

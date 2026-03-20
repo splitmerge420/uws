@@ -3,6 +3,9 @@ package policies.data_classification
 name = "data_classification"
 description = "Enforce data classification before processing (INV-4)"
 
+# Default-deny posture: access is denied unless explicitly permitted (INV-35)
+default allow = false
+
 allow_if_classified = input.get('data_classification', 'unclassified') in [
     'public', 'internal', 'confidential', 'restricted'
 ]

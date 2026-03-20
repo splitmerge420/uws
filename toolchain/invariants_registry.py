@@ -148,6 +148,11 @@ INVARIANTS: Dict[str, Dict[str, Any]] = {
     "INV-36": {"name": "Technical Invariant Enforcement", "description": "Replace natural-language principles with enforceable behavioral specs.", "severity": "mandatory", "check_type": "advisory", "applies_to": []},
 }
 
+# Canonical alias — the test suite and external tooling use CONSTITUTIONAL_INVARIANTS
+CONSTITUTIONAL_INVARIANTS = list(
+    {"id": k, **v} for k, v in INVARIANTS.items()
+)
+
 def get_invariant(inv_id: str) -> Dict[str, Any]:
     return INVARIANTS.get(inv_id, {})
 

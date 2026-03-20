@@ -14,6 +14,9 @@ package policies.error_boundaries
 name = "error_boundaries"
 description = "Enforce explicit error handling and boundaries (INV-21)"
 
+# Default-deny posture (INV-35)
+default allow = false
+
 # Rule: allow if no bare except clauses
 allow_if_no_bare_except = input.get('bare_except', False) == False
 
