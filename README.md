@@ -284,14 +284,40 @@ def uws(command: str) -> dict:
 
 ---
 
+## Spheres OS Toolchain
+
+The `toolchain/` directory contains the full CI/CD pipeline and governance infrastructure for the 144-Sphere Ontology and Constitutional Invariant system.
+
+| File | Description |
+|---|---|
+| `toolchain/invariants_registry.py` | Canonical registry of all 39 Constitutional Invariants (INV-1 through INV-36 incl. sub-invariants) |
+| `toolchain/invariant_linter.py` | Stage 1: Lint code against all invariants |
+| `toolchain/kintsugi_healer.py` | Stage 2: Kintsugi Code Healing — fracture → mend → beauty score |
+| `toolchain/pqc_provider.py` | Stage 3: Post-Quantum Cryptographic signing (ML-DSA/Dilithium) with encrypted key storage |
+| `toolchain/stress_test.py` | Stage 4: Resilience stress testing with graceful degradation |
+| `toolchain/spheres_pipeline.py` | Orchestrator: Lint → Heal → Sign → Stress (fail-fast, 300s timeout) |
+| `toolchain/acp_governance.py` | Agent Constitutional Protocol — PolicyRegistry, CouncilVoting, AuditChain |
+| `toolchain/opa_rego_engine.py` | Python-native OPA/Rego policy evaluator with W3C PROV provenance |
+| `toolchain/graphiti_temporal.py` | Temporal knowledge graph for causal/event tracking alongside ChromaDB |
+| `toolchain/predictive_fix_engine.py` | Multi-provider LLM fix engine with timeout + caching |
+| `toolchain/manus_sphere_adapter.py` | Maps Manus ontology to canonical 144-Sphere System B (Houses) |
+| `toolchain/fix_cataloguer.py` | Fix cataloguing with Notion sync engine |
+| `toolchain/three_tier_archive.py` | Hot (memory) → Warm (SQLite) → Cold (content-addressed) archive |
+| `toolchain/health_connectors.py` | FHIR R4 / AHCEP health connector stubs + OneMedical crisis adapter |
+| `toolchain/policies/*.rego` | Rego policy files for consent, data classification, and audit |
+| `ingestion/master_ingestion.json` | 200-repo ingestion map |
+| `ingestion/verified_ontology.md` | Verified ontology documenting System A vs System B |
+
+---
+
 ## Architecture & Roadmap
 
 `uws` is built on the **Aluminum OS** architecture. Read the full spec: **[ALUMINUM.md](ALUMINUM.md)**
 
 | Phase | Milestone | Status |
 |---|---|---|
-| 1 | Fork gws → abstract provider layer (`uws` v0.1) | **In Progress** |
-| 2 | Microsoft Graph backend (`uws` v0.2) | Planned |
+| 1 | Fork gws → abstract provider layer (`uws` v0.1) | **Complete** |
+| 2 | Microsoft Graph backend (`uws` v0.2 / Alexandria) | **In Progress** |
 | 3 | Apple Intents backend (`uws` v0.3) | Planned |
 | 4 | Aluminum kernel APIs (`alum` v0.1) | Planned |
 | 5 | Full Aluminum-native command surface (`alum` v1.0) | Vision |
