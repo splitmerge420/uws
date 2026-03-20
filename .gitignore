@@ -45,6 +45,12 @@ files.jsonl
 # Plans (local design docs)
 docs/plans/
 
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
 # Generated
 demo.mp4
 download.html
+invariant_report.json
