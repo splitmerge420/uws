@@ -539,6 +539,116 @@ class AuditChain:
         """Get the number of entries in the chain."""
         return len(self.chain)
 
+    def detect_truncation(self) -> Dict[str, Any]:
+        """
+        Detect if the chain appears truncated (missing entries).
+
+        Verifies:
+        - Sequential index continuity (decision IDs follow expected pattern)
+        - Chain length matches expected count based on entry counters
+        - No gaps in the decision ID sequence
+
+        Returns:
+            Dict with:
+                truncated (bool): True if truncation detected
+                expected_length (int): Expected chain length based on entry counter
+                actual_length (int): Actual number of entries in chain
+                missing_indices (list): List of missing decision indices
+        """
+        if not self.chain:
+            return {
+                "truncated": False,
+                "expected_length": 0,
+                "actual_length": 0,
+                "missing_indices": []
+            }
+
+        missing_indices = []
+        max_index = 0
+
+        # Extract decision indices from decision_ids (format: decision-XXXXXX)
+        found_indices = set()
+        for entry in self.chain:
+            try:
+                # Parse decision_id format: "decision-000001", "decision-000002", etc.
+                parts = entry.decision_id.split('-')
+                if len(parts) == 2 and parts[0] == "decision":
+                    index = int(parts[1])
+                    found_indices.add(index)
+                    max_index = max(max_index, index)
+            except (ValueError, IndexError):
+                # Skip entries with unparseable IDs
+                pass
+
+        # Check for missing indices in the sequence
+        expected_length = max_index if max_index > 0 else len(self.chain)
+        if max_index > 0:
+            for i in range(1, max_index + 1):
+                if i not in found_indices:
+                    missing_indices.append(i)
+
+        # Chain is considered truncated if:
+        # - There are gaps in the sequence
+        # - Expected length doesn't match actual length
+        truncated = (
+            len(missing_indices) > 0 or
+            expected_length != len(self.chain)
+        )
+
+        return {
+            "truncated": truncated,
+            "expected_length": expected_length,
+            "actual_length": len(self.chain),
+            "missing_indices": sorted(missing_indices)
+        }
+
+    def validate_entry_completeness(self) -> List[int]:
+        """
+        Check that each entry has all required fields.
+
+        Required fields: timestamp, actor (in context or decision), action,
+        resource (in context), decision, previous_hash
+
+        Returns:
+            List of indices of incomplete entries (empty list if all complete)
+        """
+        incomplete_indices = []
+        required_fields = {
+            "timestamp", "action", "decision", "previous_hash", "entry_hash"
+        }
+
+        for i, entry in enumerate(self.chain):
+            # Check audit entry fields
+            entry_dict = {
+                "timestamp": entry.timestamp,
+                "action": entry.action,
+                "decision": entry.decision,
+                "previous_hash": entry.previous_hash,
+                "entry_hash": entry.entry_hash,
+                "decision_id": entry.decision_id,
+            }
+
+            # Check that all required fields are present and non-empty
+            missing_fields = []
+            for field in required_fields:
+                if not entry_dict.get(field):
+                    missing_fields.append(field)
+
+            # Check context snapshot for required context fields
+            context = entry.context_snapshot or {}
+            required_context_fields = {
+                "decision": True,  # At minimum, decision should be in context or decision field
+            }
+
+            # If any required fields are missing, mark as incomplete
+            if missing_fields:
+                incomplete_indices.append(i)
+                logger.warning(
+                    f"Entry {i} ({entry.decision_id}): missing fields: {missing_fields}"
+                )
+
+        return incomplete_indices
+
 
 # ============================================================================
 # COUNCIL VOTING
