@@ -74,7 +74,7 @@ class InvariantLinter:
         return False
 
     def _check_guard(self, lines: List[str], line_idx: int,
-                     guard_patterns: List[str], window: int = 10) -> bool:
+                     guard_patterns: List[str], window: int = 25) -> bool:
         """Check if there's a guard pattern within `window` lines."""
         start = max(0, line_idx - window)
         end = min(len(lines), line_idx + window)
