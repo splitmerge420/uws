@@ -63,6 +63,15 @@ impl StateSnapshot {
     }
 }
 
+/// The constitutional enforcement engine.
+///
+/// Note on `#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]`:
+/// `Severity`, `InvariantCheck`, and `StateSnapshot` all carry that annotation because
+/// callers may want to serialise individual check results or state snapshots (e.g., for
+/// JSON audit records).  `ConstitutionalEngine` itself is intentionally excluded — it is
+/// a pure behaviour struct (single bool field) with no meaningful serialisable state;
+/// serialising it would just produce `{"strict_mode": true}` which conveys nothing
+/// that a caller couldn't record more clearly themselves.
 pub struct ConstitutionalEngine {
     strict_mode: bool,
 }

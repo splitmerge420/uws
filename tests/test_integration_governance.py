@@ -424,6 +424,7 @@ class TestFileStructure(unittest.TestCase):
             "spheres_pipeline.py",
             "acp_governance.py",
             "opa_rego_engine.py",
+            "zero_trust_registry.py",
         ]
         for filename in core_files:
             filepath = os.path.join(TOOLCHAIN_DIR, filename)
