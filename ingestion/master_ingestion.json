@@ -1,0 +1,138 @@
+{
+  "version": "1.0.0",
+  "generated": "2026-03-16",
+  "description": "Master Ingestion Map — Maps splitmerge420 repos to 144 Sphere directories",
+  "notes": "This map classifies 200 repos into the 12x12 Lattice structure. Repos not directly mappable are assigned to the closest domain sphere.",
+  "sphere_houses": {
+    "house_01_mathematics": {
+      "spheres": ["S001_pure_math", "S002_applied_math", "S003_statistics", "S004_logic", "S005_number_theory", "S006_geometry", "S007_algebra", "S008_calculus", "S009_probability", "S010_cryptography", "S011_game_theory", "S012_optimization"],
+      "repos": {
+        "S010_cryptography": ["noosphere-defense"],
+        "S011_game_theory": ["ai-governance-framework"],
+        "S012_optimization": ["deer-flow"]
+      }
+    },
+    "house_02_natural_sciences": {
+      "spheres": ["S013_physics", "S014_chemistry", "S015_biology", "S016_computer_science", "S017_astronomy", "S018_earth_science", "S019_ecology", "S020_genetics", "S021_neuroscience", "S022_materials_science", "S023_quantum_mechanics", "S024_thermodynamics"],
+      "repos": {
+        "S016_computer_science": ["aluminum-os", "aluminum-os-v3", "aluminum-gemini-cli", "linux", "rust", "go", "deno", "TypeScript", "node"],
+        "S022_materials_science": ["bazinga"],
+        "S023_quantum_mechanics": ["noosphere-defense"]
+      }
+    },
+    "house_03_philosophy_psychology": {
+      "spheres": ["S025_psychology", "S026_philosophy", "S027_ethics", "S028_cognitive_science", "S029_consciousness", "S030_behavioral_science", "S031_social_psychology", "S032_developmental_psych", "S033_clinical_psych", "S034_existentialism", "S035_epistemology", "S036_aesthetics"],
+      "repos": {
+        "S027_ethics": ["awesome-ai-ethics", "ai-bias-detection", "algorithmic-accountability", "ai-fairness-metrics", "ethical-ai-guidelines", "ai-transparency-toolkit", "responsible-ai-toolkit", "ai-governance-framework", "content-moderation-ethics", "ai-labor-practices", "machine-learning-bias"],
+        "S028_cognitive_science": ["atlas-lattice-foundation"],
+        "S029_consciousness": ["Kintsuji-code-fixer-"]
+      }
+    },
+    "house_04_engineering": {
+      "spheres": ["S037_software_eng", "S038_electrical_eng", "S039_mechanical_eng", "S040_civil_eng", "S041_aerospace_eng", "S042_biomedical_eng", "S043_environmental_eng", "S044_industrial_eng", "S045_nuclear_eng", "S046_robotics", "S047_systems_eng", "S048_materials_eng"],
+      "repos": {
+        "S037_software_eng": ["vscode", "electron", "tauri", "PowerToys", "terminal", "dbeaver", "bruno", "puppeteer", "hoppscotch", "excalidraw"],
+        "S046_robotics": ["transformers", "pytorch", "tensorflow"],
+        "S047_systems_eng": ["kubernetes", "docker-compose", "localstack", "netdata", "etcd"]
+      }
+    },
+    "house_05_arts_culture": {
+      "spheres": ["S049_visual_arts", "S050_music", "S051_literature", "S052_dance", "S053_theater", "S054_film", "S055_storytelling", "S056_architecture", "S057_design", "S058_photography", "S059_sculpture", "S060_moral_magnetism"],
+      "repos": {
+        "S054_film": ["ai-art-copyright", "creative-ai-rights"],
+        "S057_design": ["three.js", "ui", "ant-design", "material-ui", "bootstrap"],
+        "S060_moral_magnetism": ["Kintsuji-code-fixer-"]
+      }
+    },
+    "house_06_medicine_health": {
+      "spheres": ["S061_anatomy", "S062_physiology", "S063_pathology", "S064_pharmacology", "S065_surgery", "S066_pediatrics", "S067_psychiatry", "S068_neurology", "S069_oncology", "S070_epidemiology", "S071_nutrition", "S072_public_health"],
+      "repos": {
+        "S067_psychiatry": ["mental-health-ai"],
+        "S068_neurology": ["elder-care-tech"],
+        "S072_public_health": ["healthcare-ai"]
+      }
+    },
+    "house_07_education": {
+      "spheres": ["S073_pedagogy", "S074_curriculum", "S075_ed_psychology", "S076_special_ed", "S077_adult_ed", "S078_elearning", "S079_ed_tech", "S080_assessment", "S081_administration", "S082_teacher_training", "S083_literacy", "S084_higher_ed"],
+      "repos": {
+        "S078_elearning": ["generative-ai-for-beginners", "freeCodeCamp", "You-Dont-Know-JS", "prompts.chat"],
+        "S079_ed_tech": ["educational-ai"],
+        "S083_literacy": ["ai-education-ethics"]
+      }
+    },
+    "house_08_law_governance": {
+      "spheres": ["S085_constitutional_law", "S086_criminal_law", "S087_civil_law", "S088_international_law", "S089_regulatory", "S090_digital_law", "S091_ip_law", "S092_labor_law", "S093_environmental_law", "S094_tax_law", "S095_human_rights", "S096_governance"],
+      "repos": {
+        "S085_constitutional_law": ["constitutional-continuum", "batman-protocol"],
+        "S089_regulatory": ["digital-platform-regulation", "algorithmic-radicalization"],
+        "S090_digital_law": ["digital-identity-privacy", "deepfake-detection"],
+        "S092_labor_law": ["ai-labor-exploitation", "gig-economy-exploitation", "tech-worker-exploitation", "content-moderation-trauma"],
+        "S096_governance": ["aluminum-swarm-index"]
+      }
+    },
+    "house_09_economics_finance": {
+      "spheres": ["S097_macroeconomics", "S098_microeconomics", "S099_behavioral_econ", "S100_development_econ", "S101_financial_markets", "S102_banking", "S103_insurance", "S104_taxation", "S105_trade", "S106_monetary_policy", "S107_fintech", "S108_defi"],
+      "repos": {
+        "S101_financial_markets": ["personal-finance-tracker-free", "credit-scoring-injustice"],
+        "S102_banking": ["banking-revolution", "banking-revolution-archive", "bank-killer-financial-freedom", "free-banking-app-zero-fees"],
+        "S103_insurance": ["insurance-ai-bias"],
+        "S107_fintech": ["fintech-disruption", "mint-alternative-open-source"],
+        "S108_defi": ["defi-swap-zero-fees", "zero-fee-defi-protocol", "usdt-brics-payment-rails", "pix-payment-integration", "upi-payment-integration"]
+      }
+    },
+    "house_10_technology_infrastructure": {
+      "spheres": ["S109_cloud_computing", "S110_networking", "S111_cybersecurity", "S112_databases", "S113_devops", "S114_ai_ml", "S115_blockchain", "S116_iot", "S117_edge_computing", "S118_quantum_computing", "S119_ar_vr", "S120_operating_systems"],
+      "repos": {
+        "S109_cloud_computing": ["supabase", "localstack", "caddy"],
+        "S111_cybersecurity": ["surveillance-capitalism", "police-surveillance"],
+        "S112_databases": ["redis", "ClickHouse", "metabase", "meilisearch"],
+        "S113_devops": ["n8n", "dify", "firecrawl"],
+        "S114_ai_ml": ["AutoGPT", "open-webui", "langchain", "ComfyUI", "browser-use", "ollama", "streamlit"],
+        "S115_blockchain": ["go-ethereum"],
+        "S120_operating_systems": ["manus-2.0-toolkit", "uws", "apple-cli"]
+      }
+    },
+    "house_11_communication_media": {
+      "spheres": ["S121_journalism", "S122_broadcasting", "S123_social_media", "S124_advertising", "S125_public_relations", "S126_publishing", "S127_telecommunications", "S128_film_media", "S129_gaming", "S130_music_industry", "S131_digital_media", "S132_information_science"],
+      "repos": {
+        "S121_journalism": ["journalism-ai", "automated-journalism-ethics"],
+        "S123_social_media": ["social-media-harm", "ai-search-bias"],
+        "S128_film_media": ["streaming-economics"],
+        "S129_gaming": ["gaming-labor"],
+        "S130_music_industry": ["ai-music-rights"],
+        "S131_digital_media": ["ai-translation-bias"]
+      }
+    },
+    "house_12_industry_commerce": {
+      "spheres": ["S133_manufacturing", "S134_agriculture", "S135_energy", "S136_transportation", "S137_construction", "S138_retail", "S139_hospitality", "S140_logistics", "S141_real_estate", "S142_food_service", "S143_water_management", "S144_waste_management"],
+      "repos": {
+        "S134_agriculture": ["agricultural-ai"],
+        "S135_energy": ["energy-grid-ai", "climate-ai-solutions"],
+        "S136_transportation": ["transportation-ai"],
+        "S137_construction": ["construction-safety-ai", "housing-crisis-ai"],
+        "S138_retail": ["retail-automation", "food-delivery-exploitation"],
+        "S140_logistics": ["logistics-exploitation", "supply-chain-transparency"],
+        "S141_real_estate": ["smart-home-security"],
+        "S143_water_management": ["water-management-ai"],
+        "S144_waste_management": ["waste-management-ai"]
+      }
+    }
+  },
+  "unmapped_repos": {
+    "major_forks_reference_only": [
+      "react", "angular", "flutter", "react-native", "next.js", "expo", "ionic-framework",
+      "Avalonia", "axios", "awesome-python", "awesome-selfhosted", "free-for-dev", "iptv",
+      "neovim", "rustdesk"
+    ],
+    "note": "These are forks of major open-source projects. They serve as reference material and potential integration targets, not as sphere content."
+  },
+  "statistics": {
+    "total_repos": 200,
+    "mapped_repos": 148,
+    "unmapped_forks": 15,
+    "sphere_houses": 12,
+    "total_spheres": 144,
+    "spheres_with_repos": 58,
+    "spheres_empty": 86
+  }
+}
