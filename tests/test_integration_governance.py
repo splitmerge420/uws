@@ -508,6 +508,212 @@ class TestProvenance(unittest.TestCase):
         self.assertGreaterEqual(len(expected_members), 8)
 
 
+# ─── Test 9: Zero Trust Integration Gate ───────────────────────
+
+class TestZeroTrustGate(unittest.TestCase):
+    """Verify the Zero Trust Integration Gate (zero_trust_registry.py)."""
+
+    def setUp(self):
+        from zero_trust_registry import (
+            ZeroTrustGate, StressEvidence, CouncilApproval,
+            ComponentStatus, ConsentRequired, UnknownComponent,
+            LogicGateFailed, StressGateFailed, CouncilGateFailed,
+            AlreadyIntegrated,
+        )
+        self.ZeroTrustGate = ZeroTrustGate
+        self.StressEvidence = StressEvidence
+        self.CouncilApproval = CouncilApproval
+        self.ComponentStatus = ComponentStatus
+        self.ConsentRequired = ConsentRequired
+        self.UnknownComponent = UnknownComponent
+        self.LogicGateFailed = LogicGateFailed
+        self.StressGateFailed = StressGateFailed
+        self.CouncilGateFailed = CouncilGateFailed
+        self.AlreadyIntegrated = AlreadyIntegrated
+
+    def _gate(self):
+        return self.ZeroTrustGate(actor="test-copilot", session_consent=True)
+
+    def _stress(self, **overrides):
+        base = dict(
+            tester="test-tester",
+            resilience_score=0.95,
+            iterations=1000,
+            worst_case_score=0.80,
+            invariants_held=True,
+            tested_at="2026-03-20T19:00:00Z",
+        )
+        base.update(overrides)
+        return self.StressEvidence(**base)
+
+    def _approval(self, **overrides):
+        base = dict(
+            token="dave-approved-2026-03-20",
+            approver="Dave Sheldon",
+            approved_at="2026-03-20T20:00:00Z",
+            session_id="janus-2026-03-20",
+        )
+        base.update(overrides)
+        return self.CouncilApproval(**base)
+
+    # ─── Importability ────────────────────────────────────────
+
+    @unittest.skipUnless(
+        os.path.exists(os.path.join(TOOLCHAIN_DIR, "zero_trust_registry.py")),
+        "zero_trust_registry.py not found",
+    )
+    def test_importable(self):
+        """zero_trust_registry.py must be importable."""
+        import zero_trust_registry
+        self.assertTrue(hasattr(zero_trust_registry, "ZeroTrustGate"))
+
+    # ─── Logic gate ───────────────────────────────────────────
+
+    def test_logic_gate_passes_valid_component(self):
+        """Logic gate must pass a component with fallback and abstraction."""
+        gate = self._gate()
+        gate.register("audit_chain", "Audit log")
+        gate.run_logic_gate("audit_chain", has_fallback=True, provider_abstracted=True)
+        self.assertEqual(gate.status("audit_chain"), self.ComponentStatus.LOGIC_VERIFIED)
+
+    def test_logic_gate_rejects_no_fallback(self):
+        """Logic gate must reject a component with no fallback (INV-7)."""
+        gate = self._gate()
+        gate.register("risky", "No fallback")
+        with self.assertRaises(self.LogicGateFailed):
+            gate.run_logic_gate("risky", has_fallback=False, provider_abstracted=True)
+        self.assertEqual(gate.status("risky"), self.ComponentStatus.REJECTED)
+
+    def test_logic_gate_blocked_without_consent(self):
+        """Logic gate must raise ConsentRequired if consent is False (INV-2)."""
+        gate = self.ZeroTrustGate(actor="attacker", session_consent=False)
+        gate.register("comp", "desc")
+        with self.assertRaises(self.ConsentRequired):
+            gate.run_logic_gate("comp", has_fallback=True, provider_abstracted=True)
+
+    def test_logic_gate_unknown_component_raises(self):
+        """Logic gate must raise UnknownComponent for unregistered IDs."""
+        gate = self._gate()
+        with self.assertRaises(self.UnknownComponent):
+            gate.run_logic_gate("ghost", has_fallback=True, provider_abstracted=True)
+
+    # ─── Stress gate ──────────────────────────────────────────
+
+    def test_stress_gate_rejects_low_resilience(self):
+        """Stress gate must reject resilience below 0.70."""
+        gate = self._gate()
+        gate.register("weak", "Low resilience")
+        gate.run_logic_gate("weak", has_fallback=True, provider_abstracted=True)
+        with self.assertRaises(self.StressGateFailed):
+            gate.run_stress_gate("weak", self._stress(resilience_score=0.50))
+
+    def test_stress_gate_rejects_too_few_iterations(self):
+        """Stress gate must reject fewer than 100 iterations."""
+        gate = self._gate()
+        gate.register("undertested", "Too few iterations")
+        gate.run_logic_gate("undertested", has_fallback=True, provider_abstracted=True)
+        with self.assertRaises(self.StressGateFailed):
+            gate.run_stress_gate("undertested", self._stress(iterations=50))
+
+    def test_stress_gate_rejects_broken_invariants(self):
+        """Stress gate must reject if invariants broke during the test."""
+        gate = self._gate()
+        gate.register("violator", "Broke invariants")
+        gate.run_logic_gate("violator", has_fallback=True, provider_abstracted=True)
+        with self.assertRaises(self.StressGateFailed):
+            gate.run_stress_gate("violator", self._stress(invariants_held=False))
+
+    def test_stress_gate_requires_logic_gate_first(self):
+        """Stress gate must reject a component that skipped the logic gate."""
+        gate = self._gate()
+        gate.register("skipper", "Skipped logic gate")
+        with self.assertRaises(self.StressGateFailed):
+            gate.run_stress_gate("skipper", self._stress())
+
+    # ─── Council gate ─────────────────────────────────────────
+
+    def test_council_gate_rejects_empty_token(self):
+        """Council gate must reject an empty approval token (INV-5)."""
+        gate = self._gate()
+        gate.register("no_token", "No token")
+        gate.run_logic_gate("no_token", has_fallback=True, provider_abstracted=True)
+        gate.run_stress_gate("no_token", self._stress())
+        with self.assertRaises(self.CouncilGateFailed):
+            gate.run_council_gate("no_token", self._approval(token=""))
+
+    def test_council_gate_rejects_empty_approver(self):
+        """Council gate must reject a blank approver identity (INV-5)."""
+        gate = self._gate()
+        gate.register("no_approver", "No approver")
+        gate.run_logic_gate("no_approver", has_fallback=True, provider_abstracted=True)
+        gate.run_stress_gate("no_approver", self._stress())
+        with self.assertRaises(self.CouncilGateFailed):
+            gate.run_council_gate("no_approver", self._approval(approver="   "))
+
+    def test_council_gate_requires_stress_gate_first(self):
+        """Council gate must reject if stress gate was skipped."""
+        gate = self._gate()
+        gate.register("no_stress", "Skipped stress")
+        gate.run_logic_gate("no_stress", has_fallback=True, provider_abstracted=True)
+        with self.assertRaises(self.CouncilGateFailed):
+            gate.run_council_gate("no_stress", self._approval())
+
+    # ─── Full pipeline ────────────────────────────────────────
+
+    def test_full_pipeline_happy_path(self):
+        """Full pipeline must succeed for a valid, approved component."""
+        gate = self._gate()
+        record = gate.run_full_pipeline(
+            "audit_chain", "Audit log",
+            True, True, self._stress(), self._approval(),
+        )
+        self.assertEqual(record.component_id, "audit_chain")
+        self.assertEqual(record.integrated_by, "test-copilot")
+        self.assertFalse(record.audit_hash == "")
+        self.assertEqual(gate.status("audit_chain"), self.ComponentStatus.INTEGRATED)
+
+    def test_double_integration_blocked(self):
+        """Double-integration of a component must raise AlreadyIntegrated."""
+        gate = self._gate()
+        gate.run_full_pipeline(
+            "pqc_provider", "PQC signing",
+            True, True, self._stress(), self._approval(),
+        )
+        with self.assertRaises(self.AlreadyIntegrated):
+            gate.integrate("pqc_provider")
+
+    def test_integrated_components_list(self):
+        """integrated_components() must list all successfully integrated IDs."""
+        gate = self._gate()
+        for name in ("comp_a", "comp_b", "comp_c"):
+            gate.run_full_pipeline(name, name, True, True, self._stress(), self._approval())
+        ids = gate.integrated_components()
+        self.assertEqual(sorted(ids), ["comp_a", "comp_b", "comp_c"])
+
+    # ─── Audit chain ──────────────────────────────────────────
+
+    def test_every_gate_decision_audited(self):
+        """All gate decisions must be appended to the audit chain."""
+        gate = self._gate()
+        gate.run_full_pipeline("audited", "desc", True, True, self._stress(), self._approval())
+        # logic(allow) + stress(allow) + council(allow) + integrate(allow) = 4
+        self.assertGreaterEqual(gate.audit_len(), 4)
+
+    def test_denial_is_audited(self):
+        """Rejected integrations must also be recorded in the audit chain."""
+        gate = self._gate()
+        gate.register("bad", "Will fail logic gate")
+        with self.assertRaises(self.LogicGateFailed):
+            gate.run_logic_gate("bad", has_fallback=False, provider_abstracted=True)
+        self.assertGreaterEqual(gate.audit_len(), 1)
+
+    def test_audit_chain_integrity_holds(self):
+        """Audit chain must remain cryptographically intact after all operations."""
+        gate = self._gate()
+        gate.run_full_pipeline("integrity_comp", "desc", True, True, self._stress(), self._approval())
+        self.assertTrue(gate.verify_audit_integrity())
+
+
 # ─── Run ───────────────────────────────────────────────────────
 
 if __name__ == "__main__":
@@ -516,5 +722,6 @@ if __name__ == "__main__":
     print(f"Timestamp: {datetime.now(timezone.utc).isoformat()}")
     print(f"Toolchain: {os.path.abspath(TOOLCHAIN_DIR)}")
     print("=" * 70)
+
 
     unittest.main(verbosity=2)
