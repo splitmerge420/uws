@@ -116,7 +116,7 @@ Signed-By: <aluminum-identity-key-fingerprint>
 Each field has a precise semantics:
 
 - **`AI-Author`**: The LLM inference endpoint and model version that generated the primary code content. This is not an attribution of authorship; it is a disclosure of the tool used, analogous to the `Co-authored-by` trailer already widely used on GitHub.
-- **`Human-Oversight-Percentage`**: A float in [0, 1] representing the fraction of the IP genesis event attributable to human direction, validation, and domain knowledge. This figure is computed by the Aluminum governance layer based on the session trace: number of human-authored prompt tokens, number of human-accepted vs. human-rejected AI suggestions, and the complexity of the human-specified domain constraints.
+- **`Human-Oversight-Percentage`**: An integer in [0, 100] representing the percentage of the IP genesis event attributable to human direction, validation, and domain knowledge. This figure is computed by the Aluminum governance layer based on the session trace: number of human-authored prompt tokens, number of human-accepted vs. human-rejected AI suggestions, and the complexity of the human-specified domain constraints.
 - **`HITL-Validator`**: The Human-In-The-Loop validation endpoint that attested to the human contribution. Crucially, this does not require a professional licence. Provenance validation is a **democratised labour function** (see Section 3).
 - **`NPFM-Score`**: The Net-Positive Flourishing Metric score at the time of commit (see Section 3).
 
