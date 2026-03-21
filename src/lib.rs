@@ -28,3 +28,30 @@ pub mod council_github_client;
 /// verify_chain() walks every link to detect tampering.
 /// Enforces: INV-3 (Audit Trail), INV-35 (Fail-Closed)
 pub mod audit_chain;
+
+// ─── Human-In-The-Loop (HITL) Layer ──────────────────────────
+// Codifies the "Augment, Don't Replace" labor principle.
+// Workers displaced by AI are retrained as provenance reviewers
+// and medical oversight professionals rather than eliminated.
+
+/// HITL subsystem — two-tier human oversight for AI outputs.
+///
+/// - `medical`    : Licensed professional review (NPI verification required).
+/// - `provenance` : Open-access review — no license required; democratized
+///                  AI-era job class paid per sign-off.
+///
+/// Enforces: INV-1 (Sovereignty), INV-2 (Consent), INV-3 (Audit)
+pub mod hitl;
+
+// ─── Swarm Oversight Layer ────────────────────────────────────
+// Implements the "Swarm Commander" pattern: one human governs
+// many AI agents / drone operations at batch scale.
+
+/// Swarm Commander batch-oversight module.
+///
+/// A single human can review, approve, and cryptographically sign off
+/// on a batch of AI operations (`uws swarm review --batch=10`), serving
+/// as the primary retraining pathway for workers displaced by automation.
+///
+/// Enforces: INV-1 (Sovereignty), INV-2 (Consent), INV-3 (Audit)
+pub mod swarm;
