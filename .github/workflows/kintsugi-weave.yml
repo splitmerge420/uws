@@ -151,8 +151,9 @@ jobs:
           EOF
         env:
           BASE_REF: ${{ github.event_name == 'pull_request' && format('origin/{0}', github.base_ref) || 'HEAD^1' }}
-        # Non-blocking on pushes to main (retroactive trailers cannot be enforced there).
-        # Strictly enforced on all PRs.
+        # Non-blocking on pushes to main: legacy commits cannot be amended retroactively.
+        # All PRs must have valid Golden-Trace trailers before merging (strictly enforced above).
+        # A subsequent commit adding trailers to main is the recommended remediation path.
         continue-on-error: ${{ github.event_name == 'push' }}
 
 # ─── Job 3: Swarm Review ──────────────────────────────────────────────────────

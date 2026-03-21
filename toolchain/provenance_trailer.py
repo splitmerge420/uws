@@ -231,12 +231,8 @@ class ProvenanceTrailer:
         if not (HITL_MIN <= hitl_weight <= HITL_MAX):
             raise ValueError(f"hitl_weight must be between 0.0 and 1.0, got {hitl_weight}")
 
-        # Use SHA-256 as a stand-in for SHA3-256 when the sha3 module is not available.
-        # Production use should replace this with hashlib.sha3_256.
-        try:
-            digest = hashlib.sha3_256(content.encode()).hexdigest()
-        except AttributeError:
-            digest = hashlib.sha256(content.encode()).hexdigest()
+        # SHA3-256 is available in Python's hashlib since Python 3.6.
+        digest = hashlib.sha3_256(content.encode()).hexdigest()
 
         trailer = f"Golden-Trace: sha3-256:{digest} hitl={hitl_weight:.2f}"
         if actor:
