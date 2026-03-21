@@ -47,6 +47,8 @@ jobs:
     name: NPFM Anti-Busywork Scan
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request'
+    permissions:
+      contents: read
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -101,6 +103,8 @@ jobs:
     name: Golden-Trace (HITL) Validation
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request'
+    permissions:
+      contents: read
     steps:
       - name: Checkout code with full commit history
         uses: actions/checkout@v4
