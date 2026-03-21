@@ -1,6 +1,10 @@
 <h1 align="center">uws — Universal Workspace CLI</h1>
 
 <p align="center">
+  <strong>Built by a lone architect and a fleet of AI swarms—because true alignment with human flourishing requires incentives untouched by corporate extraction.</strong>
+</p>
+
+<p align="center">
   <strong>One CLI to rule them all.</strong><br>
   Google Workspace. Microsoft 365. Apple. Android. Chrome.<br>
   Built for humans and AI agents. Zero boilerplate.
