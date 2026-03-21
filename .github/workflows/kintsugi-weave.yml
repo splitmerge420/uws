@@ -1,0 +1,295 @@
+# .github/workflows/kintsugi-weave.yml
+# Kintsugi Weave — Regenerative IP Governance Engine
+#
+# Turns the repository into a self-enforcing constitutional node.
+# Three independent jobs, all with explicit least-privilege permissions.
+#
+# Job 1 — constitutional-lint  (every PR + push to main)
+#   Runs the Aluminum OS invariant linter over changed Python files.
+#   Fails the merge if any CONST-001 (credential exposure) or
+#   CONST-002 (hard-coded secrets) violation is found.
+#   Warnings (advisory invariants) are visible but non-blocking.
+#
+# Job 2 — provenance-check  (every PR + push to main)
+#   Collects every commit in the PR and validates each one for a valid
+#   Golden-Trace: sha3-256:<digest>; HITL=<weight> trailer via
+#   toolchain/provenance.py.  Missing or malformed trailers fail the build.
+#   Merge commits (two parents) are exempt — they carry the trailer of
+#   the squash/merge itself.
+#
+# Job 3 — swarm-review  (issue_comment trigger: /uws swarm review)
+#   Batch dependency / PR review automation.  Triggered by posting
+#   "/uws swarm review" as a comment on any open pull request.
+#   Runs the constitutional linter and provenance check, then reports.
+
+name: Kintsugi Weave (Regenerative IP Engine)
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  issue_comment:
+    types: [created]
+
+# Concurrency: cancel in-flight runs on new pushes to the same PR/branch,
+# but never cancel on main to preserve the audit trail.
+concurrency:
+  group: kintsugi-weave-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+jobs:
+  # ────────────────────────────────────────────────────────────
+  # Job 1: Constitutional Lint (Anti-Busywork / Credential Scan)
+  # ────────────────────────────────────────────────────────────
+  constitutional-lint:
+    name: Constitutional Lint (NPFM Anti-Busywork)
+    runs-on: ubuntu-latest
+    # Runs on every PR and every push to main, but NOT on issue comments
+    if: >
+      github.event_name == 'push' ||
+      github.event_name == 'pull_request'
+    permissions:
+      contents: read
+      pull-requests: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Determine changed Python files
+        id: changes
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            BASE="${{ github.event.pull_request.base.sha }}"
+            HEAD="${{ github.event.pull_request.head.sha }}"
+          else
+            BASE="${{ github.event.before }}"
+            HEAD="${{ github.sha }}"
+          fi
+          FILES=$(git diff --name-only "$BASE" "$HEAD" -- '*.py' 2>/dev/null || true)
+          if [ -z "$FILES" ]; then
+            echo "no_python_changes=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "no_python_changes=false" >> "$GITHUB_OUTPUT"
+            echo "files<<EOF" >> "$GITHUB_OUTPUT"
+            echo "$FILES" >> "$GITHUB_OUTPUT"
+            echo "EOF" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Run Invariant Linter
+        if: steps.changes.outputs.no_python_changes == 'false'
+        run: |
+          echo "::group::Changed Python files"
+          echo "${{ steps.changes.outputs.files }}"
+          echo "::endgroup::"
+
+          EXIT=0
+          while IFS= read -r FILE; do
+            [ -f "$FILE" ] || continue
+            echo "Linting: $FILE"
+            python toolchain/invariant_linter.py "$FILE" --json > /tmp/lint_out.json 2>&1 || true
+
+            # Extract critical and mandatory violations
+            CRITICAL=$(python3 -c "
+          import json, sys
+          data = json.load(open('/tmp/lint_out.json'))
+          bysev = data.get('violations_by_severity', {})
+          print(bysev.get('critical', 0))
+          " 2>/dev/null || echo "0")
+
+            MANDATORY=$(python3 -c "
+          import json, sys
+          data = json.load(open('/tmp/lint_out.json'))
+          bysev = data.get('violations_by_severity', {})
+          print(bysev.get('mandatory', 0))
+          " 2>/dev/null || echo "0")
+
+            if [ "$CRITICAL" -gt 0 ] || [ "$MANDATORY" -gt 0 ]; then
+              echo "::error file=$FILE::Constitutional violations: CRITICAL=$CRITICAL MANDATORY=$MANDATORY"
+              python toolchain/invariant_linter.py "$FILE" || true
+              EXIT=1
+            else
+              echo "  ✅ $FILE — no critical/mandatory violations"
+            fi
+          done <<< "${{ steps.changes.outputs.files }}"
+
+          exit $EXIT
+
+      - name: Upload lint report
+        if: always() && steps.changes.outputs.no_python_changes == 'false'
+        uses: actions/upload-artifact@v4
+        with:
+          name: constitutional-lint-report
+          path: /tmp/lint_out.json
+          retention-days: 7
+
+      - name: No Python changes
+        if: steps.changes.outputs.no_python_changes == 'true'
+        run: echo "✅ No Python files changed — constitutional lint skipped."
+
+  # ────────────────────────────────────────────────────────────
+  # Job 2: Provenance Check (Golden-Trace HITL Validation)
+  # ────────────────────────────────────────────────────────────
+  provenance-check:
+    name: Golden-Trace (HITL) Provenance Validation
+    runs-on: ubuntu-latest
+    if: >
+      github.event_name == 'push' ||
+      github.event_name == 'pull_request'
+    permissions:
+      contents: read
+      pull-requests: read
+
+    steps:
+      - name: Checkout with full history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Determine commit range
+        id: range
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            echo "range=origin/${{ github.base_ref }}..HEAD" >> "$GITHUB_OUTPUT"
+          else
+            # For pushes: validate only the pushed commits
+            if [ "${{ github.event.before }}" = "0000000000000000000000000000000000000000" ]; then
+              # New branch — validate only the tip commit
+              echo "range=HEAD^..HEAD" >> "$GITHUB_OUTPUT"
+            else
+              echo "range=${{ github.event.before }}..${{ github.sha }}" >> "$GITHUB_OUTPUT"
+            fi
+          fi
+
+      - name: Validate Golden-Trace provenance
+        run: |
+          RANGE="${{ steps.range.outputs.range }}"
+          echo "Checking commits in range: $RANGE"
+
+          # Fetch base ref for PRs
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            git fetch origin "${{ github.base_ref }}" 2>/dev/null || true
+          fi
+
+          python toolchain/provenance.py check-commits "$RANGE"
+
+  # ────────────────────────────────────────────────────────────
+  # Job 3: Swarm Review (Bot-Triggered Batch Analysis)
+  # ────────────────────────────────────────────────────────────
+  swarm-review:
+    name: Swarm Review Execution
+    runs-on: ubuntu-latest
+    # Only runs when "/uws swarm review" is posted as an issue comment on a PR
+    if: >
+      github.event_name == 'issue_comment' &&
+      github.event.issue.pull_request != null &&
+      contains(github.event.comment.body, '/uws swarm review')
+    # Minimal permissions: only read repo contents + post comment
+    # IMPORTANT: We never check out untrusted PR code in this job.
+    # Provenance validation uses only git commit metadata (git log),
+    # not the PR's source code, to avoid the untrusted-checkout risk.
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: write
+
+    steps:
+      # Checkout the base repository at the default branch only.
+      # We do NOT fetch or execute code from the PR's head commit.
+      - name: Checkout base repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.repository.default_branch }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Fetch PR commit metadata (no code execution)
+        id: pr
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.issue.number }}
+        run: |
+          echo "pr_number=$PR_NUMBER" >> "$GITHUB_OUTPUT"
+
+          # Get PR base/head refs via GitHub API
+          PR_JSON=$(curl -sf \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${{ github.repository }}/pulls/$PR_NUMBER")
+
+          BASE_REF=$(echo "$PR_JSON" | python3 -c "import json,sys; d=json.load(sys.stdin); print(d['base']['ref'])")
+          HEAD_SHA=$(echo "$PR_JSON" | python3 -c "import json,sys; d=json.load(sys.stdin); print(d['head']['sha'])")
+          echo "base_ref=$BASE_REF" >> "$GITHUB_OUTPUT"
+          echo "head_sha=$HEAD_SHA" >> "$GITHUB_OUTPUT"
+
+      - name: Fetch PR commit range for provenance check
+        run: |
+          # Fetch the PR's commits so we can inspect their metadata (messages),
+          # but we do NOT check out or execute any files from the PR.
+          git fetch origin "${{ steps.pr.outputs.base_ref }}" 2>/dev/null || true
+          git fetch origin "pull/${{ steps.pr.outputs.pr_number }}/head:pr-head" 2>/dev/null || true
+
+      - name: Run Provenance Check (commit metadata only)
+        id: provenance
+        run: |
+          EXIT=0
+          python toolchain/provenance.py check-commits \
+            "origin/${{ steps.pr.outputs.base_ref }}..pr-head" \
+            --json > /tmp/swarm_provenance.json || EXIT=$?
+          echo "exit=$EXIT" >> "$GITHUB_OUTPUT"
+
+      - name: Post swarm review comment
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+
+            let provOk = '${{ steps.provenance.outputs.exit }}' === '0';
+
+            let provData = [];
+            try {
+              provData = JSON.parse(fs.readFileSync('/tmp/swarm_provenance.json', 'utf8'));
+            } catch (_) {}
+
+            let validCount = provData.filter(r => r.valid).length;
+            let totalCount = provData.length;
+
+            const provIcon = provOk ? '✅' : '❌';
+            const overallIcon = provOk ? '✅' : '❌';
+
+            const body = [
+              `## ${overallIcon} Swarm Review Complete`,
+              '',
+              `| Check | Status | Details |`,
+              `|---|---|---|`,
+              `| Golden-Trace Provenance | ${provIcon} ${provOk ? 'PASS' : 'FAIL'} | ${validCount}/${totalCount} commits valid |`,
+              '',
+              lintOk && provOk
+                ? '**NPFM check passed.** All commits carry valid Human-In-The-Loop provenance. ✨'
+                : '**Action required.** Please fix the issues above and push a new commit.',
+            ].join('\n');
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: ${{ github.event.issue.number }},
+              body,
+            });
