@@ -28,3 +28,24 @@ pub mod council_github_client;
 /// verify_chain() walks every link to detect tampering.
 /// Enforces: INV-3 (Audit Trail), INV-35 (Fail-Closed)
 pub mod audit_chain;
+
+// ─── Phase 3: Deep Integration ────────────────────────────────
+// Health, Intelligence, Pantheon Swarm, Notion, and Ledger modules.
+
+/// Native provider drivers for health (FHIR R4) and productivity (Notion).
+/// Domain 1 (Health & Wellness) + Domain 3 (SHELDONBRAIN / Notion OS).
+pub mod drivers;
+
+/// OSINT & Intelligence Sweeps — 24hr/72hr convergence reports, semantic
+/// diffing, cross-cloud RSS ingestion, and temporal knowledge graph.
+/// Domain 2 (Intelligence Sweeps).
+pub mod intelligence;
+
+/// Pantheon Council — swarm multi-plexing, BAZINGA constitutional
+/// verification, and interactive TUI console.
+/// Domain 4 & 5 (Swarm + Aluminum OS Core).
+pub mod pantheon;
+
+/// FREE BANK financial sandbox and Joy Token accounting ledger.
+/// Domain 5 (Krakoa / Noosphere sovereign currency).
+pub mod ledger;
