@@ -28,3 +28,9 @@ pub mod council_github_client;
 /// verify_chain() walks every link to detect tampering.
 /// Enforces: INV-3 (Audit Trail), INV-35 (Fail-Closed)
 pub mod audit_chain;
+
+/// Pantheon Council — corporate seat representation and NPFM governance.
+/// Defines `CouncilSeat` for each major industry participant operating atop
+/// the neutral Aluminum OS substrate.  No seat can override the foundational
+/// fiduciary duty against busywork and extraction encoded at the OS layer.
+pub mod pantheon;
