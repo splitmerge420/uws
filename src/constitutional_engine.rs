@@ -12,6 +12,7 @@ use alloc::{string::String, vec::Vec, vec, format, collections::BTreeMap};
 use serde::{Serialize, Deserialize};
 
 /// Severity levels for constitutional invariants
+#[cfg_attr(feature = "std", derive(Serialize, Deserialize))]
 #[derive(Debug, Clone, PartialEq)]
 pub enum Severity {
     Critical,
@@ -21,6 +22,7 @@ pub enum Severity {
 }
 
 /// Result of checking a single invariant
+#[cfg_attr(feature = "std", derive(Serialize, Deserialize))]
 #[derive(Debug, Clone)]
 pub struct InvariantCheck {
     pub id: String,
@@ -31,6 +33,7 @@ pub struct InvariantCheck {
 }
 
 /// Snapshot of system state for invariant checking
+#[cfg_attr(feature = "std", derive(Serialize, Deserialize))]
 #[derive(Debug, Clone)]
 pub struct StateSnapshot {
     pub operation: String,

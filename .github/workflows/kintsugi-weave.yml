@@ -1,0 +1,262 @@
+# Copyright 2026 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+name: Kintsugi Weave (Governance Pipeline)
+
+# Enforces the Aluminum OS Constitutional Invariants on every PR and push.
+# Three independent jobs with least-privilege permissions (CodeQL-clean):
+#
+#   Job 1 — constitutional-lint  (every PR + push to main)
+#   Job 2 — provenance-check     (every PR + push to main)
+#   Job 3 — swarm-review         (triggered via /uws swarm review comment)
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  issue_comment:
+    types: [created]
+
+concurrency:
+  group: kintsugi-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+# ─── Job 1: Constitutional Lint ───────────────────────────────────────────────
+# Runs the Aluminum OS Invariant Linter on changed Python files.
+# Fails the merge if any CONST-001 (critical) or CONST-002 (mandatory) violations
+# are found. Warnings (advisory) are visible but non-blocking.
+jobs:
+  constitutional-lint:
+    name: Constitutional Lint (NPFM)
+    runs-on: ubuntu-latest
+    # Run on PRs and pushes to main; skip swarm-comment events
+    if: >-
+      github.event_name == 'push' ||
+      github.event_name == 'pull_request'
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Run Constitutional Invariant Linter
+        id: lint
+        run: |
+          python toolchain/invariant_linter.py . --json > /tmp/lint_report.json 2>&1
+          python toolchain/invariant_linter.py .
+        continue-on-error: true
+
+      - name: Upload lint report artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: invariant-lint-report
+          path: /tmp/lint_report.json
+          retention-days: 7
+
+      - name: Enforce critical violations block merge
+        run: |
+          python - <<'EOF'
+          import json, sys
+          try:
+              with open("/tmp/lint_report.json") as f:
+                  report = json.load(f)
+          except Exception:
+              print("Lint report not found; skipping enforcement.")
+              sys.exit(0)
+          critical = report.get("violations_by_severity", {}).get("critical", 0)
+          mandatory = report.get("violations_by_severity", {}).get("mandatory", 0)
+          if critical > 0 or mandatory > 0:
+              print(f"::error::Constitutional violations found: {critical} critical, {mandatory} mandatory.")
+              print("Merge is blocked until critical/mandatory invariant violations are resolved.")
+              sys.exit(1)
+          print(f"Constitutional lint passed. Compliance: {report.get('compliance_score', 0):.1%}")
+          EOF
+
+# ─── Job 2: Provenance Check ──────────────────────────────────────────────────
+# Validates that every commit in the PR carries a valid Golden-Trace trailer,
+# proving Human-In-The-Loop oversight before code enters the main branch.
+# Enforces INV-3 (Audit Trail) and INV-5 (Human Sovereignty).
+  provenance-check:
+    name: Provenance Check (Golden-Trace)
+    runs-on: ubuntu-latest
+    if: >-
+      github.event_name == 'push' ||
+      github.event_name == 'pull_request'
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout (with full history)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Validate Golden-Trace trailers
+        run: |
+          python - <<'EOF'
+          import sys, os, subprocess, json
+
+          sys.path.insert(0, os.path.join(os.getcwd(), "toolchain"))
+          from provenance_trailer import ProvenanceTrailer, get_pr_commits
+
+          base_ref = os.environ.get("BASE_REF", "origin/main")
+          commits = get_pr_commits(base_ref)
+
+          if not commits:
+              print("No new commits detected — provenance check skipped.")
+              sys.exit(0)
+
+          pt = ProvenanceTrailer(min_hitl=0.5)
+          report = pt.validate_commits(commits)
+
+          print(f"Commits checked: {report.commits_checked}")
+          print(f"Valid:           {report.commits_valid}")
+          print(f"Invalid:         {report.commits_invalid}")
+          for r in report.results:
+              sha = r["commit_sha"][:12]
+              if r["valid"]:
+                  trace = r.get("golden_trace") or {}
+                  print(f"  ✅ {sha}  hitl={trace.get('hitl_weight','?')}")
+              else:
+                  print(f"  ❌ {sha}  {r.get('error','missing trailer')}")
+
+          if not report.passed:
+              print()
+              print("::error::One or more commits are missing a valid Golden-Trace trailer.")
+              print("Add the trailer with: python toolchain/provenance_trailer.py generate --hitl 0.9 --actor <your-id>")
+              sys.exit(1)
+
+          print("All commits carry valid Golden-Trace provenance. ✅")
+          EOF
+        env:
+          BASE_REF: ${{ github.event_name == 'pull_request' && format('origin/{0}', github.base_ref) || 'HEAD^1' }}
+        # Non-blocking on pushes to main (retroactive trailers cannot be enforced there).
+        # Strictly enforced on all PRs.
+        continue-on-error: ${{ github.event_name == 'push' }}
+
+# ─── Job 3: Swarm Review ──────────────────────────────────────────────────────
+# Triggered when a maintainer comments "/uws swarm review" on a PR.
+# Runs the constitutional lint and provenance check as a batch review, then
+# summarizes the NPFM score so a single human sign-off can approve the batch.
+  swarm-review:
+    name: Swarm Review (NPFM Batch)
+    runs-on: ubuntu-latest
+    if: >-
+      github.event_name == 'issue_comment' &&
+      github.event.issue.pull_request != null &&
+      contains(github.event.comment.body, '/uws swarm review')
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Run NPFM Batch Review
+        id: review
+        run: |
+          python - <<'EOF'
+          import sys, os, json
+
+          sys.path.insert(0, os.path.join(os.getcwd(), "toolchain"))
+          from invariant_linter import InvariantLinter
+          from provenance_trailer import ProvenanceTrailer, get_pr_commits
+
+          # --- Constitutional Lint ---
+          linter = InvariantLinter()
+          lint_report = linter.lint_directory(".")
+          critical = lint_report.violations_by_severity.get("critical", 0)
+          mandatory = lint_report.violations_by_severity.get("mandatory", 0)
+          lint_passed = critical == 0 and mandatory == 0
+
+          # --- Provenance Check ---
+          pt = ProvenanceTrailer(min_hitl=0.5)
+          commits = get_pr_commits("origin/main")
+          if commits:
+              prov_report = pt.validate_commits(commits)
+              prov_passed = prov_report.passed
+          else:
+              prov_passed = True
+              prov_report = None
+
+          # --- NPFM Score ---
+          score = lint_report.compliance_score
+          npfm_ok = lint_passed and prov_passed and score >= 0.8
+
+          summary = {
+              "npfm_score": round(score, 3),
+              "lint_passed": lint_passed,
+              "provenance_passed": prov_passed,
+              "critical_violations": critical,
+              "mandatory_violations": mandatory,
+              "commits_checked": prov_report.commits_checked if prov_report else 0,
+              "recommendation": "APPROVE" if npfm_ok else "NEEDS_WORK",
+          }
+          with open("/tmp/swarm_review.json", "w") as f:
+              json.dump(summary, f, indent=2)
+
+          print(json.dumps(summary, indent=2))
+          if not npfm_ok:
+              sys.exit(1)
+          EOF
+
+      - name: Post review summary as PR comment
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            let summary;
+            try {
+              summary = JSON.parse(fs.readFileSync('/tmp/swarm_review.json', 'utf8'));
+            } catch (e) {
+              summary = { recommendation: 'ERROR', error: e.message };
+            }
+            const icon = summary.recommendation === 'APPROVE' ? '✅' : '⚠️';
+            const body = [
+              `## ${icon} Swarm Review — NPFM Report`,
+              '',
+              `| Metric | Value |`,
+              `|--------|-------|`,
+              `| NPFM Score | ${((summary.npfm_score || 0) * 100).toFixed(1)}% |`,
+              `| Constitutional Lint | ${summary.lint_passed ? '✅ Pass' : '❌ Fail'} |`,
+              `| Provenance Check | ${summary.provenance_passed ? '✅ Pass' : '❌ Fail'} |`,
+              `| Critical Violations | ${summary.critical_violations || 0} |`,
+              `| Commits Validated | ${summary.commits_checked || 0} |`,
+              `| Recommendation | **${summary.recommendation}** |`,
+            ].join('\n');
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body,
+            });

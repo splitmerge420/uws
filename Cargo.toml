@@ -15,10 +15,13 @@ path = "src/lib.rs"
 [[bin]]
 name = "uws"
 path = "src/main.rs"
+required-features = ["full"]
 
 [features]
 default = ["std"]
-std = []
+std = ["dep:serde"]
+# full = Phase 2 binary deps (tokio, clap, etc.) — uncomment when Phase 2 is ready
+full = []
 
 [dependencies]
 # constitutional_engine.rs uses serde behind cfg(feature = "std")
