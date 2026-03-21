@@ -28,3 +28,13 @@ pub mod council_github_client;
 /// verify_chain() walks every link to detect tampering.
 /// Enforces: INV-3 (Audit Trail), INV-35 (Fail-Closed)
 pub mod audit_chain;
+
+// ─── Pantheon Council Layer ────────────────────────────────────────
+// Defines the neutral substrate governance model for the Pantheon Council.
+// All major tech organizations operate atop this commons as equal participants.
+// No single entity owns the foundational ledger. Governed by the NPFM.
+// See: ALUMINUM_OS_WHITEPAPER.md § 5 — "The Genesis Condition"
+
+/// Pantheon Council governance — CouncilSeat enum and swarm coordination.
+/// Enforces: INV-5 (Lone Architect Authority), INV-7 (Vendor Balance)
+pub mod pantheon;
