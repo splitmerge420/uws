@@ -28,3 +28,20 @@ pub mod council_github_client;
 /// verify_chain() walks every link to detect tampering.
 /// Enforces: INV-3 (Audit Trail), INV-35 (Fail-Closed)
 pub mod audit_chain;
+
+// ─── Regenerative KPI & Swarm Oversight Layer ────────────────────────────────
+// Replaces throughput-centric metrics with Net-Positive Flourishing Metrics.
+// Every AI batch operation must project a non-negative NPFM score or be
+// blocked until a Tier-1 human override is provided.
+
+/// Regenerative telemetry — Net-Positive Flourishing Metric (NPFM).
+/// Tracks jobs_created, human_knowledge_expanded, provenance_payouts_triggered,
+/// and applies a throughput_penalty to prevent AI runaway optimisation.
+/// Enforces: INV-5 (Human Flourishing), INV-2 (Consent/Augmentation)
+pub mod telemetry;
+
+/// Swarm batch oversight — pre-execution governance gate.
+/// Evaluates projected NPFM score before any batch runs.
+/// Blocks operations with negative scores; requires Tier-1 human override.
+/// Enforces: INV-2 (Consent), INV-5 (Human Flourishing), INV-35 (Fail-Closed)
+pub mod swarm;
