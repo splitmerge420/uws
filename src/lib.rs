@@ -28,3 +28,9 @@ pub mod council_github_client;
 /// verify_chain() walks every link to detect tampering.
 /// Enforces: INV-3 (Audit Trail), INV-35 (Fail-Closed)
 pub mod audit_chain;
+
+/// Universal AI CLI abstraction layer.
+/// Provides provider-agnostic adapters for GitHub Copilot, Claude, Gemini, and OpenAI,
+/// plus the ModelRouter that enforces NPFM ≥ 0.7 and appends GoldenTrace HITL provenance.
+/// Enforces: INV-6 (Provider Abstraction), INV-7 (Vendor Balance), INV-1 (Sovereignty)
+pub mod universal;
