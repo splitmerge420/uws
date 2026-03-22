@@ -96,22 +96,32 @@ pub fn config_dir() -> PathBuf {
         return PathBuf::from(dir);
     }
 
-    // Use ~/.config/gws on all platforms for a consistent, user-friendly path.
+    // Primary path: ~/.config/uws — used by all new installs.
     let primary = dirs::home_dir()
         .unwrap_or_else(|| PathBuf::from("."))
         .join(".config")
-        .join("gws");
+        .join("uws");
     if primary.exists() {
         return primary;
     }
 
-    // Backward compat: fall back to OS-specific config dir for existing installs
+    // Migration path: ~/.config/gws — used by installs created before the rename.
+    // If this directory exists we keep using it so existing credentials stay valid.
+    let legacy_uws = dirs::home_dir()
+        .unwrap_or_else(|| PathBuf::from("."))
+        .join(".config")
+        .join("gws");
+    if legacy_uws.exists() {
+        return legacy_uws;
+    }
+
+    // Backward compat: fall back to OS-specific config dir for very old installs
     // (e.g. ~/Library/Application Support/gws on macOS, %APPDATA%\gws on Windows).
-    let legacy = dirs::config_dir()
+    let legacy_os = dirs::config_dir()
         .unwrap_or_else(|| PathBuf::from("."))
         .join("gws");
-    if legacy.exists() {
-        return legacy;
+    if legacy_os.exists() {
+        return legacy_os;
     }
 
     primary
@@ -128,10 +138,10 @@ fn token_cache_path() -> PathBuf {
     config_dir().join("token_cache.json")
 }
 
-/// Handle `gws auth <subcommand>`.
+/// Handle `uws auth <subcommand>`.
 pub async fn handle_auth_command(args: &[String]) -> Result<(), GwsError> {
     const USAGE: &str = concat!(
-        "Usage: gws auth <login|setup|status|export|logout> [options]\n\n",
+        "Usage: uws auth <login|setup|status|export|logout> [options]\n\n",
         "  login    Authenticate via OAuth2 (opens browser)\n",
         "           --readonly       Request read-only scopes\n",
         "           --full           Request all scopes incl. pubsub + cloud-platform\n",
@@ -393,7 +403,7 @@ async fn handle_export(unmasked: bool) -> Result<(), GwsError> {
     let enc_path = credential_store::encrypted_credentials_path();
     if !enc_path.exists() {
         return Err(GwsError::Auth(
-            "No encrypted credentials found. Run 'gws auth login' first.".to_string(),
+            "No encrypted credentials found. Run 'uws auth login' first.".to_string(),
         ));
     }
 
@@ -448,7 +458,7 @@ fn resolve_client_credentials() -> Result<(String, String, Option<String>), GwsE
             format!(
                 "No OAuth client configured.\n\n\
                  Either:\n  \
-                   1. Run `gws auth setup` to configure a GCP project and OAuth client\n  \
+                   1. Run `uws auth setup` to configure a GCP project and OAuth client\n  \
                    2. Download client_secret.json from Google Cloud Console and save it to:\n     \
                       {}\n  \
                    3. Set env vars: GOOGLE_WORKSPACE_CLI_CLIENT_ID and GOOGLE_WORKSPACE_CLI_CLIENT_SECRET",
@@ -1432,18 +1442,19 @@ mod tests {
     }
 
     #[test]
-    fn config_dir_returns_gws_subdir() {
+    fn config_dir_returns_uws_subdir() {
         let path = config_dir();
-        assert!(path.ends_with("gws"));
+        // Should be either ~/.config/uws (new installs) or ~/.config/gws (migration path)
+        assert!(path.ends_with("uws") || path.ends_with("gws"));
     }
 
     #[test]
     fn config_dir_primary_uses_dot_config() {
-        // The primary (non-test) path should be ~/.config/gws.
+        // The primary (non-test) path should be ~/.config/uws.
         // We can't easily test the real function without env override,
-        // but we verify the building blocks: home_dir + .config + gws.
-        let primary = dirs::home_dir().unwrap().join(".config").join("gws");
-        assert!(primary.ends_with(".config/gws") || primary.ends_with(r".config\gws"));
+        // but we verify the building blocks: home_dir + .config + uws.
+        let primary = dirs::home_dir().unwrap().join(".config").join("uws");
+        assert!(primary.ends_with(".config/uws") || primary.ends_with(r".config\uws"));
     }
 
     #[test]

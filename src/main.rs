@@ -60,7 +60,7 @@ async fn run() -> Result<(), GwsError> {
     if args.len() < 2 {
         print_usage();
         return Err(GwsError::Validation(
-            "No service specified. Usage: gws <service> <resource> [sub-resource] <method> [flags]"
+            "No service specified. Usage: uws <service> <resource> [sub-resource] <method> [flags]"
                 .to_string(),
         ));
     }
@@ -89,7 +89,7 @@ async fn run() -> Result<(), GwsError> {
     }
     let first_arg = first_arg.ok_or_else(|| {
         GwsError::Validation(
-            "No service specified. Usage: gws <service> <resource> [sub-resource] <method> [flags]"
+            "No service specified. Usage: uws <service> <resource> [sub-resource] <method> [flags]"
                 .to_string(),
         )
     })?;
@@ -109,7 +109,7 @@ async fn run() -> Result<(), GwsError> {
     if first_arg == "schema" {
         if args.len() < 3 {
             return Err(GwsError::Validation(
-                "Usage: gws schema <service.resource.method> (e.g., gws schema drive.files.list) [--resolve-refs]"
+                "Usage: uws schema <service.resource.method> (e.g., uws schema drive.files.list) [--resolve-refs]"
                     .to_string(),
             ));
         }
@@ -154,7 +154,7 @@ async fn run() -> Result<(), GwsError> {
 
     // Re-parse args (skip argv[0] which is the binary, and argv[1] which is the service name)
     // Filter out --api-version and its value
-    // Prepend "gws" as the program name since try_get_matches_from expects argv[0]
+    // Prepend "uws" as the program name since try_get_matches_from expects argv[0]
     let sub_args = filter_args_for_subcommand(&args, &first_arg);
 
     let matches = cli.try_get_matches_from(&sub_args).map_err(|e| {
@@ -312,7 +312,7 @@ pub fn parse_service_and_version(
 }
 
 pub fn filter_args_for_subcommand(args: &[String], service_name: &str) -> Vec<String> {
-    let mut sub_args: Vec<String> = vec!["gws".to_string()];
+    let mut sub_args: Vec<String> = vec!["uws".to_string()];
     let mut skip_next = false;
     let mut service_skipped = false;
     for arg in args.iter().skip(1) {
@@ -404,18 +404,18 @@ fn resolve_method_from_matches<'a>(
 }
 
 fn print_usage() {
-    println!("gws — Google Workspace CLI");
+    println!("uws — Universal Workspace CLI");
     println!();
     println!("USAGE:");
-    println!("    gws <service> <resource> [sub-resource] <method> [flags]");
-    println!("    gws schema <service.resource.method> [--resolve-refs]");
+    println!("    uws <service> <resource> [sub-resource] <method> [flags]");
+    println!("    uws schema <service.resource.method> [--resolve-refs]");
     println!();
     println!("EXAMPLES:");
-    println!("    gws drive files list --params '{{\"pageSize\": 10}}'");
-    println!("    gws drive files get --params '{{\"fileId\": \"abc123\"}}'");
-    println!("    gws sheets spreadsheets get --params '{{\"spreadsheetId\": \"...\"}}'");
-    println!("    gws gmail users messages list --params '{{\"userId\": \"me\"}}'");
-    println!("    gws schema drive.files.list");
+    println!("    uws drive files list --params '{{\"pageSize\": 10}}'");
+    println!("    uws drive files get --params '{{\"fileId\": \"abc123\"}}'");
+    println!("    uws sheets spreadsheets get --params '{{\"spreadsheetId\": \"...\"}}'");
+    println!("    uws gmail users messages list --params '{{\"userId\": \"me\"}}'");
+    println!("    uws schema drive.files.list");
     println!();
     println!("FLAGS:");
     println!("    --params <JSON>       URL/Query parameters as JSON");
@@ -442,12 +442,12 @@ fn print_usage() {
     println!("ENVIRONMENT:");
     println!("    GOOGLE_WORKSPACE_CLI_TOKEN               Pre-obtained OAuth2 access token (highest priority)");
     println!("    GOOGLE_WORKSPACE_CLI_CREDENTIALS_FILE    Path to OAuth credentials JSON file");
-    println!("    GOOGLE_WORKSPACE_CLI_CLIENT_ID           OAuth client ID (for gws auth login)");
+    println!("    GOOGLE_WORKSPACE_CLI_CLIENT_ID           OAuth client ID (for uws auth login)");
     println!(
-        "    GOOGLE_WORKSPACE_CLI_CLIENT_SECRET       OAuth client secret (for gws auth login)"
+        "    GOOGLE_WORKSPACE_CLI_CLIENT_SECRET       OAuth client secret (for uws auth login)"
     );
     println!(
-        "    GOOGLE_WORKSPACE_CLI_CONFIG_DIR          Override config directory (default: ~/.config/gws)"
+        "    GOOGLE_WORKSPACE_CLI_CONFIG_DIR          Override config directory (default: ~/.config/uws)"
     );
     println!("    GOOGLE_WORKSPACE_CLI_SANITIZE_TEMPLATE   Default Model Armor template");
     println!(
@@ -458,12 +458,12 @@ fn print_usage() {
     );
     println!();
     println!("COMMUNITY:");
-    println!("    Star the repo: https://github.com/googleworkspace/cli");
-    println!("    Report bugs / request features: https://github.com/googleworkspace/cli/issues");
+    println!("    Star the repo: https://github.com/splitmerge420/uws");
+    println!("    Report bugs / request features: https://github.com/splitmerge420/uws/issues");
     println!("    Please search existing issues first; if one already exists, comment there.");
     println!();
     println!("DISCLAIMER:");
-    println!("    This is not an officially supported Google product.");
+    println!("    Not an officially supported product of Google, Microsoft, or Apple.");
 }
 
 fn is_help_flag(arg: &str) -> bool {
@@ -594,10 +594,10 @@ mod tests {
         };
 
         // Simulate CLI structure
-        let cmd = clap::Command::new("gws")
+        let cmd = clap::Command::new("uws")
             .subcommand(clap::Command::new("files").subcommand(clap::Command::new("list")));
 
-        let matches = cmd.get_matches_from(vec!["gws", "files", "list"]);
+        let matches = cmd.get_matches_from(vec!["uws", "files", "list"]);
         let (method, _) = resolve_method_from_matches(&doc, &matches).unwrap();
         assert_eq!(method.id.as_deref(), Some("drive.files.list"));
     }
@@ -626,11 +626,11 @@ mod tests {
         };
 
         let cmd =
-            clap::Command::new("gws").subcommand(clap::Command::new("files").subcommand(
+            clap::Command::new("uws").subcommand(clap::Command::new("files").subcommand(
                 clap::Command::new("permissions").subcommand(clap::Command::new("get")),
             ));
 
-        let matches = cmd.get_matches_from(vec!["gws", "files", "permissions", "get"]);
+        let matches = cmd.get_matches_from(vec!["uws", "files", "permissions", "get"]);
         let (method, _) = resolve_method_from_matches(&doc, &matches).unwrap();
         assert_eq!(method.id.as_deref(), Some("drive.files.permissions.get"));
     }
@@ -638,7 +638,7 @@ mod tests {
     #[test]
     fn test_filter_args_strips_api_version() {
         let args: Vec<String> = vec![
-            "gws".into(),
+            "uws".into(),
             "drive".into(),
             "--api-version".into(),
             "v3".into(),
@@ -646,13 +646,13 @@ mod tests {
             "list".into(),
         ];
         let filtered = filter_args_for_subcommand(&args, "drive");
-        assert_eq!(filtered, vec!["gws", "files", "list"]);
+        assert_eq!(filtered, vec!["uws", "files", "list"]);
     }
 
     #[test]
     fn test_filter_args_no_special_flags() {
         let args: Vec<String> = vec![
-            "gws".into(),
+            "uws".into(),
             "drive".into(),
             "files".into(),
             "list".into(),
@@ -660,7 +660,7 @@ mod tests {
             "table".into(),
         ];
         let filtered = filter_args_for_subcommand(&args, "drive");
-        assert_eq!(filtered, vec!["gws", "files", "list", "--format", "table"]);
+        assert_eq!(filtered, vec!["uws", "files", "list", "--format", "table"]);
     }
 
     #[test]

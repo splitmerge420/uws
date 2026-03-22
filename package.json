@@ -1,20 +1,20 @@
 {
-  "name": "@googleworkspace/cli",
-  "version": "0.8.1",
-  "private": true,
-  "description": "Google Workspace CLI — dynamic command surface from Discovery Service",
+  "name": "@uws-cli/uws",
+  "version": "0.1.0",
+  "private": false,
+  "description": "Universal Workspace CLI — structured JSON access to Google Workspace, Microsoft 365, Apple, Android, and Chrome",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/googleworkspace/cli.git"
+    "url": "https://github.com/splitmerge420/uws.git"
   },
   "author": {
-    "name": "Justin Poehnelt",
-    "email": "justin.poehnelt@gmail.com"
+    "name": "Daavud Sheldon",
+    "email": "splitmerge420@gmail.com"
   },
-  "homepage": "https://github.com/googleworkspace/cli",
+  "homepage": "https://github.com/splitmerge420/uws",
   "bugs": {
-    "url": "https://github.com/googleworkspace/cli/issues"
+    "url": "https://github.com/splitmerge420/uws/issues"
   },
   "scripts": {
     "test": "cargo test",
@@ -24,7 +24,7 @@
   },
   "publishConfig": {
     "provenance": true,
-    "registry": "https://wombat-dressing-room.appspot.com"
+    "registry": "https://registry.npmjs.org"
   },
   "engines": {
     "node": ">=18"
@@ -32,23 +32,26 @@
   "packageManager": "pnpm@10.0.0",
   "keywords": [
     "cli",
+    "uws",
+    "universal-workspace",
     "google-workspace",
-    "google",
-    "google-api",
+    "microsoft-365",
+    "apple-icloud",
+    "android",
+    "chrome",
     "google-drive",
-    "google-gmail",
+    "gmail",
     "google-sheets",
     "google-calendar",
-    "google-docs",
-    "google-chat",
-    "google-admin",
-    "gsuite",
-    "discovery-api",
+    "outlook",
+    "onedrive",
+    "teams",
     "ai-agent",
     "agent-skills",
     "automation",
     "oauth2",
-    "rust"
+    "rust",
+    "json-api"
   ],
   "devDependencies": {
     "@changesets/cli": "^2.29.8",

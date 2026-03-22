@@ -271,8 +271,8 @@ async fn load_credentials_inner(
     }
 
     anyhow::bail!(
-        "No credentials found. Run `gws auth setup` to configure, \
-         `gws auth login` to authenticate, or set GOOGLE_WORKSPACE_CLI_CREDENTIALS_FILE.\n\
+        "No credentials found. Run `uws auth setup` to configure, \
+         `uws auth login` to authenticate, or set GOOGLE_WORKSPACE_CLI_CREDENTIALS_FILE.\n\
          Tip: Application Default Credentials (ADC) are also supported — run \
          `gcloud auth application-default login` or set GOOGLE_APPLICATION_CREDENTIALS."
     )

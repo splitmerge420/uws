@@ -758,7 +758,7 @@ impl SetupWizard {
         let list = List::new(items).block(
             Block::default()
                 .title(Span::styled(
-                    " gws auth setup ",
+                    " uws auth setup ",
                     Style::default().fg(Color::Cyan).bold(),
                 ))
                 .borders(Borders::ALL)
