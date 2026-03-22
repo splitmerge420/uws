@@ -1,0 +1,60 @@
+# Customises GitHub's auto-generated release notes.
+# https://docs.github.com/en/repositories/releasing-projects-on-github/automatically-generated-release-notes
+#
+# Categories map PR labels to sections in each Release.
+
+changelog:
+  exclude:
+    labels:
+      - "ignore-for-release"
+      - "dependencies"
+
+  categories:
+    - title: "🚀 New Features"
+      labels:
+        - "enhancement"
+        - "feature"
+
+    - title: "🐛 Bug Fixes"
+      labels:
+        - "bug"
+        - "fix"
+
+    - title: "🔐 Security"
+      labels:
+        - "security"
+
+    - title: "📖 Documentation"
+      labels:
+        - "documentation"
+        - "area: docs"
+
+    - title: "🤖 AI Agent & MCP"
+      labels:
+        - "area: mcp"
+        - "area: skills"
+
+    - title: "🏗 Architecture & Internals"
+      labels:
+        - "area: core"
+        - "area: auth"
+        - "area: discovery"
+        - "area: http"
+
+    - title: "📦 Distribution & CI"
+      labels:
+        - "area: distribution"
+        - "area: ci"
+
+    - title: "🧪 Tests"
+      labels:
+        - "test"
+
+    - title: "🔧 Maintenance"
+      labels:
+        - "chore"
+        - "refactor"
+
+    - title: "Other Changes"
+      labels:
+        - "*"

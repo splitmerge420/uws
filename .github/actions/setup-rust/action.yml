@@ -1,0 +1,42 @@
+name: "Setup Rust"
+description: >
+  Composite action that installs Rust, sccache, and the cargo registry cache.
+  Used across ci.yml, coverage.yml, and audit.yml to keep Rust setup DRY.
+
+inputs:
+  toolchain:
+    description: "Rust toolchain to install (e.g. stable, nightly, 1.78)"
+    default: "stable"
+    required: false
+  components:
+    description: "Additional rustup components (e.g. rustfmt clippy llvm-tools-preview)"
+    default: ""
+    required: false
+  cache-key:
+    description: "Extra cache key suffix (e.g. test-ubuntu, lint)"
+    default: ""
+    required: false
+
+outputs:
+  rust-version:
+    description: "The resolved Rust version that was installed"
+    value: ${{ steps.rust.outputs.rustc-version }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Install Rust
+      id: rust
+      uses: dtolnay/rust-toolchain@stable
+      with:
+        toolchain: ${{ inputs.toolchain }}
+        components: ${{ inputs.components }}
+
+    - name: Setup sccache
+      uses: mozilla-actions/sccache-action@v0.0.7
+
+    - name: Cache cargo registry
+      uses: Swatinem/rust-cache@v2
+      with:
+        key: ${{ inputs.cache-key }}
+        shared-key: "cargo-registry"

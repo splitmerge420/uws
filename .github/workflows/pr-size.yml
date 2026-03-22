@@ -1,0 +1,26 @@
+name: PR Size Labeler
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  pull-requests: write
+
+jobs:
+  label-size:
+    name: Label PR size
+    runs-on: ubuntu-latest
+    steps:
+      - uses: codelytv/pr-size-labeler@v1
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          xs_max_size: 10
+          s_max_size: 50
+          m_max_size: 200
+          l_max_size: 500
+          # xl = anything over 500 lines
+          fail_if_xl: false
+          message_if_xl: >
+            ⚠️ This PR is quite large (XL). Consider splitting it into smaller,
+            focused PRs to make review easier. See [CONTRIBUTING.md](../blob/main/CONTRIBUTING.md).

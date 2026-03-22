@@ -1,0 +1,49 @@
+site_name: uws — Universal Workspace CLI
+site_description: One CLI for Google Workspace, Microsoft 365, Apple iCloud, Android, and Chrome
+site_url: https://splitmerge420.github.io/uws
+repo_url: https://github.com/splitmerge420/uws
+repo_name: splitmerge420/uws
+edit_uri: edit/main/docs/
+
+theme:
+  name: material
+  palette:
+    - scheme: default
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.instant
+    - search.suggest
+    - content.code.copy
+
+plugins:
+  - search
+  - git-revision-date-localized:
+      enable_creation_date: true
+
+nav:
+  - Home: index.md
+  - Installation: installation.md
+  - Quickstart: quickstart.md
+  - Services:
+    - Google Workspace: services/google.md
+    - Microsoft 365: services/microsoft.md
+    - Apple iCloud: services/apple.md
+    - Android & Chrome: services/android-chrome.md
+  - AI Agents:
+    - Overview: agents/overview.md
+    - Claude: agents/claude.md
+    - GitHub Copilot (MCP): agents/copilot.md
+    - Gemini: agents/gemini.md
+    - Manus: agents/manus.md
+  - Architecture:
+    - Aluminum OS: aluminum.md
+    - Contributing: contributing.md
+  - Security: security.md

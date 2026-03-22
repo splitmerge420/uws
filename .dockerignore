@@ -1,0 +1,14 @@
+target/
+node_modules/
+.git/
+*.md
+docs/
+toolchain/
+scripts/
+tests/
+demo.gif
+*.lock
+.changeset/
+.github/
+.devcontainer/
+mcp_server/__pycache__/

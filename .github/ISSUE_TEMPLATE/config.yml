@@ -1,0 +1,14 @@
+blank_issues_enabled: false
+
+contact_links:
+  - name: 🔐 Security Vulnerability
+    url: https://github.com/splitmerge420/uws/security/advisories/new
+    about: "Please report security vulnerabilities privately — do NOT open a public issue."
+
+  - name: 💬 Discussions (Q&A and Ideas)
+    url: https://github.com/splitmerge420/uws/discussions
+    about: "For questions and feature proposals, please use GitHub Discussions."
+
+  - name: 📖 Documentation
+    url: https://github.com/splitmerge420/uws/blob/main/README.md
+    about: "Check the README, AGENTS.md, ALUMINUM.md, and CONTRIBUTING.md before opening an issue."
