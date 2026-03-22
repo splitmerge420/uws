@@ -123,6 +123,8 @@ pub const SERVICES: &[ServiceEntry] = &[
     ServiceEntry {
         aliases: &["admin-directory", "directory"],
         api_name: "admin",
+        // "directory_v1" is Google's actual Discovery API version identifier, matching
+        // the pattern used by admin-reports ("reports_v1"). Not a semver string.
         version: "directory_v1",
         description: "Manage users, groups, and devices in Google Workspace",
     },
