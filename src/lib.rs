@@ -29,8 +29,9 @@ pub mod council_github_client;
 /// Enforces: INV-3 (Audit Trail), INV-35 (Fail-Closed)
 pub mod audit_chain;
 
-/// Universal AI CLI abstraction layer.
-/// Provides provider-agnostic adapters for GitHub Copilot, Claude, Gemini, and OpenAI,
-/// plus the ModelRouter that enforces NPFM ≥ 0.7 and appends GoldenTrace HITL provenance.
+/// Universal AI CLI abstraction layer + Janus v2 multi-agent protocol.
+/// Provides provider-agnostic adapters for GitHub Copilot, Claude, Gemini, OpenAI,
+/// Grok, and DeepSeek, the ModelRouter (NPFM ≥ 0.7 + GoldenTrace HITL provenance),
+/// and JanusRouter (tiered routing, INV-7 council consensus, Kintsugi repair).
 /// Enforces: INV-6 (Provider Abstraction), INV-7 (Vendor Balance), INV-1 (Sovereignty)
 pub mod universal;

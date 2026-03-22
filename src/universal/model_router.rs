@@ -394,6 +394,11 @@ impl ModelRouter {
     pub fn deny_count(&self) -> usize {
         self.audit_log.iter().filter(|r| r.decision == "DENY").count()
     }
+
+    /// Access the router configuration (e.g. hitl_weight, npfm_threshold).
+    pub fn config(&self) -> &RouterConfig {
+        &self.config
+    }
 }
 
 // ─── Internal helpers ─────────────────────────────────────────

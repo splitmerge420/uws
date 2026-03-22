@@ -2,7 +2,8 @@
 // Universal AI CLI Adapter Layer — Aluminum OS
 //
 // Defines a provider-agnostic trait for AI CLI interactions and concrete adapters
-// for GitHub Copilot, Claude (Anthropic), Gemini (Google), and OpenAI.
+// for GitHub Copilot, Claude (Anthropic), Gemini (Google), OpenAI, Grok (xAI),
+// and DeepSeek.
 //
 // All adapters produce a uniform `AiCliResponse` so the ModelRouter can treat
 // every provider identically, independent of the underlying API surface.
@@ -17,16 +18,24 @@ use std::collections::BTreeMap;
 // ─── Canonical provider enum ──────────────────────────────────
 
 /// All supported AI CLI providers.
+///
+/// Extended to match the full Janus v2 council roster:
+/// Claude (Governance), Gemini (Substrate), DeepSeek (Research),
+/// GithubCopilot (Enterprise), Grok (Adversarial).
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum AiProvider {
-    /// `gh copilot` — GitHub Copilot CLI
+    /// `gh copilot` — GitHub Copilot CLI (Janus: Enterprise role)
     GithubCopilot,
-    /// Anthropic Claude API / Claude CLI wrappers
+    /// Anthropic Claude API / Claude CLI wrappers (Janus: Governance role)
     Claude,
-    /// Google Gemini CLI / Vertex AI
+    /// Google Gemini CLI / Vertex AI (Janus: Substrate role)
     Gemini,
     /// OpenAI GPT API
     OpenAi,
+    /// xAI Grok API (Janus: Adversarial role)
+    Grok,
+    /// DeepSeek API (Janus: Research role)
+    DeepSeek,
 }
 
 impl AiProvider {
@@ -37,6 +46,8 @@ impl AiProvider {
             AiProvider::Claude => "Anthropic Claude",
             AiProvider::Gemini => "Google Gemini",
             AiProvider::OpenAi => "OpenAI",
+            AiProvider::Grok => "xAI Grok",
+            AiProvider::DeepSeek => "DeepSeek",
         }
     }
 
@@ -47,6 +58,8 @@ impl AiProvider {
             AiProvider::Claude => "ANTHROPIC_API_KEY",
             AiProvider::Gemini => "GEMINI_API_KEY",
             AiProvider::OpenAi => "OPENAI_API_KEY",
+            AiProvider::Grok => "XAI_API_KEY",
+            AiProvider::DeepSeek => "DEEPSEEK_API_KEY",
         }
     }
 
@@ -57,6 +70,8 @@ impl AiProvider {
             "claude" | "anthropic" => Some(AiProvider::Claude),
             "gemini" | "google" | "vertex" => Some(AiProvider::Gemini),
             "openai" | "gpt" | "chatgpt" => Some(AiProvider::OpenAi),
+            "grok" | "xai" => Some(AiProvider::Grok),
+            "deepseek" => Some(AiProvider::DeepSeek),
             _ => None,
         }
     }
@@ -358,6 +373,110 @@ impl AiCliAdapter for OpenAiAdapter {
     }
 }
 
+// ─── Grok (xAI) adapter ───────────────────────────────────────
+
+/// Adapter for xAI Grok API.
+/// Grok uses OpenAI-compatible chat completions format.
+pub struct GrokAdapter;
+
+impl AiCliAdapter for GrokAdapter {
+    fn provider(&self) -> AiProvider {
+        AiProvider::Grok
+    }
+
+    fn build_request_body(&self, request: &AiCliRequest) -> String {
+        let model = request.model.as_deref().unwrap_or("grok-3-mini-fast");
+        let system_msg = match &request.system {
+            Some(s) => format!("{{\"role\":\"system\",\"content\":{}}},", json_string(s)),
+            None => String::new(),
+        };
+        format!(
+            "{{\"model\":\"{}\",\"messages\":[{}{{\"role\":\"user\",\"content\":{}}}]}}",
+            escape_json(model),
+            system_msg,
+            json_string(&request.prompt),
+        )
+    }
+
+    fn parse_response(&self, request: &AiCliRequest, raw: &str) -> Result<AiCliResponse, String> {
+        // Grok uses OpenAI-compatible response format
+        let content = extract_openai_content(raw)
+            .or_else(|| extract_nested_content(raw))
+            .unwrap_or_else(|| raw.to_string());
+        let model_used = extract_json_field(raw, "model")
+            .unwrap_or_else(|| {
+                request.model.clone().unwrap_or_else(|| "grok-3-mini-fast".to_string())
+            });
+        let truncated = extract_openai_finish_reason(raw)
+            .map(|r| r == "length")
+            .unwrap_or(false);
+        Ok(AiCliResponse {
+            provider: AiProvider::Grok,
+            model_used,
+            content,
+            raw_fields: BTreeMap::new(),
+            latency_ms: 0,
+            truncated,
+        })
+    }
+
+    fn endpoint_url(&self) -> &'static str {
+        "https://api.x.ai/v1/chat/completions"
+    }
+}
+
+// ─── DeepSeek adapter ─────────────────────────────────────────
+
+/// Adapter for DeepSeek API.
+/// DeepSeek uses OpenAI-compatible chat completions format.
+pub struct DeepSeekAdapter;
+
+impl AiCliAdapter for DeepSeekAdapter {
+    fn provider(&self) -> AiProvider {
+        AiProvider::DeepSeek
+    }
+
+    fn build_request_body(&self, request: &AiCliRequest) -> String {
+        let model = request.model.as_deref().unwrap_or("deepseek-chat");
+        let system_msg = match &request.system {
+            Some(s) => format!("{{\"role\":\"system\",\"content\":{}}},", json_string(s)),
+            None => String::new(),
+        };
+        format!(
+            "{{\"model\":\"{}\",\"messages\":[{}{{\"role\":\"user\",\"content\":{}}}]}}",
+            escape_json(model),
+            system_msg,
+            json_string(&request.prompt),
+        )
+    }
+
+    fn parse_response(&self, request: &AiCliRequest, raw: &str) -> Result<AiCliResponse, String> {
+        // DeepSeek uses OpenAI-compatible response format
+        let content = extract_openai_content(raw)
+            .or_else(|| extract_nested_content(raw))
+            .unwrap_or_else(|| raw.to_string());
+        let model_used = extract_json_field(raw, "model")
+            .unwrap_or_else(|| {
+                request.model.clone().unwrap_or_else(|| "deepseek-chat".to_string())
+            });
+        let truncated = extract_openai_finish_reason(raw)
+            .map(|r| r == "length")
+            .unwrap_or(false);
+        Ok(AiCliResponse {
+            provider: AiProvider::DeepSeek,
+            model_used,
+            content,
+            raw_fields: BTreeMap::new(),
+            latency_ms: 0,
+            truncated,
+        })
+    }
+
+    fn endpoint_url(&self) -> &'static str {
+        "https://api.deepseek.com/v1/chat/completions"
+    }
+}
+
 // ─── Factory ──────────────────────────────────────────────────
 
 /// Return the adapter for a given provider.
@@ -367,6 +486,8 @@ pub fn adapter_for(provider: &AiProvider) -> Box<dyn AiCliAdapter> {
         AiProvider::Claude => Box::new(ClaudeAdapter),
         AiProvider::Gemini => Box::new(GeminiAdapter),
         AiProvider::OpenAi => Box::new(OpenAiAdapter),
+        AiProvider::Grok => Box::new(GrokAdapter),
+        AiProvider::DeepSeek => Box::new(DeepSeekAdapter),
     }
 }
 
@@ -477,6 +598,8 @@ mod tests {
         assert_eq!(AiProvider::Claude.display_name(), "Anthropic Claude");
         assert_eq!(AiProvider::Gemini.display_name(), "Google Gemini");
         assert_eq!(AiProvider::OpenAi.display_name(), "OpenAI");
+        assert_eq!(AiProvider::Grok.display_name(), "xAI Grok");
+        assert_eq!(AiProvider::DeepSeek.display_name(), "DeepSeek");
     }
 
     #[test]
@@ -485,6 +608,9 @@ mod tests {
         assert_eq!(AiProvider::parse("claude"), Some(AiProvider::Claude));
         assert_eq!(AiProvider::parse("gemini"), Some(AiProvider::Gemini));
         assert_eq!(AiProvider::parse("openai"), Some(AiProvider::OpenAi));
+        assert_eq!(AiProvider::parse("grok"), Some(AiProvider::Grok));
+        assert_eq!(AiProvider::parse("xai"), Some(AiProvider::Grok));
+        assert_eq!(AiProvider::parse("deepseek"), Some(AiProvider::DeepSeek));
         assert_eq!(AiProvider::parse("unknown"), None);
     }
 
@@ -494,6 +620,8 @@ mod tests {
         assert_eq!(AiProvider::Claude.token_env_var(), "ANTHROPIC_API_KEY");
         assert_eq!(AiProvider::Gemini.token_env_var(), "GEMINI_API_KEY");
         assert_eq!(AiProvider::OpenAi.token_env_var(), "OPENAI_API_KEY");
+        assert_eq!(AiProvider::Grok.token_env_var(), "XAI_API_KEY");
+        assert_eq!(AiProvider::DeepSeek.token_env_var(), "DEEPSEEK_API_KEY");
     }
 
     #[test]
@@ -596,10 +724,30 @@ mod tests {
     }
 
     #[test]
+    fn test_grok_request_body() {
+        let req = AiCliRequest::new(AiProvider::Grok, "challenge this assumption");
+        let adapter = GrokAdapter;
+        let body = adapter.build_request_body(&req);
+        assert!(body.contains("grok-3-mini-fast"));
+        assert!(body.contains("challenge this assumption"));
+    }
+
+    #[test]
+    fn test_deepseek_request_body() {
+        let req = AiCliRequest::new(AiProvider::DeepSeek, "research cross-domain connections");
+        let adapter = DeepSeekAdapter;
+        let body = adapter.build_request_body(&req);
+        assert!(body.contains("deepseek-chat"));
+        assert!(body.contains("research cross-domain connections"));
+    }
+
+    #[test]
     fn test_adapter_factory() {
         assert_eq!(adapter_for(&AiProvider::GithubCopilot).provider(), AiProvider::GithubCopilot);
         assert_eq!(adapter_for(&AiProvider::Claude).provider(), AiProvider::Claude);
         assert_eq!(adapter_for(&AiProvider::Gemini).provider(), AiProvider::Gemini);
         assert_eq!(adapter_for(&AiProvider::OpenAi).provider(), AiProvider::OpenAi);
+        assert_eq!(adapter_for(&AiProvider::Grok).provider(), AiProvider::Grok);
+        assert_eq!(adapter_for(&AiProvider::DeepSeek).provider(), AiProvider::DeepSeek);
     }
 }
