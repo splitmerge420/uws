@@ -39,6 +39,21 @@ pub mod audit_chain;
 /// the user's local machine is the sovereign source of truth.
 ///
 /// Exposes: `UniversalDocument`, `SaaSConnector` trait,
-///          `GoogleWorkspaceConnector` stub.
+///          `GoogleWorkspaceConnector`, `MicrosoftWordConnector`,
+///          `AppleNoteConnector`, `PlainTextConnector` stubs.
 /// Enforces: INV-1 (Sovereignty), INV-6 (Provider Abstraction)
 pub mod universal_io;
+
+// ─── Phase 1: Sovereign Memory ────────────────────────────────────
+
+/// LocalNoosphere — Sovereign personal knowledge graph (Phase 1, Module 1).
+///
+/// A fully local, in-memory graph database that stores every piece of
+/// information the user cares about as typed `GraphNode` objects linked
+/// by semantic edges.  Nodes flow in from `universal_io` connectors and
+/// back out via the same connectors.  Every state change is recorded as
+/// a `TemporalDelta` for TemporalAnchor integration.
+///
+/// Exposes: `LocalNoosphere`, `GraphNode`, `NodeKind`, `TemporalDelta`.
+/// Enforces: INV-1 (Sovereignty), INV-3 (Audit Trail), INV-6 (Provider Abstraction)
+pub mod local_noosphere;
