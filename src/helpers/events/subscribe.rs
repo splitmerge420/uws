@@ -321,7 +321,7 @@ async fn pull_loop(
             .timeout(std::time::Duration::from_secs(config.poll_interval.max(10)))
             .send();
 
-        let resp = tokio::select! {
+        let resp: reqwest::Response = tokio::select! {
             result = pull_future => {
                 match result {
                     Ok(r) => r,
