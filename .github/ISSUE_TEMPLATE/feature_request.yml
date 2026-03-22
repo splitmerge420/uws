@@ -1,0 +1,70 @@
+name: Feature Request
+description: Suggest a new provider, command, or capability
+labels: ["enhancement", "needs-triage"]
+title: "[Feature] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for contributing to the Aluminum OS vision! Feature requests drive the roadmap.
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: Category
+      description: What area does this feature belong to?
+      options:
+        - New provider (e.g. Notion, Slack, Linear, Zoom)
+        - New command on existing provider
+        - GitHub provider enhancement
+        - Microsoft 365 improvement
+        - Apple iCloud improvement
+        - AI agent / skill improvement (SKILL.md)
+        - Authentication / setup
+        - Output format (table, yaml, csv)
+        - Performance / pagination
+        - Aluminum OS / provider abstraction layer
+        - Documentation
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem does this solve?
+      description: Describe the use case. What are you trying to do today that's hard or impossible?
+      placeholder: |
+        When using uws with an AI agent, I often need to...
+        Currently the only way to do this is...
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: Describe the feature. Include example commands if possible.
+      placeholder: |
+        uws notion pages list --params '{"database_id":"..."}'
+        uws notion pages create --json '{"parent":{"database_id":"..."},"properties":{...}}'
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Have you considered any workarounds or alternative approaches?
+
+  - type: checkboxes
+    id: contribution
+    attributes:
+      label: Willing to contribute?
+      description: |
+        See [CONTRIBUTING.md](../CONTRIBUTING.md) for guidance. New providers follow the
+        `src/github_provider.rs` pattern.
+      options:
+        - label: I'd like to implement this myself
+        - label: I can help review a PR
+        - label: I can provide test data / API credentials for testing

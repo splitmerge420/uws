@@ -31,6 +31,7 @@ mod executor;
 mod formatter;
 mod fs_util;
 mod generate_skills;
+pub(crate) mod github_provider;
 mod helpers;
 mod oauth_config;
 mod schema;
@@ -130,6 +131,15 @@ async fn run() -> Result<(), GwsError> {
     if first_arg == "auth" {
         let auth_args: Vec<String> = args.iter().skip(2).cloned().collect();
         return auth_commands::handle_auth_command(&auth_args).await;
+    }
+
+    // ── Non-Google provider early dispatch ────────────────────────────
+    // GitHub REST API provider: `uws github <resource> <method> [flags]`
+    if github_provider::is_github_service(&first_arg) {
+        let github_args: Vec<String> = args.iter().skip(2).cloned().collect();
+        return handle_github_command(&github_args)
+            .await
+            .map_err(|e| GwsError::Validation(e.to_string()));
     }
 
     // Parse service name and optional version override
@@ -464,6 +474,149 @@ fn print_usage() {
     println!();
     println!("DISCLAIMER:");
     println!("    This is not an officially supported Google product.");
+}
+
+// ─── GitHub provider command handler ─────────────────────────────────────
+
+/// Handle `uws github <resource> <method> [--params <JSON>] [--json <JSON>] [--dry-run]`
+///
+/// This is the thin CLI adapter that bridges the argument list into the pure
+/// `github_provider::build_request` function and then executes the HTTP call.
+async fn handle_github_command(
+    args: &[String],
+) -> Result<(), github_provider::GhError> {
+    use github_provider::{build_request, dry_run_json, endpoints_for_resource, get_github_token, help_json};
+
+    // --help or empty args → print JSON help catalogue.
+    if args.is_empty() || args.iter().any(|a| a == "--help" || a == "-h") {
+        println!("{}", help_json());
+        return Ok(());
+    }
+
+    let resource = &args[0];
+
+    // `uws github <resource>` with no method → list methods for that resource.
+    if args.len() == 1 || args[1].starts_with("--") {
+        let eps = endpoints_for_resource(resource);
+        if eps.is_empty() {
+            let all = github_provider::all_resources();
+            let list: Vec<String> = all.iter().map(|r| format!("\"{}\"", r)).collect();
+            println!(
+                r#"{{"error":"unknown resource: {}","available_resources":[{}]}}"#,
+                resource,
+                list.join(",")
+            );
+            return Ok(());
+        }
+        let methods: Vec<String> = eps
+            .iter()
+            .map(|e| format!(r#"{{"method":"{}","description":"{}"}}"#, e.method, e.description))
+            .collect();
+        println!("[{}]", methods.join(","));
+        return Ok(());
+    }
+
+    let method = &args[1];
+
+    // Extract flags from the remaining args.
+    let params_json = extract_flag_value(args, "--params");
+    let body_json = extract_flag_value(args, "--json");
+    let dry_run = args.iter().any(|a| a == "--dry-run");
+
+    // Get the GitHub token (skip for dry-run).
+    let token = if dry_run {
+        "dry-run-token".to_string()
+    } else {
+        get_github_token()?
+    };
+
+    // Build the request (pure, no I/O).
+    let req = build_request(
+        resource,
+        method,
+        params_json.as_deref(),
+        body_json.as_deref(),
+        dry_run,
+        &token,
+    )?;
+
+    // Dry-run: print the request description and exit.
+    if dry_run {
+        println!("{}", dry_run_json(&req));
+        return Ok(());
+    }
+
+    // Execute the HTTP request.
+    execute_github_request(&req).await
+}
+
+async fn execute_github_request(
+    req: &github_provider::GhRequest,
+) -> Result<(), github_provider::GhError> {
+    use github_provider::HttpMethod;
+
+    let http_client = reqwest::Client::builder()
+        .user_agent(concat!("uws/", env!("CARGO_PKG_VERSION"), " (Aluminum OS; github.com/splitmerge420/uws)"))
+        .build()
+        .map_err(|e| github_provider::GhError::HttpError { status: 0, body: e.to_string() })?;
+
+    let builder = match req.method {
+        HttpMethod::Get => http_client.get(&req.url),
+        HttpMethod::Post => http_client.post(&req.url),
+        HttpMethod::Patch => http_client.patch(&req.url),
+        HttpMethod::Put => http_client.put(&req.url),
+        HttpMethod::Delete => http_client.delete(&req.url),
+    };
+
+    let builder = builder
+        .header("Authorization", format!("Bearer {}", req.token))
+        .header("Accept", "application/vnd.github+json")
+        .header("X-GitHub-Api-Version", "2022-11-28");
+
+    let builder = if let Some(ref body) = req.body {
+        builder
+            .header("Content-Type", "application/json")
+            .body(body.clone())
+    } else {
+        builder
+    };
+
+    let resp = builder.send().await.map_err(|e| {
+        github_provider::GhError::HttpError { status: 0, body: e.to_string() }
+    })?;
+
+    let status = resp.status().as_u16();
+    let body = resp.text().await.map_err(|e| {
+        github_provider::GhError::HttpError { status, body: e.to_string() }
+    })?;
+
+    if status >= 400 {
+        return Err(github_provider::GhError::HttpError { status, body });
+    }
+
+    // For 204 No Content responses (e.g. star, unstar), output a success object.
+    if status == 204 || body.trim().is_empty() {
+        println!(r#"{{"status":"ok","http_status":{}}}"#, status);
+    } else {
+        println!("{}", body);
+    }
+
+    Ok(())
+}
+
+/// Extract the value of a named flag from an argument list.
+/// Handles both `--flag value` and `--flag=value` forms.
+fn extract_flag_value(args: &[String], flag: &str) -> Option<String> {
+    let eq_prefix = format!("{}=", flag);
+    for (i, arg) in args.iter().enumerate() {
+        if arg == flag {
+            return args.get(i + 1).cloned();
+        }
+        if let Some(val) = arg.strip_prefix(&eq_prefix) {
+            return Some(val.to_string());
+        }
+    }
+    None
 }
 
 fn is_help_flag(arg: &str) -> bool {

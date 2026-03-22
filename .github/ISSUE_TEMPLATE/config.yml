@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Documentation
+    url: https://github.com/splitmerge420/uws/blob/main/README.md
+    about: Read the README first — most setup questions are answered there.
+  - name: Discussions
+    url: https://github.com/splitmerge420/uws/discussions
+    about: Questions, ideas, and general discussion belong in Discussions, not Issues.
+  - name: CONTRIBUTING.md
+    url: https://github.com/splitmerge420/uws/blob/main/CONTRIBUTING.md
+    about: Ready to contribute? Read the contributor guide.

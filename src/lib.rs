@@ -42,37 +42,25 @@ pub mod audit_chain;
 pub mod universal_io;
 
 // ─── Phase 1: Sovereign Memory ────────────────────────────────────────────
-// These modules implement the "data lives on your hardware" guarantee.
 
 /// Local-first personal knowledge graph.
-/// Every document, email, event, note, and task that passes through a `uws`
-/// provider connector is written here.  Full-text keyword search, tag/type/
-/// provider filtering, and JSON export/import — all computed locally.
-/// Enforces: INV-1 (Sovereignty), INV-3 (Audit Trail)
 pub mod local_noosphere;
 
 /// SaaS Data Repatriation Sweeper — the CognitiveDust engine.
-/// Converts documents from Google Drive, OneDrive, and Apple Notes into
-/// open-standard Markdown/JSON via `universal_io` connectors and writes
-/// them into the `LocalNoosphere`.  SaaS apps become write-once inboxes;
-/// the OS is the permanent record.
-/// Enforces: INV-1 (Sovereignty), INV-2 (Consent), INV-3 (Audit Trail)
 pub mod cognitive_dust;
 
 // ─── Phase 3: Fusion Engine & Agentic Autonomy ───────────────────────────
 
 /// Janus multi-model AI omni-router.
-/// Scores available inference providers (Claude, Gemini, Grok, GPT-4, …)
-/// against a configurable cost/latency/quality profile and returns an
-/// ordered `RouteDecision` — primary model + fallback chain.
-/// Enforces: INV-7 (Vendor Balance — no single provider privileged)
 pub mod janus;
 
 // ─── Phase 4: Extreme Interoperability ───────────────────────────────────
 
 /// FrictionlessCal unified calendar engine.
-/// Merges Google Calendar, Outlook Calendar, and Apple Calendar events into
-/// a single conflict-resolved, timezone-normalised `UnifiedTimeline`.
-/// Handles cross-provider duplicate detection and configurable merge policy.
-/// Enforces: INV-1 (Sovereignty), INV-6 (Provider Abstraction)
 pub mod frictionless_cal;
+
+/// GitHub REST API provider.
+/// Exposes repos, issues, PRs, releases, Actions, search, and more via
+/// `uws github <resource> <method>`.  Auth: GITHUB_TOKEN or UWS_GITHUB_TOKEN.
+/// Enforces: INV-6 (Provider Abstraction), INV-7 (Vendor Balance)
+pub mod github_provider;
