@@ -1,0 +1,134 @@
+#!/usr/bin/env bash
+# gh-uws — GitHub CLI Extension for uws Universal Workspace CLI
+#
+# Install:
+#   gh extension install splitmerge420/uws
+#
+# Usage (through gh):
+#   gh uws gmail users messages list --params '{"userId":"me","q":"is:unread"}'
+#   gh uws ms-mail messages list
+#   gh uws github issues list --params '{"owner":"splitmerge420","repo":"uws"}'
+#   gh uws janus route "compare these two approaches"
+#
+# When installed as a gh extension, `gh uws <args>` is equivalent to `uws <args>`,
+# but with GITHUB_TOKEN automatically forwarded from the gh credential store.
+#
+# The extension also provides discovery commands:
+#   gh uws --help          # Show all providers
+#   gh uws --install       # Install/upgrade the standalone uws binary
+#   gh uws --version       # Show version
+#
+# License: Apache-2.0
+
+set -euo pipefail
+
+REPO="splitmerge420/uws"
+BIN_NAME="uws"
+EXTENSION_DIR="${GH_EXTENSION_DIR:-${HOME}/.local/share/gh/extensions/gh-uws}"
+
+# ── Auto-inject GitHub token from gh CLI ────────────────────────
+
+if [ -z "${GITHUB_TOKEN:-}" ] && command -v gh >/dev/null 2>&1; then
+  GITHUB_TOKEN="$(gh auth token 2>/dev/null || echo "")"
+  export GITHUB_TOKEN
+fi
+
+# ── Special meta-commands ────────────────────────────────────────
+
+case "${1:-}" in
+  --install|install)
+    echo "Installing uws binary..."
+    curl -fsSL \
+      "https://raw.githubusercontent.com/${REPO}/main/install.sh" \
+      | sh
+    exit 0
+    ;;
+
+  --upgrade|upgrade)
+    echo "Upgrading uws..."
+    curl -fsSL \
+      "https://raw.githubusercontent.com/${REPO}/main/install.sh" \
+      | sh
+    gh extension upgrade uws 2>/dev/null || true
+    exit 0
+    ;;
+
+  --version|version)
+    if command -v uws >/dev/null 2>&1; then
+      uws --version
+    else
+      echo "uws not installed — run: gh uws --install"
+    fi
+    exit 0
+    ;;
+
+  --list-providers|providers)
+    echo ""
+    echo "  uws providers:"
+    echo ""
+    echo "  Google Workspace:  gmail, drive, calendar, docs, sheets, slides, tasks,"
+    echo "                     chat, forms, keep, meet, people, admin"
+    echo "  Microsoft 365:     ms-mail, ms-calendar, ms-onedrive, ms-teams,"
+    echo "                     ms-todo, ms-onenote, ms-sharepoint"
+    echo "  Apple iCloud:      apple-calendar, apple-contacts"
+    echo "  Android:           android, android-chrome"
+    echo "  GitHub:            github"
+    echo "  AI (Janus v2):     janus"
+    echo ""
+    echo "  Usage: gh uws <provider> <resource> <method> [flags]"
+    echo "  Docs:  https://github.com/${REPO}"
+    echo ""
+    exit 0
+    ;;
+esac
+
+# ── Find or install the uws binary ──────────────────────────────
+
+find_uws() {
+  # 1. Binary alongside this script (bundled in extension)
+  local script_dir
+  script_dir="$(cd "$(dirname "$0")" && pwd)"
+  if [ -x "${script_dir}/${BIN_NAME}" ]; then
+    echo "${script_dir}/${BIN_NAME}"
+    return
+  fi
+
+  # 2. Already on PATH
+  if command -v uws >/dev/null 2>&1; then
+    command -v uws
+    return
+  fi
+
+  # 3. Common install locations
+  for candidate in \
+    "/usr/local/bin/uws" \
+    "${HOME}/.local/bin/uws" \
+    "${HOME}/.cargo/bin/uws"; do
+    if [ -x "$candidate" ]; then
+      echo "$candidate"
+      return
+    fi
+  done
+
+  echo ""
+}
+
+UWS_BIN="$(find_uws)"
+
+if [ -z "$UWS_BIN" ]; then
+  echo ""
+  echo "  uws is not installed."
+  echo "  Install it with:"
+  echo ""
+  echo "    gh uws --install"
+  echo ""
+  echo "  Or with the standalone installer:"
+  echo ""
+  echo "    curl -fsSL https://raw.githubusercontent.com/${REPO}/main/install.sh | sh"
+  echo ""
+  exit 1
+fi
+
+# ── Pass all arguments through to uws ───────────────────────────
+
+exec "$UWS_BIN" "$@"

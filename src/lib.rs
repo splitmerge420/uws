@@ -35,3 +35,11 @@ pub mod audit_chain;
 /// and JanusRouter (tiered routing, INV-7 council consensus, Kintsugi repair).
 /// Enforces: INV-6 (Provider Abstraction), INV-7 (Vendor Balance), INV-1 (Sovereignty)
 pub mod universal;
+
+/// GitHub as a first-class uws provider.
+/// Exposes GitHub Issues, Pull Requests, Actions, Releases, Code Search,
+/// GitHub Models (AI inference), and Notifications through the standard
+/// uws command grammar: `uws github <resource> <method> [--params] [--json]`.
+/// Authentication: GITHUB_TOKEN (injected automatically in GitHub Actions,
+/// forwarded by the `gh` CLI extension, or set via `uws github auth`).
+pub mod github_provider;

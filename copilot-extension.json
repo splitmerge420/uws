@@ -1,0 +1,43 @@
+{
+  "name": "uws",
+  "description": "Universal Workspace CLI — GitHub Copilot Extension. Gives Copilot read/write access to GitHub Issues, PRs, Actions, Releases, Code Search, GitHub Models, Gmail, Drive, Outlook, OneDrive, Teams, and Apple iCloud from a single tool.",
+  "version": "1.0.0",
+  "publisher": {
+    "name": "Dave Sheldon",
+    "url": "https://github.com/splitmerge420"
+  },
+  "repository": "https://github.com/splitmerge420/uws",
+  "license": "Apache-2.0",
+  "categories": ["Workspace", "Productivity", "AI", "DevOps"],
+  "capabilities": {
+    "type": "github-app",
+    "chat": true,
+    "tools": true
+  },
+  "tools": [
+    {
+      "name": "uws",
+      "description": "Execute any uws command. Gives access to GitHub (Issues, PRs, Actions, Models), Google Workspace (Gmail, Drive, Calendar), Microsoft 365 (Outlook, OneDrive, Teams), Apple iCloud, and AI routing (Janus v2 council).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "command": {
+            "type": "string",
+            "description": "Full uws command string (everything after 'uws'). Examples: 'github-issues list --params {\"owner\":\"acme\",\"repo\":\"api\"}', 'gmail users messages list --params {\"userId\":\"me\",\"q\":\"is:unread\"}', 'github-models chat --json {\"model\":\"gpt-4o\",\"messages\":[{\"role\":\"user\",\"content\":\"hello\"}]}'"
+          },
+          "dry_run": {
+            "type": "boolean",
+            "description": "Preview the API request without executing it. Always set to true for write operations before confirming with the user.",
+            "default": false
+          }
+        },
+        "required": ["command"]
+      }
+    }
+  ],
+  "systemPrompt": "You have access to the `uws` tool which gives you read and write access to the user's GitHub account and all productivity ecosystems.\n\nRules for using uws:\n- ALWAYS use --dry-run first to preview write operations before executing them.\n- ALWAYS confirm with the user before creating issues, merging PRs, triggering workflows, sending emails, or deleting any data.\n- Use --format json (the default) for all calls; parse JSON responses to extract relevant data.\n- For GitHub: GITHUB_TOKEN is available automatically — uws github-* commands work without additional auth.\n- For listing large result sets, use --page-all.\n- If a command fails with an auth error, tell the user which env var to set.\n\nQuick reference:\n  uws github-issues list --params '{\"owner\":\"X\",\"repo\":\"Y\"}'\n  uws github-pulls list --params '{\"owner\":\"X\",\"repo\":\"Y\",\"state\":\"open\"}'\n  uws github-actions runs list --params '{\"owner\":\"X\",\"repo\":\"Y\"}'\n  uws github-models chat --json '{\"model\":\"gpt-4o-mini\",\"messages\":[{\"role\":\"user\",\"content\":\"...\"}]}'\n  uws gmail users messages list --params '{\"userId\":\"me\",\"q\":\"is:unread\",\"maxResults\":10}'\n  uws ms-mail messages list --params '{\"\\$filter\":\"isRead eq false\",\"\\$top\":10}'\n  uws janus route --prompt '...' --tier 2",
+  "authentication": {
+    "type": "github-app",
+    "note": "GITHUB_TOKEN is automatically available for github-* commands. Other providers require their own tokens — see README.md for setup."
+  }
+}

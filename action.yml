@@ -1,0 +1,303 @@
+# action.yml — uws Universal Workspace CLI — GitHub Action
+# Usage:
+#   - name: Run uws command
+#     uses: splitmerge420/uws@v1
+#     with:
+#       command: "gmail users messages list --params '{\"userId\":\"me\",\"q\":\"is:unread\"}'"
+#       google-token: ${{ secrets.GOOGLE_TOKEN }}
+#
+# The action installs a pre-built uws binary (no Rust required), authenticates
+# using the provided tokens, runs the command, and surfaces the JSON result as
+# an output and GitHub Actions step summary.
+#
+# See: https://github.com/splitmerge420/uws
+# License: Apache-2.0
+
+name: 'uws — Universal Workspace CLI'
+description: >
+  Run any uws command against Google Workspace, Microsoft 365, Apple iCloud,
+  Android, Chrome, or GitHub from inside a GitHub Actions workflow.
+  Installs a pre-built binary — no Rust toolchain required.
+
+author: 'Dave Sheldon <splitmerge420@gmail.com>'
+
+branding:
+  icon: 'terminal'
+  color: 'blue'
+
+inputs:
+  command:
+    description: >
+      The uws command to run (everything after `uws`).
+      Example: "gmail users messages list --params '{\"userId\":\"me\"}'"
+    required: true
+
+  version:
+    description: >
+      uws version to install. Defaults to 'latest'.
+      Pin a version for reproducible workflows: '0.1.0'
+    required: false
+    default: 'latest'
+
+  # ── Google Workspace ──────────────────────────────────────────
+  google-token:
+    description: >
+      Pre-obtained Google OAuth2 access token.
+      Maps to the GOOGLE_WORKSPACE_CLI_TOKEN environment variable.
+    required: false
+
+  # ── Microsoft 365 ─────────────────────────────────────────────
+  ms-token:
+    description: >
+      Pre-obtained Microsoft Graph access token.
+      Maps to the UWS_MS_TOKEN environment variable.
+    required: false
+
+  ms-client-id:
+    description: 'Azure app client ID. Maps to UWS_MS_CLIENT_ID.'
+    required: false
+
+  ms-client-secret:
+    description: 'Azure app client secret. Maps to UWS_MS_CLIENT_SECRET.'
+    required: false
+
+  ms-tenant-id:
+    description: 'Azure AD tenant ID (or "common"). Maps to UWS_MS_TENANT_ID.'
+    required: false
+    default: 'common'
+
+  # ── AI Providers ──────────────────────────────────────────────
+  anthropic-api-key:
+    description: 'Anthropic API key for Claude. Maps to ANTHROPIC_API_KEY.'
+    required: false
+
+  gemini-api-key:
+    description: 'Google Gemini API key. Maps to GEMINI_API_KEY.'
+    required: false
+
+  openai-api-key:
+    description: 'OpenAI API key. Maps to OPENAI_API_KEY.'
+    required: false
+
+  xai-api-key:
+    description: 'xAI Grok API key. Maps to XAI_API_KEY.'
+    required: false
+
+  deepseek-api-key:
+    description: 'DeepSeek API key. Maps to DEEPSEEK_API_KEY.'
+    required: false
+
+  # ── GitHub (GitHub Models, Copilot) ───────────────────────────
+  github-token:
+    description: >
+      GitHub token for GitHub Models, Copilot Chat, and Issues/PR access.
+      Defaults to the workflow token if not provided.
+      Maps to GITHUB_TOKEN.
+    required: false
+    default: ${{ github.token }}
+
+  # ── Behaviour ─────────────────────────────────────────────────
+  format:
+    description: 'Output format: json (default), table, yaml, csv'
+    required: false
+    default: 'json'
+
+  dry-run:
+    description: 'Preview the API request without executing it (true/false)'
+    required: false
+    default: 'false'
+
+  install-dir:
+    description: 'Directory to install the uws binary. Defaults to ~/.local/bin'
+    required: false
+    default: ''
+
+outputs:
+  result:
+    description: 'The JSON output of the uws command'
+    value: ${{ steps.run.outputs.result }}
+
+  exit-code:
+    description: 'Exit code of the uws command (0 = success)'
+    value: ${{ steps.run.outputs.exit_code }}
+
+  installed-version:
+    description: 'The version of uws that was installed'
+    value: ${{ steps.install.outputs.version }}
+
+runs:
+  using: 'composite'
+  steps:
+    # ── Step 1: Install uws ────────────────────────────────────
+    - name: Install uws
+      id: install
+      shell: bash
+      env:
+        UWS_VERSION: ${{ inputs.version }}
+        INSTALL_DIR: ${{ inputs.install-dir }}
+      run: |
+        set -euo pipefail
+
+        # Determine install directory
+        if [ -n "${INSTALL_DIR:-}" ]; then
+          BIN_DIR="$INSTALL_DIR"
+        elif [ -d /usr/local/bin ] && [ -w /usr/local/bin ]; then
+          BIN_DIR="/usr/local/bin"
+        else
+          BIN_DIR="${HOME}/.local/bin"
+          mkdir -p "$BIN_DIR"
+        fi
+
+        # Add to PATH for subsequent steps
+        echo "$BIN_DIR" >> "$GITHUB_PATH"
+
+        # Detect platform
+        OS="$(uname -s | tr '[:upper:]' '[:lower:]')"
+        ARCH="$(uname -m)"
+        case "$ARCH" in
+          x86_64)  ARCH_TAG="x86_64" ;;
+          aarch64|arm64) ARCH_TAG="aarch64" ;;
+          *)       ARCH_TAG="$ARCH" ;;
+        esac
+
+        case "$OS" in
+          linux)   PLATFORM="${ARCH_TAG}-unknown-linux-musl" ;;
+          darwin)  PLATFORM="${ARCH_TAG}-apple-darwin" ;;
+          msys*|mingw*|cygwin*) PLATFORM="${ARCH_TAG}-pc-windows-msvc" ;;
+          *)       PLATFORM="${ARCH_TAG}-unknown-linux-musl" ;;
+        esac
+
+        # Determine version
+        if [ "${UWS_VERSION:-latest}" = "latest" ]; then
+          RESOLVED_VERSION=$(curl -fsSL \
+            -H "Authorization: ******" \
+            "https://api.github.com/repos/splitmerge420/uws/releases/latest" \
+            | grep '"tag_name"' | sed 's/.*"tag_name": *"\([^"]*\)".*/\1/' || echo "")
+        else
+          RESOLVED_VERSION="v${UWS_VERSION#v}"
+        fi
+
+        echo "  Platform: $PLATFORM"
+        echo "  Version:  ${RESOLVED_VERSION:-source}"
+
+        INSTALLED=0
+
+        # Try to download pre-built binary from GitHub Releases
+        if [ -n "${RESOLVED_VERSION:-}" ]; then
+          ARCHIVE="uws-${PLATFORM}.tar.gz"
+          URL="https://github.com/splitmerge420/uws/releases/download/${RESOLVED_VERSION}/${ARCHIVE}"
+          if curl -fsSL "$URL" -o /tmp/uws-archive.tar.gz 2>/dev/null; then
+            tar -xzf /tmp/uws-archive.tar.gz -C /tmp/
+            # Binary may be in a subdirectory
+            BINARY=$(find /tmp -name "uws" -type f | head -1)
+            if [ -n "$BINARY" ]; then
+              install -m 755 "$BINARY" "$BIN_DIR/uws"
+              INSTALLED=1
+              echo "  Installed pre-built binary from release ${RESOLVED_VERSION}"
+            fi
+          fi
+        fi
+
+        # Fallback: cargo install (requires Rust, takes longer)
+        if [ "$INSTALLED" -eq 0 ]; then
+          echo "  Pre-built binary not available — falling back to cargo install"
+          if command -v cargo >/dev/null 2>&1; then
+            if [ -n "${RESOLVED_VERSION:-}" ]; then
+              cargo install uws --version "${RESOLVED_VERSION#v}" --root "${HOME}/.cargo" \
+                --git https://github.com/splitmerge420/uws 2>/dev/null || \
+              cargo install --git https://github.com/splitmerge420/uws --root "${HOME}/.cargo"
+            else
+              cargo install --git https://github.com/splitmerge420/uws --root "${HOME}/.cargo"
+            fi
+            cp "${HOME}/.cargo/bin/uws" "$BIN_DIR/uws" 2>/dev/null || true
+            INSTALLED=1
+          else
+            echo "::error::uws binary not available for ${PLATFORM} and Rust/cargo is not installed."
+            echo "::error::Add 'dtolnay/rust-toolchain@stable' step before this action, or wait for a release binary."
+            exit 1
+          fi
+        fi
+
+        # Verify installation
+        UWS_VERSION_INSTALLED="$(${BIN_DIR}/uws --version 2>/dev/null || echo 'unknown')"
+        echo "  uws ${UWS_VERSION_INSTALLED} installed at ${BIN_DIR}/uws"
+        echo "version=${UWS_VERSION_INSTALLED}" >> "$GITHUB_OUTPUT"
+
+    # ── Step 2: Run command ────────────────────────────────────
+    - name: Run uws command
+      id: run
+      shell: bash
+      env:
+        # Google
+        GOOGLE_WORKSPACE_CLI_TOKEN: ${{ inputs.google-token }}
+        # Microsoft
+        UWS_MS_TOKEN:          ${{ inputs.ms-token }}
+        UWS_MS_CLIENT_ID:      ${{ inputs.ms-client-id }}
+        UWS_MS_CLIENT_SECRET:  ${{ inputs.ms-client-secret }}
+        UWS_MS_TENANT_ID:      ${{ inputs.ms-tenant-id }}
+        # AI
+        ANTHROPIC_API_KEY: ${{ inputs.anthropic-api-key }}
+        GEMINI_API_KEY:    ${{ inputs.gemini-api-key }}
+        OPENAI_API_KEY:    ${{ inputs.openai-api-key }}
+        XAI_API_KEY:       ${{ inputs.xai-api-key }}
+        DEEPSEEK_API_KEY:  ${{ inputs.deepseek-api-key }}
+        # GitHub
+        GITHUB_TOKEN:      ${{ inputs.github-token }}
+        # Format
+        UWS_FORMAT: ${{ inputs.format }}
+      run: |
+        set -euo pipefail
+
+        # Build final command
+        CMD_ARGS="${{ inputs.command }}"
+        if [ "${{ inputs.dry-run }}" = "true" ]; then
+          CMD_ARGS="$CMD_ARGS --dry-run"
+        fi
+        if [ -n "$UWS_FORMAT" ] && ! echo "$CMD_ARGS" | grep -q -- '--format'; then
+          CMD_ARGS="$CMD_ARGS --format $UWS_FORMAT"
+        fi
+
+        echo "::group::uws $CMD_ARGS"
+
+        # Run and capture output
+        EXIT_CODE=0
+        OUTPUT=$(uws $CMD_ARGS 2>&1) || EXIT_CODE=$?
+
+        echo "$OUTPUT"
+        echo "::endgroup::"
+
+        # Surface as output (escaped for multi-line JSON)
+        RESULT_SAFE="${OUTPUT//'%'/'%25'}"
+        RESULT_SAFE="${RESULT_SAFE//$'\n'/'%0A'}"
+        RESULT_SAFE="${RESULT_SAFE//$'\r'/'%0D'}"
+        echo "result=${RESULT_SAFE}" >> "$GITHUB_OUTPUT"
+        echo "exit_code=${EXIT_CODE}" >> "$GITHUB_OUTPUT"
+
+        # Write step summary (markdown table if JSON array, else code block)
+        {
+          echo "## uws result"
+          echo ""
+          echo "\`uws $CMD_ARGS\`"
+          echo ""
+          if echo "$OUTPUT" | python3 -c "import json,sys; d=json.load(sys.stdin); assert isinstance(d,list)" 2>/dev/null; then
+            echo "$OUTPUT" | python3 - <<'PYEOF'
+        import json, sys
+        data = json.load(sys.stdin)
+        if data and isinstance(data[0], dict):
+            headers = list(data[0].keys())[:6]  # cap at 6 columns
+            print("| " + " | ".join(headers) + " |")
+            print("|" + "|".join(["---"] * len(headers)) + "|")
+            for row in data[:20]:
+                vals = [str(row.get(h, ""))[:60] for h in headers]
+                print("| " + " | ".join(vals) + " |")
+            if len(data) > 20:
+                print(f"\n_...and {len(data)-20} more rows_")
+        PYEOF
+          else
+            echo '```json'
+            echo "$OUTPUT" | head -100
+            echo '```'
+          fi
+        } >> "$GITHUB_STEP_SUMMARY"
+
+        exit $EXIT_CODE
