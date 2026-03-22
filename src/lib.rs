@@ -28,3 +28,17 @@ pub mod council_github_client;
 /// verify_chain() walks every link to detect tampering.
 /// Enforces: INV-3 (Audit Trail), INV-35 (Fail-Closed)
 pub mod audit_chain;
+
+// ─── Universal I/O Layer ──────────────────────────────────────────
+
+/// Provider-agnostic document abstraction — "unshackling" layer.
+///
+/// Converts proprietary SaaS documents (Google Docs, Microsoft Word, etc.)
+/// into locally-owned `UniversalDocument` objects (Markdown body + JSON
+/// frontmatter).  Google Workspace and Microsoft 365 become "dumb pipes";
+/// the user's local machine is the sovereign source of truth.
+///
+/// Exposes: `UniversalDocument`, `SaaSConnector` trait,
+///          `GoogleWorkspaceConnector` stub.
+/// Enforces: INV-1 (Sovereignty), INV-6 (Provider Abstraction)
+pub mod universal_io;
