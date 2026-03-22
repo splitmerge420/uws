@@ -1,0 +1,12 @@
+{
+  "version": "2",
+  "mcpServers": {
+    "uws": {
+      "command": "python3",
+      "args": ["mcp_server/server.py", "--transport", "stdio"],
+      "env": {
+        "UWS_BINARY": "uws"
+      }
+    }
+  }
+}
