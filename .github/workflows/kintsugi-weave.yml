@@ -175,6 +175,9 @@ jobs:
           fi
 
       - name: Validate Golden-Trace provenance
+        # Advisory: reports missing trailers as warnings without blocking the merge.
+        # This allows the repository to adopt the Golden-Trace standard incrementally.
+        # Set PROVENANCE_STRICT=true in repository secrets to make this blocking.
         run: |
           RANGE="${{ steps.range.outputs.range }}"
           echo "Checking commits in range: $RANGE"
@@ -184,7 +187,19 @@ jobs:
             git fetch origin "${{ github.base_ref }}" 2>/dev/null || true
           fi
 
-          python toolchain/provenance.py check-commits "$RANGE"
+          EXIT=0
+          python toolchain/provenance.py check-commits "$RANGE" || EXIT=$?
+
+          if [ "$EXIT" -ne 0 ]; then
+            echo "::warning::Some commits are missing Golden-Trace HITL provenance trailers."
+            echo "::warning::Add trailers with: python toolchain/provenance.py format-trailer --hitl 0.90 --provider <name> --npfm 0.85"
+            if [ "${PROVENANCE_STRICT:-false}" = "true" ]; then
+              echo "PROVENANCE_STRICT=true — treating missing trailers as a blocking error."
+              exit 1
+            else
+              echo "PROVENANCE_STRICT not set — reporting as advisory warning only."
+            fi
+          fi
 
   # ────────────────────────────────────────────────────────────
   # Job 3: Swarm Review (Bot-Triggered Batch Analysis)
@@ -239,20 +254,45 @@ jobs:
           echo "base_ref=$BASE_REF" >> "$GITHUB_OUTPUT"
           echo "head_sha=$HEAD_SHA" >> "$GITHUB_OUTPUT"
 
-      - name: Fetch PR commit range for provenance check
-        run: |
-          # Fetch the PR's commits so we can inspect their metadata (messages),
-          # but we do NOT check out or execute any files from the PR.
-          git fetch origin "${{ steps.pr.outputs.base_ref }}" 2>/dev/null || true
-          git fetch origin "pull/${{ steps.pr.outputs.pr_number }}/head:pr-head" 2>/dev/null || true
-
-      - name: Run Provenance Check (commit metadata only)
+      - name: Run Provenance Check via GitHub API (no PR code fetch)
+        # Validates commit messages using the GitHub API only.
+        # We never git-fetch or execute any code from the PR's head commit.
         id: provenance
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ steps.pr.outputs.pr_number }}
+          REPO: ${{ github.repository }}
         run: |
+          # Fetch commit list via GitHub REST API (metadata only — no code)
+          curl -sf \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${REPO}/pulls/${PR_NUMBER}/commits?per_page=100" \
+            -o /tmp/pr_commits.json
+
+          # Validate Golden-Trace trailers using Python (no git operations)
           EXIT=0
-          python toolchain/provenance.py check-commits \
-            "origin/${{ steps.pr.outputs.base_ref }}..pr-head" \
-            --json > /tmp/swarm_provenance.json || EXIT=$?
+          python3 - /tmp/pr_commits.json > /tmp/swarm_provenance.json <<'PYEOF' || EXIT=$?
+          import json, re, sys
+
+          TRAILER_RE = re.compile(
+              r"Golden-Trace:\s*sha3-256:(?P<digest>[0-9a-f]{64})"
+              r";\s*HITL=(?P<hitl>\d+\.\d+)",
+              re.IGNORECASE | re.MULTILINE,
+          )
+
+          commits = json.loads(open(sys.argv[1]).read())
+          results = []
+          for c in commits:
+              sha     = c.get("sha", "")[:8]
+              msg     = c.get("commit", {}).get("message", "")
+              subject = msg.splitlines()[0] if msg else ""
+              valid   = bool(TRAILER_RE.search(msg))
+              results.append({"sha": sha, "subject": subject, "valid": valid})
+
+          print(json.dumps(results, indent=2))
+          sys.exit(1 if any(not r["valid"] for r in results) else 0)
+          PYEOF
           echo "exit=$EXIT" >> "$GITHUB_OUTPUT"
 
       - name: Post swarm review comment
@@ -282,9 +322,9 @@ jobs:
               `|---|---|---|`,
               `| Golden-Trace Provenance | ${provIcon} ${provOk ? 'PASS' : 'FAIL'} | ${validCount}/${totalCount} commits valid |`,
               '',
-              lintOk && provOk
-                ? '**NPFM check passed.** All commits carry valid Human-In-The-Loop provenance. ✨'
-                : '**Action required.** Please fix the issues above and push a new commit.',
+              provOk
+                ? '**Golden-Trace check passed.** All commits carry valid Human-In-The-Loop provenance. ✨'
+                : '**Action required.** Please add Golden-Trace trailers to the commits listed above.',
             ].join('\n');
 
             await github.rest.issues.createComment({

@@ -441,7 +441,9 @@ fn secs_to_ymdhms(secs: u64) -> (u64, u64, u64, u64, u64, u64) {
 ///
 /// This uses a FNV-1a-seeded mix as a placeholder for SHA3-256.
 /// Replace with `sha3::Sha3_256` once the dependency is enabled.
-fn compute_digest(provider: &AiProvider, prompt: &str, timestamp: &str) -> String {
+///
+/// `pub(crate)` so that `janus.rs` can call this instead of duplicating the logic.
+pub(crate) fn compute_digest(provider: &AiProvider, prompt: &str, timestamp: &str) -> String {
     let input = format!("{}|{}|{}", provider.display_name(), prompt, timestamp);
     let mut h: u64 = 0xcbf2_9ce4_8422_2325u64; // FNV offset basis
     for byte in input.bytes() {
@@ -449,6 +451,23 @@ fn compute_digest(provider: &AiProvider, prompt: &str, timestamp: &str) -> Strin
         h = h.wrapping_mul(0x0000_0100_0000_01b3u64); // FNV prime
     }
     // Extend to 64 hex chars by mixing the hash with its complement
+    let hi = h;
+    let lo = h.wrapping_mul(0x9e37_79b9_7f4a_7c15u64);
+    format!("{:016x}{:016x}{:016x}{:016x}", hi, lo, !hi, !lo)
+}
+
+/// Compute a digest from a free-form context string and a timestamp.
+///
+/// Used by `janus.rs` for council consensus and Kintsugi repair traces where
+/// there is no single `AiProvider` to hash against.
+/// `pub(crate)` to avoid duplicate FNV constants in sibling modules.
+pub(crate) fn compute_digest_from_str(context: &str, timestamp: &str) -> String {
+    let input = format!("{}|{}", context, timestamp);
+    let mut h: u64 = 0xcbf2_9ce4_8422_2325u64; // FNV offset basis
+    for byte in input.bytes() {
+        h ^= byte as u64;
+        h = h.wrapping_mul(0x0000_0100_0000_01b3u64); // FNV prime
+    }
     let hi = h;
     let lo = h.wrapping_mul(0x9e37_79b9_7f4a_7c15u64);
     format!("{:016x}{:016x}{:016x}{:016x}", hi, lo, !hi, !lo)

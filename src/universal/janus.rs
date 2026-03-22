@@ -551,7 +551,7 @@ impl JanusRouter {
             let ts = current_timestamp();
             let trace = GoldenTrace {
                 hitl_weight: 0.0,
-                digest: compute_digest_simple("safe_mode", &ts),
+                digest: super::model_router::compute_digest_from_str("safe_mode", &ts),
                 timestamp: ts,
                 provider: AiProvider::Claude,
                 npfm_score: NpfmScore::new(0.0),
@@ -576,7 +576,7 @@ impl JanusRouter {
                 let ts = current_timestamp();
                 let trace = GoldenTrace {
                     hitl_weight: 0.0,
-                    digest: compute_digest_simple("inv7_error", &ts),
+                    digest: super::model_router::compute_digest_from_str("inv7_error", &ts),
                     timestamp: ts,
                     provider: AiProvider::Claude,
                     npfm_score: NpfmScore::new(0.0),
@@ -624,7 +624,7 @@ impl JanusRouter {
                     let ts = current_timestamp();
                     let repair_trace = GoldenTrace {
                         hitl_weight: self.inner.config().hitl_weight,
-                        digest: compute_digest_simple(
+                        digest: super::model_router::compute_digest_from_str(
                             &format!("kintsugi_repair:{}:{}", provider.display_name(), ts),
                             &ts,
                         ),
@@ -672,7 +672,7 @@ impl JanusRouter {
             let ts = current_timestamp();
             let trace = GoldenTrace {
                 hitl_weight: 0.0,
-                digest: compute_digest_simple("no_votes", &ts),
+                digest: super::model_router::compute_digest_from_str("no_votes", &ts),
                 timestamp: ts,
                 provider: AiProvider::Claude,
                 npfm_score: NpfmScore::new(0.0),
@@ -700,7 +700,7 @@ impl JanusRouter {
         let ts = current_timestamp();
         let trace = GoldenTrace {
             hitl_weight: self.inner.config().hitl_weight,
-            digest: compute_digest_simple(&format!("council_consensus:{}", ts), &ts),
+            digest: super::model_router::compute_digest_from_str(&format!("council_consensus:{}", ts), &ts),
             timestamp: ts,
             provider: AiProvider::Claude, // governance model leads the trace
             npfm_score: NpfmScore::new(0.8),
@@ -871,17 +871,6 @@ fn secs_to_ymdhms(secs: u64) -> (u64, u64, u64, u64, u64, u64) {
     let month = if mp < 10 { mp + 3 } else { mp - 9 };
     let year = if month <= 2 { y + 1 } else { y };
     (year, month, day, h, m, s)
-}
-
-fn compute_digest_simple(input: &str, salt: &str) -> String {
-    let combined = format!("{}|{}", input, salt);
-    let mut h: u64 = 0xcbf2_9ce4_8422_2325u64;
-    for byte in combined.bytes() {
-        h ^= byte as u64;
-        h = h.wrapping_mul(0x0000_0100_0000_01b3u64);
-    }
-    let lo = h.wrapping_mul(0x9e37_79b9_7f4a_7c15u64);
-    format!("{:016x}{:016x}{:016x}{:016x}", h, lo, !h, !lo)
 }
 
 // ─── Tests ────────────────────────────────────────────────────
