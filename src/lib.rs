@@ -28,3 +28,15 @@ pub mod council_github_client;
 /// verify_chain() walks every link to detect tampering.
 /// Enforces: INV-3 (Audit Trail), INV-35 (Fail-Closed)
 pub mod audit_chain;
+
+// ─── Universal I/O Layer ──────────────────────────────────────────────────
+// SaaS-Bypass Stream module: converts proprietary Google/Microsoft/Apple
+// documents into the locally-owned UniversalDocument format.
+// Makes every SaaS provider a "dumb pipe"; the user's OS is the source of truth.
+// Implements the CognitiveDust / Dumb-Pipes vision from COPILOT_HORIZON_MANIFEST.md.
+// Enforces: INV-1 (Sovereignty), INV-3 (Audit Trail), INV-6 (Provider Abstraction)
+
+/// Provider-neutral document extraction and Markdown conversion.
+/// Accepts raw API response content from any connector and returns a
+/// locally-owned `UniversalDocument` (Markdown body + JSON frontmatter).
+pub mod universal_io;
