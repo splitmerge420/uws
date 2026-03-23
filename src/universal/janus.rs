@@ -448,7 +448,7 @@ impl JanusOutcome {
 /// let mut router = JanusRouter::default();
 /// let req = AiCliRequest::new(AiProvider::Claude, "explain async Rust");
 ///
-/// let outcome = router.route(req, |r| {
+/// let outcome = router.route(req, None, |r: &AiCliRequest| {
 ///     Ok(AiCliResponse {
 ///         provider: r.provider.clone(),
 ///         model_used: "claude-opus-4-5".to_string(),

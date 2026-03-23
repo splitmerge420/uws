@@ -32,6 +32,10 @@ mod formatter;
 mod fs_util;
 mod generate_skills;
 mod helpers;
+mod ms_graph;
+mod apple;
+mod android_chrome;
+mod github_provider;
 mod oauth_config;
 mod schema;
 mod services;
@@ -130,6 +134,48 @@ async fn run() -> Result<(), GwsError> {
     if first_arg == "auth" {
         let auth_args: Vec<String> = args.iter().skip(2).cloned().collect();
         return auth_commands::handle_auth_command(&auth_args).await;
+    }
+
+    // Handle `ms-auth` command (Microsoft 365 authentication)
+    if first_arg == "ms-auth" {
+        let ms_args: Vec<String> = args.iter().skip(2).cloned().collect();
+        return ms_graph::handle_ms_auth_command(&ms_args).await
+            .map_err(GwsError::Other);
+    }
+
+    // Handle `apple-auth` command (Apple iCloud authentication)
+    if first_arg == "apple-auth" {
+        let apple_args: Vec<String> = args.iter().skip(2).cloned().collect();
+        return apple::handle_apple_auth_command(&apple_args).await
+            .map_err(GwsError::Other);
+    }
+
+    // Route Microsoft 365 services (ms-mail, ms-calendar, ms-onedrive, ms-teams, …)
+    if ms_graph::resolve_ms_service(&first_arg).is_some() {
+        let rest: Vec<String> = args.iter().skip(2).cloned().collect();
+        return ms_graph::handle_ms_command(&first_arg, &rest).await
+            .map_err(GwsError::Other);
+    }
+
+    // Route Apple services (apple-calendar, apple-contacts, apple-reminders, …)
+    if apple::resolve_apple_service(&first_arg).is_some() {
+        let rest: Vec<String> = args.iter().skip(2).cloned().collect();
+        return apple::handle_apple_command(&first_arg, &rest).await
+            .map_err(GwsError::Other);
+    }
+
+    // Route Android/Chrome services (android, chrome-mgmt, chrome-policy, …)
+    if android_chrome::resolve_android_chrome_service(&first_arg).is_some() {
+        let rest: Vec<String> = args.iter().skip(2).cloned().collect();
+        return android_chrome::handle_android_chrome_command(&first_arg, &rest).await
+            .map_err(GwsError::Other);
+    }
+
+    // Route GitHub services (github-issues, github-pulls, github-actions, …)
+    if github_provider::resolve_github_service(&first_arg).is_some() {
+        let rest: Vec<String> = args.iter().skip(2).cloned().collect();
+        return github_provider::handle_github_command(&first_arg, &rest).await
+            .map_err(GwsError::Other);
     }
 
     // Parse service name and optional version override
