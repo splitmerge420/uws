@@ -30,7 +30,7 @@ use std::path::Path;
 /// Returns an `io::Error` if the temporary file cannot be written or if the
 /// rename fails.
 pub fn atomic_write(path: &Path, data: &[u8]) -> io::Result<()> {
-    // Derive a sibling tmp path, e.g. `/home/user/.config/gws/credentials.enc.tmp`
+    // Derive a sibling tmp path, e.g. `/home/user/.config/uws/credentials.enc.tmp`
     let file_name = path
         .file_name()
         .ok_or_else(|| io::Error::new(io::ErrorKind::InvalidInput, "path has no file name"))?;

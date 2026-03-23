@@ -38,7 +38,7 @@ pub fn get_quota_project() -> Option<String> {
         }
     }
 
-    // 2. Project ID from the OAuth client configuration (set via `gws auth setup`)
+    // 2. Project ID from the OAuth client configuration (set via `uws auth setup`)
     if let Ok(config) = crate::oauth_config::load_client_config() {
         if !config.project_id.is_empty() {
             return Some(config.project_id);
@@ -82,8 +82,8 @@ enum Credential {
 /// Tries credentials in order:
 /// 0. `GOOGLE_WORKSPACE_CLI_TOKEN` env var (raw access token, highest priority)
 /// 1. `GOOGLE_WORKSPACE_CLI_CREDENTIALS_FILE` env var (plaintext JSON, can be User or Service Account)
-/// 2. Encrypted credentials at `~/.config/gws/credentials.enc`
-/// 3. Plaintext credentials at `~/.config/gws/credentials.json` (User only)
+/// 2. Encrypted credentials at `~/.config/uws/credentials.enc` (or `~/.config/gws/credentials.enc` for legacy installs)
+/// 3. Plaintext credentials at `~/.config/uws/credentials.json` (User only)
 /// 4. Application Default Credentials (ADC):
 ///    - `GOOGLE_APPLICATION_CREDENTIALS` env var (path to a JSON credentials file), then
 ///    - Well-known ADC path: `~/.config/gcloud/application_default_credentials.json`

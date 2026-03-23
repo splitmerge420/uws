@@ -674,7 +674,7 @@ fn handle_error_response<T>(
     // If 401/403 and no auth was provided, give a helpful message
     if (status.as_u16() == 401 || status.as_u16() == 403) && *auth_method == AuthMethod::None {
         return Err(GwsError::Auth(
-            "Access denied. No credentials provided. Run `gws auth login` or set \
+            "Access denied. No credentials provided. Run `uws auth login` or set \
              GOOGLE_WORKSPACE_CLI_CREDENTIALS_FILE to an OAuth credentials JSON file."
                 .to_string(),
         ));
@@ -735,7 +735,7 @@ fn build_multipart_body(
     metadata: &Option<Value>,
     file_bytes: &[u8],
 ) -> Result<(Vec<u8>, String), GwsError> {
-    let boundary = format!("gws_boundary_{:016x}", rand::random::<u64>());
+    let boundary = format!("uws_boundary_{:016x}", rand::random::<u64>());
 
     // Determine the media MIME type from the metadata's mimeType field, or fall back
     let media_mime = metadata

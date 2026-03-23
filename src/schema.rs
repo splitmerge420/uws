@@ -27,7 +27,7 @@ use crate::discovery::{
 use crate::error::GwsError;
 use crate::services::resolve_service;
 
-/// Handles the `gws schema <dotted.path>` command.
+/// Handles the `uws schema <dotted.path>` command.
 ///
 /// Path format: `service.resource[.subresource].method`
 /// Example: `drive.files.list` or `drive.files.permissions.list`
@@ -69,7 +69,7 @@ pub async fn handle_schema_command(path: &str, resolve_refs: bool) -> Result<(),
             // Let's check if it matches a resource name to give a better error.
             if doc.resources.contains_key(schema_name) {
                 return Err(GwsError::Validation(format!(
-                    "'{schema_name}' is a resource. To see its methods, try 'gws schema {service_name}.{schema_name}.list' (or similar). To see a type definition, try 'gws schema {service_name}.<Type>'."
+                    "'{schema_name}' is a resource. To see its methods, try 'uws schema {service_name}.{schema_name}.list' (or similar). To see a type definition, try 'uws schema {service_name}.<Type>'."
                 )));
             }
 

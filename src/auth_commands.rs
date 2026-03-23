@@ -64,7 +64,7 @@ pub const DEFAULT_SCOPES: &[&str] = MINIMAL_SCOPES;
 
 /// Full scopes — all common Workspace APIs plus GCP platform access.
 ///
-/// Use `gws auth login --full` to request these.  Unverified OAuth apps will
+/// Use `uws auth login --full` to request these.  Unverified OAuth apps will
 /// receive a Google consent-screen warning, and some scopes (e.g. `pubsub`,
 /// `cloud-platform`) require app verification or a Workspace domain admin to
 /// grant access.
@@ -244,7 +244,7 @@ async fn handle_login(args: &[String]) -> Result<(), GwsError> {
 
     // Resolve client_id and client_secret:
     // 1. Env vars (highest priority)
-    // 2. Saved client_secret.json from `gws auth setup` or manual download
+    // 2. Saved client_secret.json from `uws auth setup` or manual download
     let (client_id, client_secret, project_id) = resolve_client_credentials()?;
 
     // Persist credentials to client_secret.json if not already saved,
