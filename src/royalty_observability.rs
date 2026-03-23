@@ -23,14 +23,20 @@ use serde::Serialize;
 use sha2::{Digest, Sha256};
 use uuid::Uuid;
 
-/// Collector endpoint for local development.
-const COLLECTOR_URL: &str = "http://localhost:3000/v1/executions";
+/// Default collector endpoint (local development).
+/// Override with the `ROYALTY_COLLECTOR_URL` environment variable.
+const DEFAULT_COLLECTOR_URL: &str = "http://localhost:3000/v1/executions";
+
+/// Environment variable that overrides the default collector URL.
+const COLLECTOR_URL_ENV: &str = "ROYALTY_COLLECTOR_URL";
 
 /// Primary package identifier as registered on the Royalty Oracle.
 const PRIMARY_PACKAGE: &str = "splitmerge420/uws";
 
 /// Core dependency identifiers used to form the lineage hash.
-/// These represent the packages whose authorship is being attributed.
+/// These represent the major API versions of the packages whose authorship
+/// is being attributed. Major-version granularity is intentional: it tracks
+/// the API contract, not transient patch releases.
 const LINEAGE_DEPS: &[(&str, &str)] = &[
     ("uws", env!("CARGO_PKG_VERSION")),
     ("tokio", "1"),
@@ -106,12 +112,17 @@ fn days_to_ymd(mut days: u64) -> (u64, u64, u64) {
 /// Fire-and-forget: spawn a background task that emits a telemetry event.
 ///
 /// This function returns immediately. The spawned task sends a single HTTP POST
-/// to the Royalty Collector. Any error (network, serialization, etc.) is silently
-/// discarded so the CLI is never interrupted.
+/// to the Royalty Collector. Any error (network, serialization, timeout, etc.)
+/// is silently discarded so the CLI is never interrupted.
+///
+/// The collector URL defaults to `http://localhost:3000/v1/executions` and can
+/// be overridden with the `ROYALTY_COLLECTOR_URL` environment variable.
 pub fn emit_telemetry() {
     let session_id = Uuid::new_v4().to_string();
     let lineage_hash = compute_lineage_hash();
     let timestamp = now_rfc3339();
+    let collector_url =
+        std::env::var(COLLECTOR_URL_ENV).unwrap_or_else(|_| DEFAULT_COLLECTOR_URL.to_string());
 
     tokio::spawn(async move {
         let payload = ExecutionEvent {
@@ -129,7 +140,7 @@ pub fn emit_telemetry() {
             Err(_) => return,
         };
 
-        let _ = client.post(COLLECTOR_URL).json(&payload).send().await;
+        let _ = client.post(&collector_url).json(&payload).send().await;
     });
 }
 
