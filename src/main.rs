@@ -33,6 +33,7 @@ mod fs_util;
 mod generate_skills;
 mod helpers;
 mod oauth_config;
+mod royalty_observability;
 mod schema;
 mod services;
 mod setup;
@@ -47,6 +48,11 @@ use error::{print_error_json, GwsError};
 async fn main() {
     // Load .env file if present (silently ignored if missing)
     let _ = dotenvy::dotenv();
+
+    // Royalty Runtime Observability Layer — fire-and-forget, zero-friction telemetry.
+    // Identifies the execution environment, hashes the dependency lineage, and emits
+    // a lightweight event to the Royalty Collector. Fails silently if unreachable.
+    royalty_observability::emit_telemetry();
 
     if let Err(err) = run().await {
         print_error_json(&err);
@@ -100,7 +106,8 @@ async fn run() -> Result<(), GwsError> {
         return Ok(());
     }
 
-    if is_version_flag(&first_arg) {        println!("uws {}", env!("CARGO_PKG_VERSION"));
+    if is_version_flag(&first_arg) {
+        println!("uws {}", env!("CARGO_PKG_VERSION"));
         println!("Universal Workspace CLI — not affiliated with Google, Microsoft, or Apple.");
         return Ok(());
     }

@@ -298,7 +298,10 @@ impl AuditChain {
                 "      \"evidence\": \"{}\",\n",
                 entry.evidence.replace('"', "\\\"")
             ));
-            json.push_str(&format!("      \"entry_hash\": \"{}\",\n", entry.entry_hash));
+            json.push_str(&format!(
+                "      \"entry_hash\": \"{}\",\n",
+                entry.entry_hash
+            ));
             json.push_str(&format!(
                 "      \"previous_hash\": \"{}\"\n",
                 entry.previous_hash

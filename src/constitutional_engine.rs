@@ -6,10 +6,11 @@
 
 extern crate alloc;
 
-use alloc::{string::String, vec::Vec, vec, format, collections::BTreeMap};
+use alloc::{collections::BTreeMap, format, string::String, vec, vec::Vec};
 
 #[cfg(feature = "std")]
-use serde::{Serialize, Deserialize};
+#[allow(unused_imports)]
+use serde::{Deserialize, Serialize};
 
 /// Severity levels for constitutional invariants
 #[derive(Debug, Clone, PartialEq)]
@@ -93,7 +94,10 @@ impl ConstitutionalEngine {
             message: if passed {
                 String::from("Consent verified for operation")
             } else {
-                format!("VIOLATION: Operation '{}' requires user consent", state.operation)
+                format!(
+                    "VIOLATION: Operation '{}' requires user consent",
+                    state.operation
+                )
             },
         }
     }
@@ -112,7 +116,10 @@ impl ConstitutionalEngine {
             message: if passed {
                 String::from("Audit trail active")
             } else {
-                format!("VIOLATION: Destructive operation '{}' requires audit logging", state.operation)
+                format!(
+                    "VIOLATION: Destructive operation '{}' requires audit logging",
+                    state.operation
+                )
             },
         }
     }
@@ -146,7 +153,9 @@ impl ConstitutionalEngine {
     }
 
     fn check_encryption_at_rest(&self, state: &StateSnapshot) -> InvariantCheck {
-        let has_sensitive_data = state.data_classification.as_deref()
+        let has_sensitive_data = state
+            .data_classification
+            .as_deref()
             .map(|c| matches!(c, "confidential" | "restricted"))
             .unwrap_or(false);
         let passed = !has_sensitive_data || state.encryption_enabled;
@@ -176,16 +185,21 @@ impl ConstitutionalEngine {
 
     pub fn enforce(&self, state: &StateSnapshot) -> Result<Vec<InvariantCheck>, String> {
         let checks = self.check_all(state);
-        let critical_failures: Vec<&InvariantCheck> = checks.iter()
+        let critical_failures: Vec<&InvariantCheck> = checks
+            .iter()
             .filter(|c| c.severity == Severity::Critical && !c.passed)
             .collect();
         if critical_failures.is_empty() {
             Ok(checks)
         } else if self.strict_mode {
-            let messages: Vec<String> = critical_failures.iter()
+            let messages: Vec<String> = critical_failures
+                .iter()
                 .map(|c| format!("{}: {}", c.id, c.message))
                 .collect();
-            Err(format!("Constitutional violations: {}", messages.join("; ")))
+            Err(format!(
+                "Constitutional violations: {}",
+                messages.join("; ")
+            ))
         } else {
             Ok(checks)
         }
