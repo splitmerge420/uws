@@ -64,3 +64,47 @@ pub mod frictionless_cal;
 /// `uws github <resource> <method>`.  Auth: GITHUB_TOKEN or UWS_GITHUB_TOKEN.
 /// Enforces: INV-6 (Provider Abstraction), INV-7 (Vendor Balance)
 pub mod github_provider;
+
+// ─── Novel Inventions: 20 New Integrations (Session 2026-03-23) ──────────
+
+/// Slack REST API provider.
+pub mod slack_provider;
+
+/// Linear.app GraphQL API provider.
+pub mod linear_provider;
+
+/// Notion REST API provider.
+pub mod notion_provider;
+
+/// Figma REST API provider.
+pub mod figma_provider;
+
+/// Stripe payment infrastructure provider.
+pub mod stripe_provider;
+
+/// Cross-provider fan-out semantic search aggregator.
+pub mod cross_search;
+
+/// Provider API health monitor + rate-limit sentinel.
+pub mod provider_health;
+
+/// LLM context window JSON optimizer and truncator.
+pub mod context_compressor;
+
+/// Local encrypted versioned prompt store.
+pub mod prompt_vault;
+
+/// Unified cross-provider activity/changelog stream.
+pub mod activity_stream;
+
+/// Cross-provider document diff engine (LCS-based).
+pub mod diff_engine;
+
+/// YAML-defined multi-step automation pipeline composer.
+pub mod workflow_composer;
+
+/// Data provenance and lineage tracker (DAG).
+pub mod data_lineage;
+
+/// Multi-identity persona manager (work / personal / freelance).
+pub mod persona_manager;
