@@ -8,9 +8,16 @@
 
 <p align="center">
   <a href="https://github.com/splitmerge420/uws/actions/workflows/ci.yml"><img src="https://github.com/splitmerge420/uws/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="https://github.com/splitmerge420/uws/actions/workflows/codeql.yml"><img src="https://github.com/splitmerge420/uws/actions/workflows/codeql.yml/badge.svg" alt="CodeQL"></a>
+  <a href="https://app.codecov.io/gh/splitmerge420/uws"><img src="https://codecov.io/gh/splitmerge420/uws/branch/main/graph/badge.svg" alt="Coverage"></a>
+  <a href="https://www.bestpractices.dev/projects/splitmerge420/uws"><img src="https://www.bestpractices.dev/projects/splitmerge420/uws/badge" alt="OpenSSF Best Practices"></a>
+  <a href="https://scorecard.dev/viewer/?uri=github.com/splitmerge420/uws"><img src="https://api.scorecard.dev/projects/github.com/splitmerge420/uws/badge" alt="OpenSSF Scorecard"></a>
+  <br>
+  <a href="https://github.com/splitmerge420/uws/releases"><img src="https://img.shields.io/github/v/release/splitmerge420/uws?label=release" alt="Latest Release"></a>
+  <a href="https://github.com/splitmerge420/uws/pkgs/container/uws"><img src="https://img.shields.io/badge/docker-ghcr.io-blue?logo=docker" alt="Docker"></a>
+  <a href="https://img.shields.io/badge/MSRV-1.85.0-orange"><img src="https://img.shields.io/badge/MSRV-1.85.0-orange" alt="MSRV 1.85.0"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License: MIT"></a>
   <a href="https://github.com/splitmerge420/uws"><img src="https://img.shields.io/github/stars/splitmerge420/uws?style=social" alt="Stars"></a>
-  <a href="https://github.com/googleworkspace/cli"><img src="https://img.shields.io/badge/forked%20from-googleworkspace%2Fcli-brightgreen" alt="Forked from gws"></a>
 </p>
 
 > **Not an officially supported product of Google, Microsoft, or Apple.**

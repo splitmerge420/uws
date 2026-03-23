@@ -12,3 +12,11 @@ contact_links:
   - name: 📖 Documentation
     url: https://github.com/splitmerge420/uws/blob/main/README.md
     about: "Check the README, AGENTS.md, ALUMINUM.md, and CONTRIBUTING.md before opening an issue."
+
+  - name: 🏛 Governance
+    url: https://github.com/splitmerge420/uws/blob/main/GOVERNANCE.md
+    about: "Project governance, roadmap, and decision-making process."
+
+  - name: 🤝 Contributing Guide
+    url: https://github.com/splitmerge420/uws/blob/main/CONTRIBUTING.md
+    about: "How to contribute code, tests, or documentation."

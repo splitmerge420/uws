@@ -1,0 +1,43 @@
+name: Auto-Assign
+
+on:
+  issues:
+    types: [opened]
+  pull_request:
+    types: [opened]
+
+permissions:
+  issues: write
+  pull-requests: write
+
+jobs:
+  assign-author:
+    name: Assign issue/PR to author
+    runs-on: ubuntu-latest
+    # Don't auto-assign external contributors — they can self-assign if they want
+    if: github.event.sender.type == 'User'
+    steps:
+      - uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const isIssue = context.eventName === 'issues';
+            const number = isIssue
+              ? context.payload.issue.number
+              : context.payload.pull_request.number;
+            const author = context.payload.sender.login;
+
+            // Only auto-assign for the repo owner/maintainers
+            const maintainers = ['splitmerge420'];
+            if (!maintainers.includes(author)) {
+              console.log(`@${author} is an external contributor — skipping auto-assign`);
+              return;
+            }
+
+            await github.rest.issues.addAssignees({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: number,
+              assignees: [author],
+            });
+            console.log(`Assigned #${number} to @${author}`);

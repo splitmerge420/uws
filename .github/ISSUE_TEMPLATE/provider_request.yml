@@ -1,0 +1,82 @@
+name: 🔌 New Provider Request
+description: Request integration of a new productivity provider or API
+title: "[Provider]: Add support for "
+labels: ["enhancement", "new-provider"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Want a new cloud provider in uws?** Fill in the details below so we can evaluate the integration.
+        See [CONTRIBUTING.md](../blob/main/CONTRIBUTING.md) if you'd like to implement it yourself!
+
+  - type: input
+    id: provider-name
+    attributes:
+      label: Provider Name
+      placeholder: "Notion, Slack, Linear, Zoom, Salesforce, ..."
+    validations:
+      required: true
+
+  - type: input
+    id: api-docs
+    attributes:
+      label: API Documentation URL
+      placeholder: "https://developers.notion.com/"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: api-type
+    attributes:
+      label: API Type
+      options:
+        - REST (JSON)
+        - GraphQL
+        - gRPC
+        - CalDAV / CardDAV / WebDAV
+        - SOAP / XML-RPC
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: auth-type
+    attributes:
+      label: Authentication Type
+      options:
+        - OAuth2 (Authorization Code)
+        - OAuth2 (Client Credentials)
+        - API Key
+        - JWT / Bearer token
+        - Basic Auth
+        - SAML / SSO
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: use-cases
+    attributes:
+      label: Key Use Cases
+      description: What operations should uws support for this provider? List the most important ones.
+      placeholder: |
+        - List pages in a Notion database
+        - Create/update Notion pages
+        - Search across workspace
+    validations:
+      required: true
+
+  - type: textarea
+    id: agent-use-case
+    attributes:
+      label: AI Agent Use Case
+      description: How would AI agents (Claude, Copilot, Gemini, Manus) use this integration?
+
+  - type: checkboxes
+    id: willing-to-implement
+    attributes:
+      label: Contribution
+      options:
+        - label: I am willing to implement this provider myself (see CONTRIBUTING.md)
+        - label: I can provide access to test credentials / a sandbox environment

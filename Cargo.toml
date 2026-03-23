@@ -2,6 +2,7 @@
 name = "uws"
 version = "0.1.0"
 edition = "2021"
+rust-version = "1.85.0"
 authors = ["Dave Sheldon <splitmerge420@gmail.com>"]
 description = "Universal Workspace CLI — Constitutional operating system for AI-augmented life"
 license = "MIT"

@@ -1,0 +1,74 @@
+# .gitattributes
+# Consistent line endings, binary file handling, and GitHub language statistics.
+
+# Default: normalise all text files to LF in the repo, checkout as native on each platform
+* text=auto eol=lf
+
+# ── Rust ──────────────────────────────────────────────────────────────────────
+*.rs         text eol=lf diff=rust
+Cargo.toml   text eol=lf
+Cargo.lock   text eol=lf -merge
+
+# ── Python ────────────────────────────────────────────────────────────────────
+*.py         text eol=lf diff=python
+
+# ── JavaScript / TypeScript ───────────────────────────────────────────────────
+*.js         text eol=lf
+*.ts         text eol=lf
+*.json       text eol=lf
+*.yaml       text eol=lf
+*.yml        text eol=lf
+
+# ── Shell scripts ─────────────────────────────────────────────────────────────
+*.sh         text eol=lf
+install.sh   text eol=lf
+
+# ── Markdown / docs ───────────────────────────────────────────────────────────
+*.md         text eol=lf diff=markdown
+*.txt        text eol=lf
+
+# ── Nix ───────────────────────────────────────────────────────────────────────
+*.nix        text eol=lf
+
+# ── Windows batch / PowerShell (keep CRLF on Windows checkout) ───────────────
+*.bat        text eol=crlf
+*.cmd        text eol=crlf
+*.ps1        text eol=crlf
+
+# ── Binary files — never diff or merge ───────────────────────────────────────
+*.png        binary
+*.jpg        binary
+*.jpeg       binary
+*.gif        binary
+*.ico        binary
+*.webp       binary
+*.wasm       binary
+*.pdf        binary
+demo.gif     binary
+
+# ── GitHub Linguist overrides — correct language attribution ─────────────────
+# Don't count generated / vendored files in language stats
+pnpm-lock.yaml            linguist-generated=true
+Cargo.lock                linguist-generated=true
+*.snap                    linguist-generated=true
+
+# Count skills/ as documentation (they're SKILL.md agent guides, not code)
+skills/**                 linguist-documentation=true
+docs/**                   linguist-documentation=true
+
+# Count toolchain Python as regular code
+toolchain/*.py            linguist-detectable=true
+
+# ── Diff drivers ─────────────────────────────────────────────────────────────
+# Use word-diff for JSON files to make diffs easier to read
+*.json                    diff=json
+
+# ── Export ignore — files omitted from `git archive` downloads ───────────────
+.github/                  export-ignore
+.devcontainer/            export-ignore
+.cargo/                   export-ignore
+toolchain/                export-ignore
+benches/                  export-ignore
+tests/                    export-ignore
+_typos.toml               export-ignore
+lefthook.yml              export-ignore

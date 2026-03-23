@@ -1,0 +1,69 @@
+name: Cherry-Pick / Backport
+
+# Usage: comment `/backport <branch>` on any merged PR to cherry-pick it there.
+# Example: /backport release/0.1
+
+on:
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  backport:
+    name: Backport
+    runs-on: ubuntu-latest
+    # Only trigger on merged PR comments with the slash command
+    if: >
+      github.event.issue.pull_request &&
+      contains(github.event.comment.body, '/backport')
+
+    steps:
+      - name: Parse backport command
+        id: parse
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const body = context.payload.comment.body;
+            const match = body.match(/\/backport\s+([^\s]+)/);
+            if (!match) {
+              core.setFailed('Could not parse /backport command. Usage: /backport <branch>');
+              return;
+            }
+            const target = match[1].trim();
+            core.setOutput('target', target);
+            console.log(`Backport target branch: ${target}`);
+
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Get PR merge commit
+        id: pr
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const pr = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number,
+            });
+            if (!pr.data.merged) {
+              core.setFailed('PR is not merged — cannot backport.');
+              return;
+            }
+            core.setOutput('sha', pr.data.merge_commit_sha);
+            core.setOutput('title', pr.data.title);
+
+      - name: Cherry-pick and open backport PR
+        uses: korthout/backport-action@v3
+        with:
+          target-branches: ${{ steps.parse.outputs.target }}
+          merge-commits: "skip"
+          github-token: ${{ secrets.GITHUB_TOKEN }}

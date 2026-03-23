@@ -1,0 +1,83 @@
+name: Nightly Rust CI
+
+on:
+  schedule:
+    # Run nightly at 04:00 UTC — catches upcoming breakage before it lands in stable
+    - cron: "0 4 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  nightly:
+    name: Nightly (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install nightly Rust
+        uses: dtolnay/rust-toolchain@nightly
+        with:
+          components: rustfmt, clippy
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+        with:
+          key: nightly-${{ matrix.os }}
+
+      - name: Build on nightly
+        run: cargo build --all-features
+        continue-on-error: true
+        id: build
+
+      - name: Test on nightly
+        run: cargo test --all-features
+        continue-on-error: true
+        id: test
+
+      - name: Clippy on nightly
+        run: cargo clippy --all-features -- -D warnings
+        continue-on-error: true
+        id: clippy
+
+      - name: Open issue on failure
+        uses: actions/github-script@v7
+        if: >
+          steps.build.outcome == 'failure' ||
+          steps.test.outcome == 'failure' ||
+          steps.clippy.outcome == 'failure'
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const title = `🌙 Nightly Rust CI failure (${new Date().toISOString().slice(0,10)})`;
+
+            // Check if an open issue already exists with this title
+            const issues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'nightly',
+              per_page: 10,
+            });
+
+            const existing = issues.data.find(i => i.title.startsWith('🌙 Nightly Rust CI failure'));
+            if (existing) {
+              console.log(`Issue #${existing.number} already open — skipping`);
+              return;
+            }
+
+            const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title,
+              labels: ['nightly', 'bug'],
+              body: `The nightly Rust CI run failed on \`${context.ref}\`.\n\n[View run](${runUrl})\n\nThis may indicate upcoming breakage on stable. Please investigate.`,
+            });

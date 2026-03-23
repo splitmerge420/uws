@@ -1,0 +1,60 @@
+name: Validate PR Title
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+    branches: [main]
+
+permissions:
+  pull-requests: write
+  statuses: write
+
+jobs:
+  validate-title:
+    name: Conventional Commits
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check PR title follows Conventional Commits
+        uses: amannn/action-semantic-pull-request@v5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          # Allowed types (from Angular Conventional Commits)
+          types: |
+            feat
+            fix
+            docs
+            style
+            refactor
+            perf
+            test
+            build
+            ci
+            chore
+            revert
+          # Allowed scopes — use "(scope)" suffix, e.g. feat(auth): ...
+          scopes: |
+            auth
+            core
+            discovery
+            executor
+            ms-graph
+            apple
+            android
+            chrome
+            mcp
+            skills
+            tui
+            docs
+            ci
+            deps
+            release
+            universal
+            validate
+          requireScope: false
+          subjectPattern: ^[A-Z].+$
+          subjectPatternError: >
+            The subject "{subject}" must start with an uppercase letter.
+            Example: feat(auth): Add PKCE support
+          wip: true
+          validateSingleCommit: false

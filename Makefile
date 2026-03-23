@@ -3,7 +3,7 @@
 # Works in GitHub Codespaces, CI, and local environments.
 # Run `make help` to see all available targets.
 
-.PHONY: help build build-release test lint fmt check clean audit docker mcp docs
+.PHONY: help build build-release test lint fmt check clean audit docker mcp docs msrv hooks
 
 # Default target
 help: ## Show this help
@@ -85,3 +85,19 @@ version: ## Apply changesets and bump version
 
 release: ## Create a git tag from the current version
 	bash scripts/tag-release.sh
+
+# ── Pre-commit hooks (lefthook) ───────────────────────────────────────────────
+
+hooks: ## Install lefthook git hooks
+	cargo install lefthook 2>/dev/null || true
+	lefthook install
+	@echo "✓ Git hooks installed"
+
+# ── MSRV check ───────────────────────────────────────────────────────────────
+
+msrv: ## Check MSRV (Minimum Supported Rust Version = 1.85.0)
+	@echo "Checking MSRV 1.85.0..."
+	rustup toolchain install 1.85.0 --no-self-update -q
+	cargo +1.85.0 check --all-features
+	@echo "✓ MSRV check passed"
+

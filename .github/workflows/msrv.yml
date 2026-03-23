@@ -1,0 +1,55 @@
+name: MSRV Check
+
+on:
+  push:
+    branches: [main]
+    paths: ["**/*.rs", "Cargo.toml", "Cargo.lock", "rust-toolchain.toml"]
+  pull_request:
+    branches: [main]
+    paths: ["**/*.rs", "Cargo.toml", "Cargo.lock", "rust-toolchain.toml"]
+  schedule:
+    # Weekly — check if dependencies have raised their MSRV on us
+    - cron: "0 5 * * 1"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  msrv:
+    name: MSRV (Rust ${{ matrix.rust }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # Test against the declared MSRV and the one release before it.
+        # Update these when bumping rust-toolchain.toml.
+        rust: ["1.85.0"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust ${{ matrix.rust }}
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: ${{ matrix.rust }}
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+        with:
+          key: msrv-${{ matrix.rust }}
+
+      - name: Check (no build artefacts)
+        run: cargo check --all-features
+
+      - name: Run tests
+        run: cargo test --all-features
+
+      - name: Annotate MSRV in cargo metadata
+        if: matrix.rust == '1.85.0' && github.event_name == 'push'
+        run: |
+          echo "## MSRV" >> "$GITHUB_STEP_SUMMARY"
+          echo "Minimum Supported Rust Version: **${{ matrix.rust }}** ✅" >> "$GITHUB_STEP_SUMMARY"

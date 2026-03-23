@@ -1,0 +1,51 @@
+# .cargo/config.toml — Cargo workspace configuration
+#
+# Applies to all builds in this workspace. Settings here are checked into git
+# so that all contributors get the same build behaviour.
+
+[build]
+# Emit coloured compiler output in terminals
+rustflags = [
+  # Abort on panic in release builds (smaller binary, no unwinding tables)
+  # "-C", "panic=abort",   # Uncomment when no C FFI callbacks need unwinding
+]
+
+[target.x86_64-unknown-linux-gnu]
+# Use mold linker if available — dramatically faster incremental link times
+# Install with: apt install mold
+# linker = "clang"
+# rustflags = ["-C", "link-arg=-fuse-ld=mold"]
+
+[target.aarch64-unknown-linux-gnu]
+# Cross-compilation target for ARM64 Linux (Docker, GitHub Actions)
+linker = "aarch64-linux-gnu-gcc"
+
+[target.x86_64-apple-darwin]
+# macOS Intel — no special flags needed
+
+[target.aarch64-apple-darwin]
+# macOS Apple Silicon — no special flags needed
+
+[profile.dev]
+# Faster incremental builds in development
+debug = true
+opt-level = 0
+
+[profile.release]
+# Already set in Cargo.toml: opt-level=3, lto=true, strip=true
+# Here we add split-debuginfo for better profiling support
+split-debuginfo = "packed"
+
+[profile.ci]
+# Fast CI builds — full debug info off, minimal optimisation
+inherits = "dev"
+debug = false
+opt-level = 1
+
+[env]
+# Set CARGO_TERM_COLOR=always so CI logs are coloured
+CARGO_TERM_COLOR = "always"
+
+[net]
+# Enable sparse registry protocol (faster `cargo update` on large registries)
+git-fetch-with-cli = false

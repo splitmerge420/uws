@@ -1,0 +1,32 @@
+name: Lock Old Threads
+
+on:
+  schedule:
+    # Run daily at 02:30 UTC
+    - cron: "30 2 * * *"
+  workflow_dispatch:
+
+permissions:
+  issues: write
+  pull-requests: write
+
+jobs:
+  lock:
+    name: Lock closed issues and PRs
+    runs-on: ubuntu-latest
+    steps:
+      - uses: dessant/lock-threads@v5
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          # Lock issues closed for more than 30 days
+          issue-inactive-days: 30
+          # Lock PRs closed for more than 14 days
+          pr-inactive-days: 14
+          # Don't lock items with these labels
+          exclude-issue-labels: "keep-open,pinned"
+          exclude-pr-labels: "keep-open,pinned"
+          add-issue-labels: "locked"
+          add-pr-labels: "locked"
+          issue-lock-reason: "resolved"
+          pr-lock-reason: "resolved"
+          log-output: true
