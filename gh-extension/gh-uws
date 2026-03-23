@@ -1,0 +1,46 @@
+#!/usr/bin/env sh
+# gh-uws — gh CLI extension for uws Universal Workspace CLI
+#
+# Install:  gh extension install splitmerge420/uws
+# Usage:    gh uws <command>
+#
+# This extension passes all arguments straight through to the `uws` binary,
+# automatically injecting the gh-managed GITHUB_TOKEN so `uws github`
+# commands work without any extra auth setup.
+#
+# Examples:
+#   gh uws github repos list
+#   gh uws github issues list --params '{"owner":"octocat","repo":"Hello-World"}'
+#   gh uws github pulls list --params '{"owner":"octocat","repo":"Hello-World","state":"open"}'
+#   gh uws github actions runs --params '{"owner":"octocat","repo":"Hello-World"}'
+#   gh uws github search repos --params '{"q":"language:rust stars:>1000"}'
+#   gh uws gmail users messages list --params '{"userId":"me","q":"is:unread","maxResults":5}'
+#   gh uws ms-mail messages list --params '{"$top":5}'
+#
+# The extension auto-installs uws if it is not already on $PATH.
+
+set -eu
+
+UWS_REPO="splitmerge420/uws"
+
+# ── Ensure uws is installed ────────────────────────────────────────────────
+if ! command -v uws >/dev/null 2>&1; then
+  echo "uws not found. Installing via install.sh..."
+  curl -fsSL "https://raw.githubusercontent.com/${UWS_REPO}/main/install.sh" | sh
+  # Reload PATH so the newly-installed binary is found
+  export PATH="$HOME/.local/bin:$PATH"
+fi
+
+# ── Inject token from gh CLI auth ─────────────────────────────────────────
+# `gh auth token` outputs the token for the active GitHub account.
+# We set both GITHUB_TOKEN (standard) and UWS_GITHUB_TOKEN (uws override).
+if command -v gh >/dev/null 2>&1; then
+  GH_TOKEN="$(gh auth token 2>/dev/null || true)"
+  if [ -n "$GH_TOKEN" ]; then
+    export GITHUB_TOKEN="${GITHUB_TOKEN:-$GH_TOKEN}"
+    export UWS_GITHUB_TOKEN="${UWS_GITHUB_TOKEN:-$GH_TOKEN}"
+  fi
+fi
+
+# ── Forward all arguments to uws ──────────────────────────────────────────
+exec uws "$@"

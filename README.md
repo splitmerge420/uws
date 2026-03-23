@@ -2,17 +2,18 @@
 
 <p align="center">
   <strong>One CLI to rule them all.</strong><br>
-  Google Workspace. Microsoft 365. Apple. Android. Chrome.<br>
+  Google Workspace. Microsoft 365. Apple. GitHub. Android. Chrome.<br>
   Built for humans and AI agents. Zero boilerplate.
 </p>
 
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-Apache%202.0-blue.svg" alt="License"></a>
   <a href="https://github.com/splitmerge420/uws"><img src="https://img.shields.io/github/stars/splitmerge420/uws" alt="Stars"></a>
+  <a href="https://github.com/splitmerge420/uws/actions/workflows/ci.yml"><img src="https://github.com/splitmerge420/uws/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
   <a href="https://github.com/googleworkspace/cli"><img src="https://img.shields.io/badge/forked%20from-googleworkspace%2Fcli-brightgreen" alt="Forked from gws"></a>
 </p>
 
-> **Not an officially supported product of Google, Microsoft, or Apple.**
+> **Not an officially supported product of Google, Microsoft, Apple, or GitHub.**
 > Forked from [googleworkspace/cli](https://github.com/googleworkspace/cli) by Justin Poehnelt (Apache 2.0).
 
 ---
@@ -22,6 +23,11 @@
 `uws` is a **universal, schema-driven command-line interface** that gives you — and your AI agents — structured, JSON-first access to every major productivity ecosystem from a single tool.
 
 ```bash
+# GitHub (no OAuth — just a PAT or GITHUB_TOKEN)
+uws github repos list
+uws github issues list --params '{"owner":"octocat","repo":"Hello-World","state":"open"}'
+uws github actions runs --params '{"owner":"octocat","repo":"Hello-World"}'
+
 # Google Workspace
 uws gmail users messages list --params '{"userId": "me", "q": "is:unread"}'
 
@@ -69,16 +75,61 @@ Google shipped [gws](https://github.com/googleworkspace/cli) — a brilliant CLI
 |---|---|
 | Google Workspace (Drive, Gmail, Calendar, Docs, Sheets, Slides, Tasks, People, Chat, Forms, Keep, Meet) | **Microsoft 365** (Outlook, OneDrive, Teams, To Do, OneNote, SharePoint, Planner) |
 | OAuth2 auth model | **Apple iCloud** (CalDAV, CardDAV, CloudKit) |
-| JSON-first output | **Android** (Management API, Messages) |
-| AI agent SKILL.md files | **Chrome** (Management, Policy, Web Store, ChromeOS) |
-| Schema-driven discovery | **Multi-provider abstraction layer** (Aluminum) |
-| Model Armor safety layer | **Claude + Manus + Gemini + Copilot** agent runtime |
+| JSON-first output | **GitHub** (Repos, Issues, PRs, Actions, Search — PAT auth, no OAuth needed) |
+| AI agent SKILL.md files | **Android** (Management API, Messages) |
+| Schema-driven discovery | **Chrome** (Management, Policy, Web Store, ChromeOS) |
+| Model Armor safety layer | **Multi-provider abstraction layer** (Aluminum) + **Claude + Manus + Gemini + Copilot** |
+
+---
+
+## Why GitHub Specifically Benefits
+
+uws turns GitHub into a first-class productivity provider alongside Google and Microsoft:
+
+| GitHub Surface | How uws Unlocks It |
+|---|---|
+| **100M+ developers already have `GITHUB_TOKEN`** | Zero new auth setup — PAT works immediately |
+| **GitHub Actions** | `uses: splitmerge420/uws@main` — call any API from any workflow |
+| **GitHub Copilot** | `.github/copilot-instructions.md` — Copilot auto-suggests uws commands |
+| **Copilot Extensions** | `copilot-extension.json` — uws skills surfaced in Copilot Chat |
+| **gh CLI** | `gh extension install splitmerge420/uws` — one command, full access |
+| **GitHub Codespaces** | `.devcontainer/devcontainer.json` — instant dev environment |
+| **GitHub Issues / PRs** | Triaging and commenting from CI workflows or AI agents |
+| **GitHub Search** | Code, repos, users, commits — all queryable as JSON |
 
 ---
 
 ## Installation
 
-### From Source (Rust required)
+### 1. One-line installer (Linux / macOS)
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/splitmerge420/uws/main/install.sh | sh
+```
+
+### 2. gh CLI Extension
+
+```bash
+gh extension install splitmerge420/uws
+gh uws github repos list        # GITHUB_TOKEN injected automatically
+gh uws gmail users messages list --params '{"userId":"me","q":"is:unread"}'
+```
+
+### 3. GitHub Actions
+
+```yaml
+- uses: splitmerge420/uws@main
+  with:
+    command: github issues list --params '{"owner":"${{ github.repository_owner }}","repo":"${{ github.event.repository.name }}","state":"open"}'
+  id: open-issues
+- run: echo '${{ steps.open-issues.outputs.result }}' | jq '.[].title'
+```
+
+### 4. GitHub Codespaces
+
+Click **Code → Codespaces → Create codespace**. The `.devcontainer` configuration installs Rust, rust-analyzer, GitHub CLI, and GitHub Copilot automatically.
+
+### 5. From Source (Rust required)
 
 ```bash
 git clone https://github.com/splitmerge420/uws
@@ -88,7 +139,7 @@ sudo cp target/release/uws /usr/local/bin/uws
 uws --version
 ```
 
-### Homebrew *(coming soon)*
+### 6. Homebrew *(coming soon)*
 
 ```bash
 brew install splitmerge420/tap/uws
@@ -97,6 +148,16 @@ brew install splitmerge420/tap/uws
 ---
 
 ## Authentication
+
+### GitHub (no OAuth needed)
+
+```bash
+export GITHUB_TOKEN=ghp_xxxxxxxxxxxxxxxxxxxx   # or use gh auth login
+uws github repos list
+
+# In GitHub Actions — GITHUB_TOKEN is already available:
+uws github issues create --params '{"owner":"...","repo":"..."}' --json '{"title":"..."}'
+```
 
 ### Google Workspace
 
@@ -155,6 +216,25 @@ uws <service> <resource> [sub-resource] <method> [flags]
 | `--page-all` | Auto-paginate all results (NDJSON) |
 | `--page-limit <N>` | Max pages with `--page-all` (default: 10) |
 | `--dry-run` | Print the request without executing it |
+
+### GitHub Services
+
+| Service | Description |
+|---|---|
+| `github` | Full GitHub REST API — see [skills/github/SKILL.md](skills/github/SKILL.md) |
+
+Auth: set `GITHUB_TOKEN` or `UWS_GITHUB_TOKEN`. No OAuth flow needed.
+
+```bash
+uws github repos list
+uws github issues list --params '{"owner":"octocat","repo":"Hello-World","state":"open"}'
+uws github pulls get --params '{"owner":"octocat","repo":"Hello-World","pull_number":1}'
+uws github releases latest --params '{"owner":"octocat","repo":"Hello-World"}'
+uws github actions runs --params '{"owner":"octocat","repo":"Hello-World"}'
+uws github search repos --params '{"q":"language:rust stars:>1000"}'
+uws github user me
+uws github notifications list
+```
 
 ### Google Workspace Services
 
@@ -219,6 +299,10 @@ uws <service> <resource> [sub-resource] <method> [flags]
 
 ```bash
 #!/bin/bash
+echo "=== GitHub notifications ==="
+uws github notifications list --params '{"all":false}' \
+  | jq '[.[] | {title: .subject.title, type: .subject.type, repo: .repository.full_name}]'
+
 echo "=== Gmail (unread) ==="
 uws gmail users messages list \
   --params '{"userId":"me","q":"is:unread","maxResults":5}' --format table
@@ -237,20 +321,46 @@ uws calendar events list \
 ### Cross-Provider File Search
 
 ```bash
-uws drive files list --params '{"q": "name contains '\''budget'\''"}' --format table
+uws drive files list --params '{"q": "name contains ''budget''"}' --format table
 uws ms-onedrive drive root search --params '{"q": "budget"}' --format table
+```
+
+### GitHub CI Monitor (in a workflow)
+
+```yaml
+- uses: splitmerge420/uws@main
+  with:
+    command: >
+      github actions runs
+      --params '{"owner":"${{ github.repository_owner }}","repo":"${{ github.event.repository.name }}","status":"failure","per_page":3}'
+  id: failing-runs
+
+- name: Comment on failing runs
+  run: |
+    echo '${{ steps.failing-runs.outputs.result }}' \
+      | jq '.workflow_runs[] | "\u274c \(.name) — \(.html_url)"'
 ```
 
 ---
 
 ## AI Agent Integration
 
+### GitHub Copilot
+
+Copy or symlink `.github/copilot-instructions.md` — it's already in this repo. Copilot will automatically read it and suggest correct `uws github` commands in Copilot Chat.
+
+```bash
+# In Copilot Chat (after installing the gh extension):
+# "List open issues in this repo" → Copilot suggests:
+uws github issues list --params '{"owner":"splitmerge420","repo":"uws","state":"open"}'
+```
+
 ### Claude (Anthropic)
 
 ```json
 {
   "name": "uws",
-  "description": "Universal Workspace CLI. Reads and writes data across Google Workspace, Microsoft 365, Apple iCloud, Android, and Chrome. Always outputs JSON.",
+  "description": "Universal Workspace CLI. Reads and writes data across Google Workspace, Microsoft 365, Apple iCloud, GitHub, Android, and Chrome. Always outputs JSON.",
   "input_schema": {
     "type": "object",
     "properties": {
@@ -317,6 +427,7 @@ The `toolchain/` directory contains the full CI/CD pipeline and governance infra
 | Phase | Milestone | Status |
 |---|---|---|
 | 1 | Fork gws → abstract provider layer (`uws` v0.1) | **Complete** |
+| 1b | GitHub provider (`uws github`) — PAT auth, no OAuth | **Complete** |
 | 2 | Microsoft Graph backend (`uws` v0.2 / Alexandria) | **In Progress** |
 | 3 | Apple Intents backend (`uws` v0.3) | Planned |
 | 4 | Aluminum kernel APIs (`alum` v0.1) | Planned |
@@ -328,12 +439,19 @@ The `toolchain/` directory contains the full CI/CD pipeline and governance infra
 
 See [CONTRIBUTING.md](CONTRIBUTING.md). To add a new provider driver, implement the `ProviderDriver` trait and register it in `src/services.rs`. See [ALUMINUM.md](ALUMINUM.md) for the interface spec.
 
+New providers follow the `src/github_provider.rs` pattern:
+1. Create `src/<provider>_provider.rs` with `is_<provider>_service()` + `build_request()` + unit tests
+2. Register the early dispatch in `src/main.rs`
+3. Add a `skills/<provider>/SKILL.md`
+4. Add env vars to `.env.example`
+
 ---
 
 ## Credits
 
 - **Daavud Sheldon** — uws architecture and multi-ecosystem extension
 - **Justin Poehnelt** — original `gws` implementation
+- **GitHub Copilot** — GitHub provider implementation and adoption engineering
 - **Microsoft Copilot** — Aluminum OS architectural review
 - **Google LLC** — original `gws` codebase (Apache 2.0)
 

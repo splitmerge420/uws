@@ -90,6 +90,7 @@ pub struct NoosphereEntry {
 
 impl NoosphereEntry {
     /// Create a new entry with the given required fields.
+    #[allow(clippy::too_many_arguments)]
     pub fn new(
         id: impl Into<String>,
         title: impl Into<String>,
@@ -470,7 +471,7 @@ impl Noosphere {
     pub fn import_json(&mut self, json: &str) -> Result<usize, NoosphereError> {
         // Use the hand-rolled parser to avoid a serde_json dep in lib.rs.
         let entries = parse_entries_json(json)
-            .map_err(|e| NoosphereError::SerializationError(e))?;
+            .map_err(NoosphereError::SerializationError)?;
         let count = entries.len();
         for entry in entries {
             self.upsert(entry)?;

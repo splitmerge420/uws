@@ -1,0 +1,61 @@
+{
+  "name": "uws — Universal Workspace CLI",
+  "image": "mcr.microsoft.com/devcontainers/rust:1",
+
+  "features": {
+    "ghcr.io/devcontainers/features/github-cli:1": {},
+    "ghcr.io/devcontainers/features/node:1": { "version": "20" },
+    "ghcr.io/devcontainers/features/python:1": { "version": "3.12" }
+  },
+
+  "postCreateCommand": "cargo build 2>&1 | tail -5 && echo '✓ uws built successfully'",
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "rust-lang.rust-analyzer",
+        "vadimcn.vscode-lldb",
+        "tamasfe.even-better-toml",
+        "github.copilot",
+        "github.copilot-chat",
+        "ms-vscode.vscode-json-extract",
+        "redhat.vscode-yaml"
+      ],
+      "settings": {
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "rust-lang.rust-analyzer",
+        "rust-analyzer.checkOnSave.command": "clippy",
+        "rust-analyzer.checkOnSave.extraArgs": ["--", "-D", "warnings"],
+        "terminal.integrated.defaultProfile.linux": "bash"
+      }
+    }
+  },
+
+  "remoteEnv": {
+    "GITHUB_TOKEN": "${localEnv:GITHUB_TOKEN}",
+    "UWS_GITHUB_TOKEN": "${localEnv:GITHUB_TOKEN}",
+    "GOOGLE_WORKSPACE_CLI_TOKEN": "${localEnv:GOOGLE_WORKSPACE_CLI_TOKEN}",
+    "GOOGLE_WORKSPACE_CLI_CREDENTIALS_FILE": "${localEnv:GOOGLE_WORKSPACE_CLI_CREDENTIALS_FILE}",
+    "UWS_MS_TOKEN": "${localEnv:UWS_MS_TOKEN}",
+    "UWS_MS_CLIENT_ID": "${localEnv:UWS_MS_CLIENT_ID}",
+    "UWS_MS_CLIENT_SECRET": "${localEnv:UWS_MS_CLIENT_SECRET}",
+    "UWS_MS_TENANT_ID": "${localEnv:UWS_MS_TENANT_ID}",
+    "ANTHROPIC_API_KEY": "${localEnv:ANTHROPIC_API_KEY}",
+    "GEMINI_API_KEY": "${localEnv:GEMINI_API_KEY}",
+    "OPENAI_API_KEY": "${localEnv:OPENAI_API_KEY}"
+  },
+
+  "forwardPorts": [],
+
+  "portsAttributes": {},
+
+  "mounts": [],
+
+  "_comment_quick_start": [
+    "Once the container starts:",
+    "  cargo build && cargo test --lib",
+    "  uws github repos list                     # uses injected GITHUB_TOKEN",
+    "  uws gmail users messages list --params '...'  # needs GOOGLE_WORKSPACE_CLI_TOKEN",
+    "See README.md for full auth setup instructions."
+  ]
+}

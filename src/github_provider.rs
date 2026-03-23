@@ -695,8 +695,7 @@ pub fn parse_params(json_str: &str) -> Result<BTreeMap<String, String>, GhError>
         return Ok(BTreeMap::new());
     }
     // Use a hand-rolled extractor matching the zero-dep philosophy in universal_io.
-    parse_flat_json_object(json_str)
-        .map_err(|e| GhError::ParseError(e))
+    parse_flat_json_object(json_str).map_err(GhError::ParseError)
 }
 
 /// Build a full GitHub API URL by substituting path parameters from `params`
@@ -925,7 +924,7 @@ fn parse_json_string(s: &str) -> Result<(String, &str), String> {
     Err("unterminated string".to_string())
 }
 
-fn parse_json_value<'a>(s: &'a str) -> Result<(Option<String>, &'a str), String> {
+fn parse_json_value(s: &str) -> Result<(Option<String>, &str), String> {
     if s.starts_with('"') {
         let (v, rest) = parse_json_string(s)?;
         return Ok((Some(v), rest));
@@ -940,9 +939,9 @@ fn parse_json_value<'a>(s: &'a str) -> Result<(Option<String>, &'a str), String>
         return Ok((Some(s[..end].to_string()), &s[end..]));
     }
     // Boolean / null — skip, but consume.
-    if s.starts_with("true") { return Ok((None, &s[4..])); }
-    if s.starts_with("false") { return Ok((None, &s[5..])); }
-    if s.starts_with("null") { return Ok((None, &s[4..])); }
+    if let Some(rest) = s.strip_prefix("true") { return Ok((None, rest)); }
+    if let Some(rest) = s.strip_prefix("false") { return Ok((None, rest)); }
+    if let Some(rest) = s.strip_prefix("null") { return Ok((None, rest)); }
     // Nested object or array — skip by counting braces/brackets.
     if s.starts_with('{') || s.starts_with('[') {
         let close = if s.starts_with('{') { (b'{', b'}') } else { (b'[', b']') };

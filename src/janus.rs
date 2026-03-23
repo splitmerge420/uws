@@ -169,6 +169,7 @@ pub struct ModelCapabilities {
 }
 
 impl ModelCapabilities {
+    #[allow(clippy::too_many_arguments)]
     pub fn new(
         provider: ModelProvider,
         name: impl Into<String>,
