@@ -34,6 +34,7 @@ mod generate_skills;
 mod helpers;
 mod oauth_config;
 mod royalty_observability;
+mod royalty_weight;
 mod schema;
 mod services;
 mod setup;
@@ -131,6 +132,12 @@ async fn run() -> Result<(), GwsError> {
     if first_arg == "generate-skills" {
         let gen_args: Vec<String> = args.iter().skip(2).cloned().collect();
         return generate_skills::handle_generate_skills(&gen_args).await;
+    }
+
+    // Handle the `royalty` command
+    if first_arg == "royalty" {
+        royalty_weight::handle_royalty_command(&args);
+        return Ok(());
     }
 
     // Handle the `auth` command

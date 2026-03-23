@@ -37,7 +37,7 @@ const PRIMARY_PACKAGE: &str = "splitmerge420/uws";
 /// These represent the major API versions of the packages whose authorship
 /// is being attributed. Major-version granularity is intentional: it tracks
 /// the API contract, not transient patch releases.
-const LINEAGE_DEPS: &[(&str, &str)] = &[
+pub(crate) const LINEAGE_DEPS: &[(&str, &str)] = &[
     ("uws", env!("CARGO_PKG_VERSION")),
     ("tokio", "1"),
     ("reqwest", "0.12"),
@@ -63,7 +63,7 @@ struct ExecutionEvent<'a> {
 /// The input is the concatenation of `name@version` strings for every entry in
 /// `LINEAGE_DEPS`, separated by `|`. This makes the hash stable across
 /// invocations for the same build of `uws`.
-fn compute_lineage_hash() -> String {
+pub(crate) fn compute_lineage_hash() -> String {
     let mut hasher = Sha256::new();
     let lineage_string: String = LINEAGE_DEPS
         .iter()
