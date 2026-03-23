@@ -1,3 +1,7 @@
+#![allow(unused_variables, unused_mut, dead_code, non_camel_case_types,
+         clippy::new_without_default, clippy::map_unwrap_or,
+         clippy::option_map_or_none, clippy::useless_vec,
+         clippy::manual_map, clippy::needless_option_as_deref)]
 // gpt_pantheon.rs — Aluminum OS GPT Pantheon Layer
 // Implements GPT's 20-item "Pantheon Edition" wish list.
 // 13 items map to existing modules; 7 genuinely new capabilities built here.

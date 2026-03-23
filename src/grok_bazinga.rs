@@ -1,3 +1,7 @@
+#![allow(unused_variables, unused_mut, dead_code, non_camel_case_types,
+         clippy::new_without_default, clippy::map_unwrap_or,
+         clippy::option_map_or_none, clippy::useless_vec,
+         clippy::manual_map, clippy::needless_option_as_deref)]
 // grok_bazinga.rs — Aluminum OS Grok Bazinga Layer
 // Implements all 20 Grok/Ara wishes. 12 map to existing modules;
 // 8 are genuinely new capabilities built here.
@@ -181,7 +185,7 @@ pub struct TruthEngine {
     pub verified_claims: Vec<VerifiedClaim>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct VerifiedClaim {
     pub claim_id: String,
     pub claim: String,
@@ -192,7 +196,7 @@ pub struct VerifiedClaim {
     pub timestamp: String,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum TruthVerdict {
     Verified,
     Refuted,
@@ -201,7 +205,7 @@ pub enum TruthVerdict {
     NeedsMoreEvidence,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Evidence {
     pub source: String,
     pub url: Option<String>,
