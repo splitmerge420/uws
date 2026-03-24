@@ -1,0 +1,3 @@
+# Quick Build Mode — Shine Protocol
+
+Origin: Product Team fork. 5-question fast path for LinkedIn profile generation. Ask name/location, what they do vs want to be known for, proudest achievement, quick career rundown, and voice preference. Run credential mining in parallel during Q3. Output profile with inline verification annotations. Full verification available as optional upgrade path. See full document in plugin repository.
