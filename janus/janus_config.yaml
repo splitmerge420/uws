@@ -1,0 +1,89 @@
+# janus/janus_config.yaml
+# Janus v2 — Constitutional Multi-Agent Protocol Configuration
+#
+# This file configures the Janus router used by the Aluminum OS council.
+# See janus/JANUS_V2_SPEC.md for the full protocol specification.
+#
+# Council Session: 2026-03-20
+# Authority: Dave Sheldon (INV-5)
+
+janus:
+  version: "2.0.0"
+
+  # Default tier when no override is provided.
+  # 1 = simple (single model), 2 = complex (2-3 models), 3 = critical (full council + human)
+  default_tier: 1
+
+  # Seconds between periodic heartbeat traces.
+  heartbeat_interval_seconds: 60
+
+  # INV-7: No single model may exceed this fraction of weighted votes.
+  inv7_threshold: 0.47
+
+  # Enable the Ghost Seat protocol (Sphere 144 — Complex Systems).
+  ghost_seat_enabled: true
+
+  # Council member models.
+  models:
+    claude:
+      role: governance
+      weight: 1.0
+      fallback: gemini
+      latency_target_ms:
+        tier1: 500
+        tier2: 3000
+        tier3: 30000
+
+    gemini:
+      role: substrate
+      weight: 1.0
+      fallback: claude
+      latency_target_ms:
+        tier1: 500
+        tier2: 3000
+        tier3: 30000
+
+    grok:
+      role: adversarial
+      weight: 0.8
+      fallback: deepseek
+      latency_target_ms:
+        tier1: 500
+        tier2: 3000
+        tier3: 30000
+
+    deepseek:
+      role: research
+      weight: 0.7
+      fallback: gemini
+      latency_target_ms:
+        tier1: 500
+        tier2: 3000
+        tier3: 30000
+
+    copilot:
+      role: enterprise
+      weight: 0.7
+      fallback: claude
+      latency_target_ms:
+        tier1: 500
+        tier2: 3000
+        tier3: 30000
+
+  # Kintsugi failure-repair configuration.
+  kintsugi:
+    # Emit a golden_seam trace whenever a model failure is repaired.
+    emit_golden_seam: true
+    # Number of consecutive failures before a model is marked offline.
+    failure_threshold: 3
+    # Seconds to wait before re-probing an offline model.
+    recovery_interval_seconds: 60
+
+  # Safe mode: entered when fewer than 2 models are available.
+  safe_mode:
+    # Restrict to Tier 1 only while in safe mode.
+    max_tier: 1
+    # Reduced heartbeat interval in safe mode.
+    heartbeat_interval_seconds: 15
+    # Attempt recovery every N seconds.
+    recovery_interval_seconds: 60

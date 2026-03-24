@@ -28,3 +28,10 @@ pub mod council_github_client;
 /// verify_chain() walks every link to detect tampering.
 /// Enforces: INV-3 (Audit Trail), INV-35 (Fail-Closed)
 pub mod audit_chain;
+
+// ─── Janus v2 Multi-Agent Protocol ───────────────────────────
+/// Janus v2 multi-agent router + model router.
+/// Implements tier routing (Tier 1/2/3), INV-7 enforcement (47% cap),
+/// INV-8 human-override gating, GoldenTrace chain, and Kintsugi repair.
+/// Spec: janus/JANUS_V2_SPEC.md
+pub mod universal;

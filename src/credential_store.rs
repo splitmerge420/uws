@@ -209,7 +209,7 @@ pub fn decrypt(data: &[u8]) -> anyhow::Result<Vec<u8>> {
     let plaintext = cipher.decrypt(nonce, &data[12..]).map_err(|_| {
         anyhow::anyhow!(
             "Decryption failed. Credentials may have been created on a different machine. \
-                 Run `gws auth logout` and `gws auth login` to re-authenticate."
+                 Run `uws auth logout` and `uws auth login` to re-authenticate."
         )
     })?;
 

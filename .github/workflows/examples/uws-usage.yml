@@ -1,0 +1,113 @@
+# Example: Using uws in GitHub Actions
+#
+# Copy this workflow to your own repository and add the required secrets.
+# This demonstrates the most common automation patterns.
+#
+# Required secrets:
+#   GOOGLE_CREDENTIALS  — base64-encoded Google OAuth credentials JSON
+#                         Generate: base64 -w0 ~/path/to/credentials.json
+#   UWS_MS_TOKEN        — Microsoft Graph access token (for M365 steps)
+
+name: Workspace Automation (uws example)
+
+on:
+  schedule:
+    # Run every weekday morning at 08:00 UTC
+    - cron: '0 8 * * 1-5'
+  workflow_dispatch:
+    inputs:
+      provider:
+        description: 'Which provider to query'
+        required: true
+        default: 'google'
+        type: choice
+        options: [google, microsoft, both]
+
+jobs:
+  # ──────────────────────────────────────────────
+  # Pattern 1: Simple one-shot command via action
+  # ──────────────────────────────────────────────
+  gmail-unread-count:
+    name: Count unread Gmail messages
+    runs-on: ubuntu-latest
+    steps:
+      - name: Query Gmail
+        id: gmail
+        uses: splitmerge420/uws@v1
+        with:
+          command: >
+            gmail users messages list
+            --params '{"userId":"me","q":"is:unread","maxResults":1,"fields":"resultSizeEstimate"}'
+          google-credentials: ${{ secrets.GOOGLE_CREDENTIALS }}
+
+      - name: Print result
+        run: |
+          echo "Unread count: $(echo '${{ steps.gmail.outputs.result }}' | jq '.resultSizeEstimate')"
+
+  # ──────────────────────────────────────────────
+  # Pattern 2: Install once, run multiple commands
+  # ──────────────────────────────────────────────
+  morning-briefing:
+    name: Morning briefing (all providers)
+    runs-on: ubuntu-latest
+    env:
+      GOOGLE_WORKSPACE_CLI_CREDENTIALS_FILE: /tmp/google_creds.json
+      UWS_MS_TOKEN: ${{ secrets.UWS_MS_TOKEN }}
+    steps:
+      - name: Install uws
+        run: curl -sSfL https://raw.githubusercontent.com/splitmerge420/uws/main/install.sh | sh
+
+      - name: Decode Google credentials
+        run: echo "${{ secrets.GOOGLE_CREDENTIALS }}" | base64 -d > /tmp/google_creds.json
+
+      - name: Gmail — unread messages
+        run: |
+          echo "=== Gmail (unread) ==="
+          uws gmail users messages list \
+            --params '{"userId":"me","q":"is:unread","maxResults":5}' \
+            --format table || echo "No Google credentials configured"
+
+      - name: Google Calendar — today
+        run: |
+          echo "=== Google Calendar (today) ==="
+          TODAY=$(date -u +%Y-%m-%dT00:00:00Z)
+          uws calendar events list \
+            --params "{\"calendarId\":\"primary\",\"timeMin\":\"$TODAY\",\"singleEvents\":true,\"orderBy\":\"startTime\",\"maxResults\":10}" \
+            --format table || echo "No Google credentials configured"
+
+      - name: Outlook — unread
+        run: |
+          echo "=== Outlook (unread) ==="
+          uws ms-mail messages list \
+            --params '{"$top":5,"$filter":"isRead eq false","$select":"subject,from,receivedDateTime"}' \
+            --format table || echo "No Microsoft credentials configured"
+
+  # ──────────────────────────────────────────────
+  # Pattern 3: Cross-provider file search
+  # ──────────────────────────────────────────────
+  cross-provider-search:
+    name: Search files across Google Drive and OneDrive
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch'
+    steps:
+      - name: Install uws
+        run: curl -sSfL https://raw.githubusercontent.com/splitmerge420/uws/main/install.sh | sh
+
+      - name: Decode Google credentials
+        run: echo "${{ secrets.GOOGLE_CREDENTIALS }}" | base64 -d > /tmp/google_creds.json
+
+      - name: Drive — search for "budget"
+        env:
+          GOOGLE_WORKSPACE_CLI_CREDENTIALS_FILE: /tmp/google_creds.json
+        run: |
+          uws drive files list \
+            --params '{"q":"name contains '\''budget'\''","fields":"files(id,name,mimeType,modifiedTime)"}' \
+            --format table
+
+      - name: OneDrive — search for "budget"
+        env:
+          UWS_MS_TOKEN: ${{ secrets.UWS_MS_TOKEN }}
+        run: |
+          uws ms-onedrive drive root search \
+            --params '{"q":"budget","$select":"name,size,lastModifiedDateTime"}' \
+            --format table || echo "No Microsoft credentials configured"

@@ -25,7 +25,7 @@ use crossterm::{
 };
 use ratatui::{
     layout::{Constraint, Layout},
-    style::{Color, Modifier, Style},
+    style::{Color, Modifier, Style, Stylize},
     text::{Line, Span},
     widgets::{Block, Borders, List, ListItem, ListState, Paragraph},
     DefaultTerminal,
@@ -758,7 +758,7 @@ impl SetupWizard {
         let list = List::new(items).block(
             Block::default()
                 .title(Span::styled(
-                    " gws auth setup ",
+                    " uws auth setup ",
                     Style::default().fg(Color::Cyan).bold(),
                 ))
                 .borders(Borders::ALL)

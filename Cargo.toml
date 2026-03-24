@@ -17,22 +17,100 @@ name = "uws"
 path = "src/main.rs"
 
 [features]
-default = ["std"]
-std = []
+default = ["std", "full"]
+std = ["dep:serde"]
+# full = all Phase 2 binary deps required by src/main.rs and its modules
+full = [
+    "dep:anyhow",
+    "dep:thiserror",
+    "dep:clap",
+    "dep:serde_json",
+    "dep:tokio",
+    "dep:reqwest",
+    "dep:aes-gcm",
+    "dep:rand",
+    "dep:keyring",
+    "dep:yup-oauth2",
+    "dep:base64",
+    "dep:dirs",
+    "dep:chrono",
+    "dep:futures-util",
+    "dep:ratatui",
+    "dep:crossterm",
+    "dep:dotenvy",
+    "dep:derive_builder",
+    "dep:percent-encoding",
+    "dep:async-trait",
+    "dep:serde_yaml",
+]
 
 [dependencies]
+# ── Governance / library layer (lib.rs and its modules) ───────────────────────
 # constitutional_engine.rs uses serde behind cfg(feature = "std")
 serde = { version = "1", features = ["derive"], optional = true }
 
-# Phase 2 (uncomment when ready):
-# sha3 = "0.10"              # Replace FNV-1a with real SHA3-256 in audit_chain.rs
-# serde_json = "1"           # JSON export for audit chain
-# reqwest = { version = "0.12", features = ["json"] }  # GitHub API calls
-# tokio = { version = "1", features = ["full"] }        # Async runtime
-# clap = { version = "4", features = ["derive"] }       # CLI argument parsing
+# ── Binary layer (main.rs and its modules) ────────────────────────────────────
+# Error handling
+anyhow  = { version = "1",  optional = true }
+thiserror = { version = "2", optional = true }
+
+# CLI argument parsing — pin <4.6 (4.6 changed Str lifetime requirements)
+# "string" feature enables From<String> for Str, needed for dynamic command names
+clap = { version = ">=4, <4.6", features = ["derive", "string"], optional = true }
+
+# Serialization
+serde_json = { version = "1", optional = true }
+
+# Async runtime — rt-multi-thread + macros needed for #[tokio::main]
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "io-util", "sync", "time", "net", "fs", "signal", "process"], optional = true }
+
+# HTTP client — stream for bytes_stream() in executor.rs
+reqwest = { version = "0.12", features = ["json", "stream"], optional = true }
+
+# Cryptography (credential_store.rs)
+aes-gcm = { version = "0.10", optional = true }
+rand    = { version = "0.8",  optional = true }
+
+# OS keychain (credential_store.rs)
+keyring = { version = "3", optional = true }
+
+# Google OAuth2
+yup-oauth2 = { version = "12", optional = true }
+
+# Base64 encoding (gmail, calendar, credential_store)
+base64 = { version = "0.22", optional = true }
+
+# Platform directories (auth.rs, auth_commands.rs)
+dirs = { version = "5", optional = true }
+
+# Date/time (calendar.rs, events/renew.rs, workflows.rs)
+chrono = { version = "0.4", features = ["serde"], optional = true }
+
+# Async stream utilities (executor.rs, setup.rs, helpers)
+futures-util = { version = "0.3", optional = true }
+
+# Terminal UI (setup_tui.rs)
+ratatui    = { version = "0.29", optional = true }
+crossterm  = { version = "0.28", optional = true }
+
+# .env file loading (main.rs)
+dotenvy = { version = "0.15", optional = true }
+
+# Event subscription builder (helpers/events)
+derive_builder = { version = "0.20", optional = true }
+
+# URL percent-encoding (auth_commands.rs, ms_graph.rs, validate.rs)
+percent-encoding = { version = "2", optional = true }
+
+# Native async trait compatibility (token_storage.rs impl of yup-oauth2's TokenStorage)
+async-trait = { version = "0.1", optional = true }
+
+# YAML parsing for skill generation (generate_skills.rs)
+serde_yaml = { version = "0.9", optional = true }
 
 [dev-dependencies]
-# Tests use only std for now
+tempfile    = "3"
+serial_test = "3"
 
 [profile.release]
 opt-level = 3

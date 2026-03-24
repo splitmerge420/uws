@@ -9,7 +9,8 @@
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-Apache%202.0-blue.svg" alt="License"></a>
   <a href="https://github.com/splitmerge420/uws"><img src="https://img.shields.io/github/stars/splitmerge420/uws" alt="Stars"></a>
-  <a href="https://github.com/googleworkspace/cli"><img src="https://img.shields.io/badge/forked%20from-googleworkspace%2Fcli-brightgreen" alt="Forked from gws"></a>
+  <a href="https://github.com/splitmerge420/uws/actions/workflows/ci.yml"><img src="https://github.com/splitmerge420/uws/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="https://github.com/splitmerge420/uws/releases"><img src="https://img.shields.io/github/v/release/splitmerge420/uws" alt="Latest Release"></a>
 </p>
 
 > **Not an officially supported product of Google, Microsoft, or Apple.**
@@ -78,20 +79,55 @@ Google shipped [gws](https://github.com/googleworkspace/cli) — a brilliant CLI
 
 ## Installation
 
-### From Source (Rust required)
+### One-line installer (Linux & macOS)
+
+```bash
+curl -sSfL https://raw.githubusercontent.com/splitmerge420/uws/main/install.sh | sh
+```
+
+### npm / npx (Node.js ecosystem)
+
+```bash
+npm install -g @uws-cli/uws
+# or run without installing:
+npx @uws-cli/uws --help
+```
+
+### Rust / Cargo
+
+```bash
+cargo install uws
+```
+
+### GitHub Actions
+
+```yaml
+- uses: splitmerge420/uws@v1
+  with:
+    command: "gmail users messages list --params '{\"userId\":\"me\",\"maxResults\":5}'"
+    google-credentials: ${{ secrets.GOOGLE_CREDENTIALS }}
+```
+
+See [`.github/workflows/examples/uws-usage.yml`](.github/workflows/examples/uws-usage.yml) for complete workflow examples.
+
+### Nix
+
+```bash
+nix run github:splitmerge420/uws
+```
+
+### GitHub Codespaces
+
+Click **Code → Open in Codespace** — Rust toolchain and `uws` build automatically via the included [devcontainer config](.devcontainer/devcontainer.json).
+
+### From Source
 
 ```bash
 git clone https://github.com/splitmerge420/uws
 cd uws
 cargo build --release
-sudo cp target/release/uws /usr/local/bin/uws
+sudo install -m755 target/release/uws /usr/local/bin/uws
 uws --version
-```
-
-### Homebrew *(coming soon)*
-
-```bash
-brew install splitmerge420/tap/uws
 ```
 
 ---

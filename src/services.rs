@@ -121,6 +121,20 @@ pub const SERVICES: &[ServiceEntry] = &[
         description: "Filter user-generated content for safety",
     },
     ServiceEntry {
+        aliases: &["admin-directory", "directory"],
+        api_name: "admin",
+        // "directory_v1" is Google's actual Discovery API version identifier, matching
+        // the pattern used by admin-reports ("reports_v1"). Not a semver string.
+        version: "directory_v1",
+        description: "Manage users, groups, and devices in Google Workspace",
+    },
+    ServiceEntry {
+        aliases: &["vault"],
+        api_name: "vault",
+        version: "v1",
+        description: "Manage Google Vault for eDiscovery and archiving",
+    },
+    ServiceEntry {
         aliases: &["workflow", "wf"],
         api_name: "workflow",
         version: "v1",

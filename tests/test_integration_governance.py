@@ -508,6 +508,157 @@ class TestProvenance(unittest.TestCase):
         self.assertGreaterEqual(len(expected_members), 8)
 
 
+# ─── Test 10: ProvenanceTrailer (Golden-Trace) ─────────────────
+
+class TestProvenanceTrailer(unittest.TestCase):
+    """
+    Tests for toolchain/provenance_trailer.py — the Aluminum OS ProvenanceTrailer
+    library that validates Golden-Trace commit trailers (INV-3, INV-5).
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        """Import ProvenanceTrailer from toolchain."""
+        try:
+            sys.path.insert(0, TOOLCHAIN_DIR)
+            from provenance_trailer import ProvenanceTrailer, GoldenTrace, ProvenanceReport
+            cls.ProvenanceTrailer = ProvenanceTrailer
+            cls.GoldenTrace = GoldenTrace
+            cls.ProvenanceReport = ProvenanceReport
+            cls.available = True
+        except ImportError as e:
+            cls.available = False
+            cls.import_error = str(e)
+
+    def _skip_if_unavailable(self):
+        if not self.available:
+            self.skipTest(f"provenance_trailer.py not available: {self.import_error}")
+
+    def test_module_importable(self):
+        """provenance_trailer.py must be importable."""
+        self.assertTrue(
+            self.available,
+            "toolchain/provenance_trailer.py must be importable",
+        )
+
+    def test_valid_trailer_accepted(self):
+        """A commit with a valid Golden-Trace trailer should pass validation."""
+        self._skip_if_unavailable()
+        pt = self.ProvenanceTrailer(min_hitl=0.5)
+        message = textwrap.dedent("""\
+            feat: add constitutional enforcement
+
+            This commit wires the ConstitutionalEngine into the CLI.
+
+            Golden-Trace: sha3-256:a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4 hitl=0.90 actor=dave
+        """)
+        result = pt.validate_commit("abc123def456", message)
+        self.assertTrue(result.valid, f"Expected valid, got error: {result.error}")
+        self.assertIsNotNone(result.golden_trace)
+        self.assertAlmostEqual(result.golden_trace.hitl_weight, 0.90)
+        self.assertEqual(result.golden_trace.actor, "dave")
+
+    def test_missing_trailer_rejected(self):
+        """A commit without a Golden-Trace trailer should fail validation."""
+        self._skip_if_unavailable()
+        pt = self.ProvenanceTrailer()
+        message = "feat: add something without provenance"
+        result = pt.validate_commit("deadbeef1234", message)
+        self.assertFalse(result.valid)
+        self.assertIsNone(result.golden_trace)
+        self.assertIn("missing", result.error.lower())
+
+    def test_low_hitl_rejected(self):
+        """A commit with HITL weight below the minimum should be rejected."""
+        self._skip_if_unavailable()
+        pt = self.ProvenanceTrailer(min_hitl=0.7)
+        message = (
+            "fix: minor patch\n\n"
+            "Golden-Trace: sha3-256:abcdef123456 hitl=0.30 actor=bot"
+        )
+        result = pt.validate_commit("cafebabe5678", message)
+        self.assertFalse(result.valid)
+        self.assertIn("0.3", result.error)
+
+    def test_validate_commits_batch(self):
+        """validate_commits() should return a ProvenanceReport for a batch."""
+        self._skip_if_unavailable()
+        pt = self.ProvenanceTrailer(min_hitl=0.5)
+        commits = {
+            "sha1aaa": (
+                "feat: valid commit\n\n"
+                "Golden-Trace: sha3-256:aabbccddeeff0011 hitl=0.80 actor=alice"
+            ),
+            "sha2bbb": (
+                "fix: another valid commit\n\n"
+                "Golden-Trace: sha3-256:112233445566aabb hitl=0.60"
+            ),
+            "sha3ccc": "chore: missing trailer commit",
+        }
+        report = pt.validate_commits(commits)
+        self.assertEqual(report.commits_checked, 3)
+        self.assertEqual(report.commits_valid, 2)
+        self.assertEqual(report.commits_invalid, 1)
+        self.assertFalse(report.passed)
+        self.assertIn("sha3ccc", report.invalid_commits)
+
+    def test_all_valid_batch_passes(self):
+        """validate_commits() returns passed=True when all commits are valid."""
+        self._skip_if_unavailable()
+        pt = self.ProvenanceTrailer(min_hitl=0.5)
+        commits = {
+            "sha1111": (
+                "feat: valid\n\nGolden-Trace: sha3-256:aabbccdd hitl=0.90 actor=dave"
+            ),
+            "sha2222": (
+                "fix: also valid\n\nGolden-Trace: sha3-256:eeff0011 hitl=0.75"
+            ),
+        }
+        report = pt.validate_commits(commits)
+        self.assertTrue(report.passed)
+        self.assertEqual(report.commits_invalid, 0)
+
+    def test_generate_trailer(self):
+        """generate_trailer() should produce a valid Golden-Trace trailer string."""
+        self._skip_if_unavailable()
+        pt = self.ProvenanceTrailer()
+        trailer = pt.generate_trailer("some commit content", hitl_weight=0.9, actor="dave")
+        self.assertIn("Golden-Trace:", trailer)
+        self.assertIn("sha3-256:", trailer)
+        self.assertIn("hitl=0.90", trailer)
+        self.assertIn("actor=dave", trailer)
+
+    def test_generate_trailer_no_actor(self):
+        """generate_trailer() without actor should omit the actor field."""
+        self._skip_if_unavailable()
+        pt = self.ProvenanceTrailer()
+        trailer = pt.generate_trailer("content", hitl_weight=0.75)
+        self.assertIn("Golden-Trace:", trailer)
+        self.assertNotIn("actor=", trailer)
+
+    def test_generate_trailer_invalid_hitl(self):
+        """generate_trailer() should raise ValueError for invalid HITL weight."""
+        self._skip_if_unavailable()
+        pt = self.ProvenanceTrailer()
+        with self.assertRaises(ValueError):
+            pt.generate_trailer("content", hitl_weight=1.5)
+        with self.assertRaises(ValueError):
+            pt.generate_trailer("content", hitl_weight=-0.1)
+
+    def test_golden_trace_maps_to_kintsugi(self):
+        """Golden-Trace trailer format is compatible with kintsugi_healer GoldenMend hash."""
+        self._skip_if_unavailable()
+        # Verify the ProvenanceTrailer's hash output is SHA-256/SHA3-256 compatible
+        pt = self.ProvenanceTrailer()
+        trailer = pt.generate_trailer("test content", hitl_weight=1.0)
+        # Extract the hash from the trailer
+        import re
+        match = re.search(r"sha3-256:([0-9a-f]+)", trailer)
+        self.assertIsNotNone(match, "Trailer must contain sha3-256 hash")
+        hash_value = match.group(1)
+        self.assertGreaterEqual(len(hash_value), 8, "Hash must be at least 8 hex chars")
+
+
 # ─── Run ───────────────────────────────────────────────────────
 
 if __name__ == "__main__":

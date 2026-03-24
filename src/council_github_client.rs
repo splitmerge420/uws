@@ -632,7 +632,7 @@ mod tests {
 
     #[test]
     fn test_critical_op_requires_approval() {
-        let mut client = CouncilGitHubClient::new("splitmerge420".to_string(), test_actor());
+        let _client = CouncilGitHubClient::new("splitmerge420".to_string(), test_actor());
         let op = GitHubOperation::SetVisibility {
             repo: "uws".to_string(),
             public: true,

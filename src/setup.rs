@@ -1006,7 +1006,7 @@ fn stage_project(ctx: &mut SetupContext) -> Result<SetupStage, GwsError> {
         let mut items: Vec<SelectItem> = vec![
             SelectItem {
                 label: "➕ Create new project".to_string(),
-                description: "Create a new GCP project for gws".to_string(),
+                description: "Create a new GCP project for uws".to_string(),
                 selected: false,
                 is_fixed: false,
                 is_template: false,
@@ -1212,7 +1212,7 @@ async fn stage_enable_apis(ctx: &mut SetupContext) -> Result<SetupStage, GwsErro
         eprintln!();
         let output = json!({
             "status": "dry_run",
-            "message": "No changes were made. Run `gws auth login` to authenticate.",
+            "message": "No changes were made. Run `uws auth login` to authenticate.",
             "account": ctx.account,
             "project": ctx.project_id,
             "apis_would_enable": ctx.api_ids,
@@ -1263,7 +1263,7 @@ async fn stage_enable_apis(ctx: &mut SetupContext) -> Result<SetupStage, GwsErro
 
 /// Build actionable manual OAuth setup instructions for non-interactive environments.
 ///
-/// Returned as the error message when `gws auth setup` cannot prompt interactively,
+/// Returned as the error message when `uws auth setup` cannot prompt interactively,
 /// so users get a clear checklist instead of a cryptic "run interactively" error.
 fn manual_oauth_instructions(project_id: &str) -> String {
     let consent_url = if project_id.is_empty() {
@@ -1290,28 +1290,28 @@ fn manual_oauth_instructions(project_id: &str) -> String {
             "1. Configure the OAuth consent screen (if not already done):\n",
             "   {consent_url}\n",
             "   → User Type: External\n",
-            "   → App name: gws CLI (or your preferred name)\n",
+            "   → App name: uws CLI (or your preferred name)\n",
             "   → Support email: your Google account email\n",
             "   → Save and continue through all screens\n\n",
             "2. Create an OAuth client ID:\n",
             "   {creds_url}\n",
             "   → Click 'Create Credentials' → 'OAuth client ID'\n",
             "   → Application type: Desktop app\n",
-            "   → Name: gws CLI (or your preferred name)\n",
+            "   → Name: uws CLI (or your preferred name)\n",
             "   → Click 'Create'\n\n",
             "3. Copy the Client ID and Client Secret shown in the dialog.\n\n",
-            "4. Provide the credentials to gws using one of these methods:\n\n",
+            "4. Provide the credentials to uws using one of these methods:\n\n",
             "   Option A — Environment variables (recommended for CI/scripts):\n",
             "     export GOOGLE_WORKSPACE_CLI_CLIENT_ID=\"<your-client-id>\"\n",
             "     export GOOGLE_WORKSPACE_CLI_CLIENT_SECRET=\"<your-client-secret>\"\n",
-            "     gws auth login\n\n",
+            "     uws auth login\n\n",
             "   Option B — Download the JSON file:\n",
             "     Download 'client_secret_*.json' from the Cloud Console dialog\n",
             "     and save it to: {config_path}\n",
-            "     Then run: gws auth login\n\n",
+            "     Then run: uws auth login\n\n",
             "   Option C — Re-run setup interactively (recommended for first-time setup):\n",
-            "     gws auth setup\n\n",
-            "Note: The redirect URI used by gws is http://localhost (auto-negotiated port).\n",
+            "     uws auth setup\n\n",
+            "Note: The redirect URI used by uws is http://localhost (auto-negotiated port).\n",
             "Desktop app clients do not require you to register a redirect URI manually."
         ),
         consent_url = consent_url,
@@ -1324,7 +1324,7 @@ fn manual_oauth_instructions(project_id: &str) -> String {
 async fn stage_configure_oauth(ctx: &mut SetupContext) -> Result<SetupStage, GwsError> {
     ctx.wiz(4, StepStatus::InProgress("Configuring...".into()));
     let access_token = get_access_token()?;
-    let app_name = "gws CLI";
+    let app_name = "uws CLI";
     configure_consent_screen(&ctx.project_id, &access_token, app_name, &ctx.account).await?;
 
     ctx.wiz(
@@ -1482,7 +1482,7 @@ pub async fn run_setup(args: &[String]) -> Result<(), GwsError> {
 
     let output = json!({
         "status": "success",
-        "message": "Setup complete! Run `gws auth login` to authenticate.",
+        "message": "Setup complete! Run `uws auth login` to authenticate.",
         "account": ctx.account,
         "project": ctx.project_id,
         "apis_enabled": ctx.enabled.len(),
@@ -1495,7 +1495,7 @@ pub async fn run_setup(args: &[String]) -> Result<(), GwsError> {
         serde_json::to_string_pretty(&output).unwrap_or_default()
     );
 
-    eprintln!("\n✅ Setup complete! Run `gws auth login` to authenticate.");
+    eprintln!("\n✅ Setup complete! Run `uws auth login` to authenticate.");
 
     Ok(())
 }

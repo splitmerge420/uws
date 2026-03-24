@@ -27,8 +27,8 @@
           apple-sdk
         ];
 
-        gws = pkgs.rustPlatform.buildRustPackage {
-          pname = "gws";
+        uws = pkgs.rustPlatform.buildRustPackage {
+          pname = "uws";
           inherit version;
 
           src = ./.;
@@ -49,21 +49,21 @@
             description = cargoToml.package.description;
             homepage = cargoToml.package.homepage;
             license = licenses.asl20;
-            maintainers = [{ name = "Justin Poehnelt"; email = "justin.poehnelt@mgail.com"; }];
-            mainProgram = "gws";
+            maintainers = [{ name = "Daavud Sheldon"; email = "splitmerge420@gmail.com"; }];
+            mainProgram = "uws";
           };
         };
       in
       {
-        packages.default = gws;
-        packages.gws = gws;
+        packages.default = uws;
+        packages.uws = uws;
 
         apps.default = flake-utils.lib.mkApp {
-          drv = gws;
+          drv = uws;
         };
 
         devShells.default = pkgs.mkShell {
-          inputsFrom = [ gws ];
+          inputsFrom = [ uws ];
           buildInputs = with pkgs; [
             rustc
             cargo

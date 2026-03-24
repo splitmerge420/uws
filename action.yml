@@ -1,0 +1,132 @@
+name: 'uws — Universal Workspace CLI'
+description: >
+  Install uws and run a single command against Google Workspace, Microsoft 365,
+  Apple iCloud, Android, or Chrome. All output is JSON.
+author: 'Daavud Sheldon'
+
+branding:
+  icon: 'terminal'
+  color: 'blue'
+
+inputs:
+  command:
+    description: >
+      Full uws command string (everything after "uws ").
+      Example: "gmail users messages list --params '{\"userId\":\"me\",\"maxResults\":5}'"
+    required: true
+
+  version:
+    description: >
+      uws version to install (SemVer tag, e.g. "0.1.0").
+      Defaults to "latest".
+    required: false
+    default: 'latest'
+
+  google-credentials:
+    description: >
+      Base64-encoded Google OAuth credentials JSON.
+      Maps to GOOGLE_WORKSPACE_CLI_TOKEN or GOOGLE_WORKSPACE_CLI_CREDENTIALS_FILE.
+      Recommended: store in a GitHub Actions secret and pass as
+      ${{ secrets.GOOGLE_CREDENTIALS }}.
+    required: false
+
+  ms-token:
+    description: >
+      Pre-obtained Microsoft Graph access token.
+      Maps to UWS_MS_TOKEN.
+    required: false
+
+outputs:
+  result:
+    description: 'The JSON output from the uws command'
+    value: ${{ steps.run.outputs.result }}
+
+  exit-code:
+    description: 'The exit code from the uws command (0 = success)'
+    value: ${{ steps.run.outputs.exit_code }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Install uws
+      shell: bash
+      env:
+        UWS_VERSION: ${{ inputs.version }}
+      run: |
+        set -euo pipefail
+
+        OS=$(uname -s | tr '[:upper:]' '[:lower:]')
+        ARCH=$(uname -m)
+
+        # Normalize arch names to match GitHub release asset naming
+        case "$ARCH" in
+          x86_64)  ARCH="x86_64" ;;
+          aarch64|arm64) ARCH="aarch64" ;;
+          *) echo "::error::Unsupported architecture: $ARCH" && exit 1 ;;
+        esac
+
+        case "$OS" in
+          linux)  TRIPLE="${ARCH}-unknown-linux-musl" ;;
+          darwin) TRIPLE="${ARCH}-apple-darwin" ;;
+          msys*|cygwin*|mingw*) TRIPLE="${ARCH}-pc-windows-msvc" ;;
+          *) echo "::error::Unsupported OS: $OS" && exit 1 ;;
+        esac
+
+        REPO="splitmerge420/uws"
+
+        if [ "$UWS_VERSION" = "latest" ]; then
+          DOWNLOAD_URL="https://github.com/${REPO}/releases/latest/download/uws-${TRIPLE}.tar.gz"
+        else
+          DOWNLOAD_URL="https://github.com/${REPO}/releases/download/v${UWS_VERSION}/uws-${TRIPLE}.tar.gz"
+        fi
+
+        echo "Installing uws from: $DOWNLOAD_URL"
+        TMP_DIR=$(mktemp -d)
+        curl -fsSL "$DOWNLOAD_URL" | tar -xz -C "$TMP_DIR"
+        sudo install -m 755 "$TMP_DIR/uws" /usr/local/bin/uws 2>/dev/null || \
+          install -m 755 "$TMP_DIR/uws" "$HOME/.local/bin/uws"
+
+        uws --version
+
+    - name: Set up credentials
+      shell: bash
+      env:
+        GOOGLE_CREDENTIALS_B64: ${{ inputs.google-credentials }}
+        MS_TOKEN: ${{ inputs.ms-token }}
+      run: |
+        if [ -n "$GOOGLE_CREDENTIALS_B64" ]; then
+          CREDS_FILE=$(mktemp)
+          echo "$GOOGLE_CREDENTIALS_B64" | base64 -d > "$CREDS_FILE"
+          echo "GOOGLE_WORKSPACE_CLI_CREDENTIALS_FILE=$CREDS_FILE" >> "$GITHUB_ENV"
+          echo "::add-mask::$(cat $CREDS_FILE)"
+        fi
+        if [ -n "$MS_TOKEN" ]; then
+          echo "UWS_MS_TOKEN=$MS_TOKEN" >> "$GITHUB_ENV"
+          echo "::add-mask::$MS_TOKEN"
+        fi
+
+    - name: Run uws command
+      id: run
+      shell: bash
+      env:
+        UWS_COMMAND: ${{ inputs.command }}
+      run: |
+        set +e
+        RESULT=$(uws $UWS_COMMAND 2>&1)
+        EXIT_CODE=$?
+        set -e
+
+        # Write multi-line output safely using heredoc delimiter
+        {
+          echo "result<<EOF_UWS_RESULT"
+          echo "$RESULT"
+          echo "EOF_UWS_RESULT"
+          echo "exit_code=$EXIT_CODE"
+        } >> "$GITHUB_OUTPUT"
+
+        if [ $EXIT_CODE -ne 0 ]; then
+          echo "::error::uws command failed (exit $EXIT_CODE): $RESULT"
+          exit $EXIT_CODE
+        fi
+
+        echo "$RESULT"

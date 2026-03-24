@@ -1,0 +1,50 @@
+{
+  "name": "uws — Universal Workspace CLI",
+  "image": "mcr.microsoft.com/devcontainers/rust:1-bullseye",
+
+  "features": {
+    "ghcr.io/devcontainers/features/github-cli:1": {},
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "20"
+    },
+    "ghcr.io/devcontainers/features/python:1": {
+      "version": "3.12"
+    }
+  },
+
+  "postCreateCommand": "cargo build && pip install pytest --quiet",
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "rust-lang.rust-analyzer",
+        "tamasfe.even-better-toml",
+        "serayuzgur.crates",
+        "vadimcn.vscode-lldb",
+        "GitHub.copilot",
+        "GitHub.copilot-chat",
+        "ms-vscode.vscode-json"
+      ],
+      "settings": {
+        "rust-analyzer.cargo.features": ["full"],
+        "editor.formatOnSave": true,
+        "[rust]": {
+          "editor.defaultFormatter": "rust-lang.rust-analyzer"
+        }
+      }
+    }
+  },
+
+  "forwardPorts": [],
+  "remoteEnv": {
+    "GOOGLE_WORKSPACE_CLI_CONFIG_DIR": "/workspaces/uws/.config/uws"
+  },
+
+  "mounts": [],
+
+  "hostRequirements": {
+    "cpus": 2,
+    "memory": "4gb",
+    "storage": "16gb"
+  }
+}
