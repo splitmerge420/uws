@@ -28,3 +28,20 @@ pub mod council_github_client;
 /// verify_chain() walks every link to detect tampering.
 /// Enforces: INV-3 (Audit Trail), INV-35 (Fail-Closed)
 pub mod audit_chain;
+
+// ─── Flourishing Metrics Layer ────────────────────────────────────────────────
+
+/// Net-Positive Flourishing Metric (NPFM) telemetry.
+/// Replaces throughput KPIs with human-flourishing indicators.
+/// Enforces the Fiduciary Duty Against Busywork.
+/// Invariants: INV-5 (Fiduciary Authority), INV-2 (Consent)
+pub mod telemetry;
+
+// ─── Embodiment Protocol ──────────────────────────────────────────────────────
+
+/// Embodiment Protocol — spatial (metaverse) and physical (robotic) presence.
+/// All proposals are gated by NPFM and human fiduciary approval.
+/// Physical proposals additionally require a high SimulationFidelityScore
+/// proving metaverse-trained superiority before manufacture is permitted.
+/// Invariants: INV-1 (Sovereignty), INV-5 (Fiduciary Authority)
+pub mod embodiment;
