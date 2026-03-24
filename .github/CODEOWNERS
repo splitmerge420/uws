@@ -1,10 +1,28 @@
-# Codeowners
+# Codeowners for uws (splitmerge420/uws)
+#
+# Core engine code requires review before merge.
+# Agents are scoped to skills/, docs/, or src/helpers/ unless a core change is truly needed.
 
-# Core engine code strictly requires your review
-# Isolates agents to `skills/` or `src/helpers/` unless absolutely necessary
-/src/main.rs @jpoehnelt
-/src/executor.rs @jpoehnelt
-/src/discovery.rs @jpoehnelt
-/src/commands.rs @jpoehnelt
-/src/auth.rs @jpoehnelt
-/src/schema.rs @jpoehnelt
+# ── Core Rust engine ────────────────────────────────────────────────────────
+/src/main.rs               @splitmerge420
+/src/executor.rs           @splitmerge420
+/src/discovery.rs          @splitmerge420
+/src/commands.rs           @splitmerge420
+/src/auth.rs               @splitmerge420
+/src/schema.rs             @splitmerge420
+/src/services.rs           @splitmerge420
+
+# ── Security-sensitive ───────────────────────────────────────────────────────
+/src/credential_store.rs   @splitmerge420
+/src/validate.rs           @splitmerge420
+/SECURITY.md               @splitmerge420
+
+# ── Release & distribution ───────────────────────────────────────────────────
+/.github/workflows/release.yml              @splitmerge420
+/.github/workflows/release-changesets.yml   @splitmerge420
+/dist-workspace.toml                        @splitmerge420
+/install.sh                                 @splitmerge420
+
+# ── Governance ───────────────────────────────────────────────────────────────
+/.github/CODEOWNERS        @splitmerge420
+/.github/FUNDING.yml       @splitmerge420

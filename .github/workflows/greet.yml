@@ -1,0 +1,69 @@
+name: Greet Contributors
+
+on:
+  issues:
+    types: [opened]
+  pull_request:
+    types: [opened]
+
+permissions:
+  issues: write
+  pull-requests: write
+
+jobs:
+  greet:
+    name: Greet
+    runs-on: ubuntu-latest
+    steps:
+      - name: First-time issue greeting
+        uses: actions/github-script@v7
+        if: github.event_name == 'issues'
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const creator = context.payload.sender.login;
+
+            // Check if this is a first-time issue reporter
+            const issues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              creator,
+              state: 'all',
+              per_page: 2,
+            });
+
+            if (issues.data.length === 1) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: `👋 Welcome, @${creator}! Thanks for opening your first issue in **uws**.\n\nWe'll take a look shortly. In the meantime:\n- 📖 [README](../blob/main/README.md) — installation and quickstart\n- 🤝 [CONTRIBUTING](../blob/main/CONTRIBUTING.md) — how to contribute\n- 🔐 [SECURITY](../blob/main/SECURITY.md) — for security reports\n\nPlease make sure you've filled in all the template fields so we can help you faster!`,
+              });
+            }
+
+      - name: First-time PR greeting
+        uses: actions/github-script@v7
+        if: github.event_name == 'pull_request'
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const creator = context.payload.sender.login;
+
+            // Check if this is a first-time PR author
+            const prs = await github.rest.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'all',
+              per_page: 100,
+            });
+
+            const authorPrs = prs.data.filter(pr => pr.user.login === creator);
+
+            if (authorPrs.length === 1) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: `🎉 Welcome to **uws**, @${creator}! This is your first PR here — thank you!\n\nBefore we merge, please make sure:\n- [ ] \`cargo fmt --all\` has been run\n- [ ] \`cargo clippy -- -D warnings\` passes\n- [ ] Tests added or updated\n- [ ] A \`.changeset/\` file is included\n\nSee [CONTRIBUTING.md](../blob/main/CONTRIBUTING.md) for the full checklist.\n\nWe really appreciate your contribution to the universal workspace! 🚀`,
+              });
+            }

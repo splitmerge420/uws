@@ -7,9 +7,17 @@
 </p>
 
 <p align="center">
-  <a href="LICENSE"><img src="https://img.shields.io/badge/License-Apache%202.0-blue.svg" alt="License"></a>
-  <a href="https://github.com/splitmerge420/uws"><img src="https://img.shields.io/github/stars/splitmerge420/uws" alt="Stars"></a>
-  <a href="https://github.com/googleworkspace/cli"><img src="https://img.shields.io/badge/forked%20from-googleworkspace%2Fcli-brightgreen" alt="Forked from gws"></a>
+  <a href="https://github.com/splitmerge420/uws/actions/workflows/ci.yml"><img src="https://github.com/splitmerge420/uws/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="https://github.com/splitmerge420/uws/actions/workflows/codeql.yml"><img src="https://github.com/splitmerge420/uws/actions/workflows/codeql.yml/badge.svg" alt="CodeQL"></a>
+  <a href="https://app.codecov.io/gh/splitmerge420/uws"><img src="https://codecov.io/gh/splitmerge420/uws/branch/main/graph/badge.svg" alt="Coverage"></a>
+  <a href="https://www.bestpractices.dev/projects/splitmerge420/uws"><img src="https://www.bestpractices.dev/projects/splitmerge420/uws/badge" alt="OpenSSF Best Practices"></a>
+  <a href="https://scorecard.dev/viewer/?uri=github.com/splitmerge420/uws"><img src="https://api.scorecard.dev/projects/github.com/splitmerge420/uws/badge" alt="OpenSSF Scorecard"></a>
+  <br>
+  <a href="https://github.com/splitmerge420/uws/releases"><img src="https://img.shields.io/github/v/release/splitmerge420/uws?label=release" alt="Latest Release"></a>
+  <a href="https://github.com/splitmerge420/uws/pkgs/container/uws"><img src="https://img.shields.io/badge/docker-ghcr.io-blue?logo=docker" alt="Docker"></a>
+  <a href="https://img.shields.io/badge/MSRV-1.85.0-orange"><img src="https://img.shields.io/badge/MSRV-1.85.0-orange" alt="MSRV 1.85.0"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License: MIT"></a>
+  <a href="https://github.com/splitmerge420/uws"><img src="https://img.shields.io/github/stars/splitmerge420/uws?style=social" alt="Stars"></a>
 </p>
 
 > **Not an officially supported product of Google, Microsoft, or Apple.**
@@ -78,6 +86,28 @@ Google shipped [gws](https://github.com/googleworkspace/cli) — a brilliant CLI
 
 ## Installation
 
+### One-Liner (Recommended)
+
+No Rust required. Downloads a pre-built binary for your platform from GitHub Releases:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/splitmerge420/uws/main/install.sh | bash
+```
+
+Installs to `/usr/local/bin/uws` (with sudo) or `~/.local/bin/uws` (without sudo).
+
+To install a specific version:
+
+```bash
+UWS_VERSION=v0.1.0 curl -fsSL https://raw.githubusercontent.com/splitmerge420/uws/main/install.sh | bash
+```
+
+### npm / pnpm
+
+```bash
+pnpm add -g @splitmerge420/uws   # or: npm install -g @splitmerge420/uws
+```
+
 ### From Source (Rust required)
 
 ```bash
@@ -93,6 +123,10 @@ uws --version
 ```bash
 brew install splitmerge420/tap/uws
 ```
+
+### GitHub Codespaces
+
+Click **Code → Codespaces → Create codespace** on the repo page. Rust, Python, and Node are pre-configured — no local install needed.
 
 ---
 
@@ -281,6 +315,33 @@ def uws(command: str) -> dict:
     except json.JSONDecodeError:
         return {"error": result.stderr, "raw": result.stdout}
 ```
+
+### GitHub Copilot (MCP)
+
+`uws` runs as a local **Model Context Protocol** server, giving GitHub Copilot chat direct access to all 12,000+ unified operations:
+
+```bash
+# Start the MCP server (stdio transport — for Claude Desktop, VS Code, Cursor)
+python3 mcp_server/server.py --transport stdio
+
+# Start the MCP server (HTTP transport — for Copilot Studio, remote agents)
+python3 mcp_server/server.py --transport http --port 8787
+```
+
+Add to your **Claude Desktop** `config.json`:
+
+```json
+{
+  "mcpServers": {
+    "uws": {
+      "command": "python3",
+      "args": ["/path/to/uws/mcp_server/server.py", "--transport", "stdio"]
+    }
+  }
+}
+```
+
+Or copy `mcp_server/mcp.json` into your project root to configure any MCP-compatible tool automatically.
 
 ---
 

@@ -1,0 +1,37 @@
+# Codecov configuration
+# https://docs.codecov.com/docs/codecov-yaml
+#
+# Governs how Codecov reports coverage on PRs and what thresholds to enforce.
+
+coverage:
+  status:
+    project:
+      default:
+        # Require at least 70% overall project coverage
+        target: 70%
+        threshold: 2%
+        if_not_found: success
+        if_ci_failed: error
+    patch:
+      default:
+        # New/changed lines in a PR must have at least 80% coverage
+        target: 80%
+        threshold: 5%
+        if_not_found: success
+        if_ci_failed: error
+
+comment:
+  layout: "reach,diff,flags,components"
+  behavior: default
+  require_changes: true   # Only comment when coverage changes
+  require_base: true
+  require_head: true
+
+# Ignore generated and infrastructure files
+ignore:
+  - "src/main.rs"         # CLI entry point — hard to unit-test without integration infra
+  - "toolchain/**"
+  - "scripts/**"
+  - "mcp_server/**"
+  - "docs/**"
+  - "tests/**"            # Test files themselves don't need coverage

@@ -1,3 +1,7 @@
+#![allow(unused_variables, unused_mut, dead_code, non_camel_case_types,
+         clippy::new_without_default, clippy::map_unwrap_or,
+         clippy::option_map_or_none, clippy::useless_vec,
+         clippy::manual_map, clippy::needless_option_as_deref)]
 // ============================================================================
 // ALUMINUM FUSION ENGINE
 // The integration layer that makes three stacks disappear into one OS.
@@ -17,8 +21,7 @@
 
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use std::sync::Arc;
-use tokio::sync::RwLock;
+use std::sync::{Arc, RwLock};
 
 // ============================================================================
 // 1. HARDWARE-AGNOSTIC KERNEL
@@ -145,20 +148,20 @@ impl MemorySubstrate {
     }
 
     /// Write to the blackboard — any agent, any provider
-    pub async fn write(&self, entry: MemoryEntry) {
-        let mut entries = self.entries.write().await;
+    pub fn write(&self, entry: MemoryEntry) {
+        let mut entries = self.entries.write().unwrap();
         entries.insert(entry.id.clone(), entry);
     }
 
     /// Read from the blackboard — cross-provider context
-    pub async fn read(&self, id: &str) -> Option<MemoryEntry> {
-        let entries = self.entries.read().await;
+    pub fn read(&self, id: &str) -> Option<MemoryEntry> {
+        let entries = self.entries.read().unwrap();
         entries.get(id).cloned()
     }
 
     /// Query by content type across ALL providers
-    pub async fn query_by_type(&self, content_type: &ContentType) -> Vec<MemoryEntry> {
-        let entries = self.entries.read().await;
+    pub fn query_by_type(&self, content_type: &ContentType) -> Vec<MemoryEntry> {
+        let entries = self.entries.read().unwrap();
         entries.values()
             .filter(|e| std::mem::discriminant(&e.content_type) == std::mem::discriminant(content_type))
             .cloned()
@@ -168,9 +171,9 @@ impl MemorySubstrate {
     /// The killer feature: find related items ACROSS ecosystems
     /// e.g., "Find the Google Doc that's attached to the Outlook email
     ///        about the meeting that's in my Apple Calendar"
-    pub async fn find_cross_references(&self, id: &str) -> Vec<(CrossReference, MemoryEntry)> {
-        let refs = self.cross_references.read().await;
-        let entries = self.entries.read().await;
+    pub fn find_cross_references(&self, id: &str) -> Vec<(CrossReference, MemoryEntry)> {
+        let refs = self.cross_references.read().unwrap();
+        let entries = self.entries.read().unwrap();
         let mut results = Vec::new();
 
         for xref in refs.iter() {
@@ -187,43 +190,46 @@ impl MemorySubstrate {
     /// Auto-discover cross-references between providers
     /// This is where the magic happens — the blackboard finds connections
     /// that no single provider could see on its own
-    pub async fn discover_connections(&self) -> Vec<CrossReference> {
-        let entries = self.entries.read().await;
+    pub fn discover_connections(&self) -> Vec<CrossReference> {
         let mut discovered = Vec::new();
 
-        // Example: Match emails to calendar events by subject/title
-        let emails: Vec<_> = entries.values()
-            .filter(|e| matches!(e.content_type, ContentType::Email))
-            .collect();
-        let events: Vec<_> = entries.values()
-            .filter(|e| matches!(e.content_type, ContentType::CalendarEvent))
-            .collect();
+        {
+            let entries = self.entries.read().unwrap();
+            // Example: Match emails to calendar events by subject/title
+            let emails: Vec<_> = entries.values()
+                .filter(|e| matches!(e.content_type, ContentType::Email))
+                .cloned()
+                .collect();
+            let events: Vec<_> = entries.values()
+                .filter(|e| matches!(e.content_type, ContentType::CalendarEvent))
+                .cloned()
+                .collect();
 
-        for email in &emails {
-            for event in &events {
-                // Cross-provider matching: Gmail email about a Teams meeting
-                // or Outlook email about a Google Meet
-                if let (Some(subject), Some(title)) = (
-                    email.data.get("subject").and_then(|v| v.as_str()),
-                    event.data.get("title").and_then(|v| v.as_str()),
-                ) {
-                    if subject.to_lowercase().contains(&title.to_lowercase())
-                        || title.to_lowercase().contains(&subject.to_lowercase()) {
-                        discovered.push(CrossReference {
-                            source_id: email.id.clone(),
-                            target_id: event.id.clone(),
-                            relationship: "related_to".into(),
-                            confidence: 0.85,
-                            discovered_by: "fusion_engine".into(),
-                        });
+            for email in &emails {
+                for event in &events {
+                    // Cross-provider matching: Gmail email about a Teams meeting
+                    // or Outlook email about a Google Meet
+                    if let (Some(subject), Some(title)) = (
+                        email.data.get("subject").and_then(|v| v.as_str()),
+                        event.data.get("title").and_then(|v| v.as_str()),
+                    ) {
+                        if subject.to_lowercase().contains(&title.to_lowercase())
+                            || title.to_lowercase().contains(&subject.to_lowercase()) {
+                            discovered.push(CrossReference {
+                                source_id: email.id.clone(),
+                                target_id: event.id.clone(),
+                                relationship: "related_to".into(),
+                                confidence: 0.85,
+                                discovered_by: "fusion_engine".into(),
+                            });
+                        }
                     }
                 }
             }
         }
 
         // Store discovered references
-        drop(entries);
-        let mut refs = self.cross_references.write().await;
+        let mut refs = self.cross_references.write().unwrap();
         refs.extend(discovered.clone());
         discovered
     }
@@ -1021,8 +1027,8 @@ impl AuditLog {
     /// Query the audit log — for GPT's observer role
     pub fn query(&self, agent: Option<&str>, provider: Option<&str>, limit: usize) -> Vec<&AuditEntry> {
         self.entries.iter()
-            .filter(|e| agent.map_or(true, |a| e.agent == a))
-            .filter(|e| provider.map_or(true, |p| e.provider == p))
+            .filter(|e| agent.is_none_or(|a| e.agent == a))
+            .filter(|e| provider.is_none_or(|p| e.provider == p))
             .rev()
             .take(limit)
             .collect()
@@ -1062,7 +1068,7 @@ impl FusionOperation {
     }
 
     pub fn involves_cross_provider_data(&self) -> bool {
-        self.params.get("from_provider").is_some() || self.params.get("to_provider").is_some()
+        self.params.contains_key("from_provider") || self.params.contains_key("to_provider")
     }
 }
 

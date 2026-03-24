@@ -1,0 +1,63 @@
+name: Link Check
+
+on:
+  push:
+    branches: [main]
+    paths: ["**/*.md", "**/*.html"]
+  pull_request:
+    branches: [main]
+    paths: ["**/*.md", "**/*.html"]
+  schedule:
+    # Weekly — catches external links that go dead between PRs
+    - cron: "0 8 * * 2"
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  links:
+    name: Check Links
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check markdown links
+        uses: lycheeverse/lychee-action@v2
+        with:
+          args: >-
+            --verbose
+            --no-progress
+            --exclude "localhost"
+            --exclude "127.0.0.1"
+            --exclude "example.com"
+            --exclude "your-server"
+            --exclude "wombat-dressing-room"
+            --exclude "appleid.apple.com"
+            --exclude "schema.org"
+            --exclude "unpkg.com/@changesets"
+            --max-retries 3
+            --timeout 20
+            '**/*.md'
+          fail: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create issue for dead links (on schedule)
+        uses: actions/github-script@v7
+        if: failure() && github.event_name == 'schedule'
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: '🔗 Weekly link check: dead links found',
+              labels: ['documentation', 'area: docs'],
+              body: 'The weekly link check found broken links. See the [workflow run](' +
+                `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}) for details.`,
+            });

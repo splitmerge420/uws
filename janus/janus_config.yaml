@@ -1,0 +1,97 @@
+# janus_config.yaml — Janus v2 Configuration
+# Parsed by: toolchain/janus_runner.py
+# Rust implementation: src/universal/janus.rs
+# Spec: janus/JANUS_V2_SPEC.md
+#
+# Council Session: 2026-03-20
+
+janus:
+  version: "2.0.0"
+  default_tier: 1
+  heartbeat_interval_seconds: 60
+  inv7_threshold: 0.47
+  ghost_seat_enabled: true
+
+  models:
+    claude:
+      role: governance
+      weight: 1.0
+      fallback: gemini
+      api_env: ANTHROPIC_API_KEY
+      endpoint: https://api.anthropic.com/v1/messages
+      model_id: claude-opus-4-5
+
+    gemini:
+      role: substrate
+      weight: 1.0
+      fallback: claude
+      api_env: GEMINI_API_KEY
+      endpoint: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent
+      model_id: gemini-2.5-pro
+
+    grok:
+      role: adversarial
+      weight: 0.8
+      fallback: deepseek
+      api_env: XAI_API_KEY
+      endpoint: https://api.x.ai/v1/chat/completions
+      model_id: grok-3
+
+    deepseek:
+      role: research
+      weight: 0.7
+      fallback: gemini
+      api_env: DEEPSEEK_API_KEY
+      endpoint: https://api.deepseek.com/v1/chat/completions
+      model_id: deepseek-r2
+
+    copilot:
+      role: enterprise
+      weight: 0.7
+      fallback: claude
+      api_env: UWS_MS_TOKEN
+      endpoint: https://api.githubcopilot.com/chat/completions
+      model_id: gpt-4.1
+
+  kintsugi:
+    # Reliability decay per failure (multiplicative)
+    decay_factor: 0.8
+    # Minimum reliability floor
+    min_reliability: 0.1
+    # Beauty score when fallback is available
+    beauty_with_fallback: 0.9
+    # Beauty score when no fallback is available
+    beauty_without_fallback: 0.2
+
+  ghost_seat:
+    # Sphere 144 — Complex Systems
+    sphere: "S144"
+    description: "Unrepresented populations in council decisions"
+    # Requires unanimous model agreement + identified harm + human advocate
+    invocation_requires_unanimous: true
+    invocation_requires_human_advocate: true
+    cannot_override_invariants: true
+    cannot_be_invoked_algorithmically: true
+
+  routing:
+    tier1:
+      latency_target_ms: 500
+      models: 1
+      human_signoff: false
+    tier2:
+      latency_target_ms: 3000
+      models: 3
+      human_signoff: false
+    tier3:
+      latency_target_ms: 30000
+      models: 5
+      human_signoff: true
+
+  golden_trace:
+    # Forward all traces to the constitutional AuditChain
+    audit_chain_enabled: true
+    # Also write to local JSONL log
+    local_log_enabled: true
+    local_log_path: ~/.config/uws/janus_traces.jsonl
+    # Maximum local log size before rotation
+    max_log_bytes: 104857600  # 100 MiB

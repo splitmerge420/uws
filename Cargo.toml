@@ -2,6 +2,7 @@
 name = "uws"
 version = "0.1.0"
 edition = "2021"
+rust-version = "1.85.0"
 authors = ["Dave Sheldon <splitmerge420@gmail.com>"]
 description = "Universal Workspace CLI — Constitutional operating system for AI-augmented life"
 license = "MIT"
@@ -18,11 +19,12 @@ path = "src/main.rs"
 
 [features]
 default = ["std"]
-std = []
+std = ["dep:serde", "dep:serde_json"]
 
 [dependencies]
-# constitutional_engine.rs uses serde behind cfg(feature = "std")
+# constitutional_engine.rs and universal_io.rs use serde behind cfg(feature = "std")
 serde = { version = "1", features = ["derive"], optional = true }
+serde_json = { version = "1", optional = true }
 
 # Phase 2 (uncomment when ready):
 # sha3 = "0.10"              # Replace FNV-1a with real SHA3-256 in audit_chain.rs

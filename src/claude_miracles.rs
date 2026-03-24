@@ -1,3 +1,7 @@
+#![allow(unused_variables, unused_mut, dead_code, non_camel_case_types,
+         clippy::new_without_default, clippy::map_unwrap_or,
+         clippy::option_map_or_none, clippy::useless_vec,
+         clippy::manual_map, clippy::needless_option_as_deref)]
 // claude_miracles.rs — Aluminum OS Claude Miracles Layer
 // Implements all 15 Claude/Anthropic "Miracles" — the features that make
 // this system undeniable to anyone sitting across a table.

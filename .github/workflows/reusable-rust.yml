@@ -1,0 +1,59 @@
+name: Reusable Rust Setup
+
+# Reusable workflow — call with:
+#
+#   jobs:
+#     my-job:
+#       uses: ./.github/workflows/reusable-rust.yml
+#       with:
+#         toolchain: stable
+#         components: rustfmt clippy
+#         cache-key: my-job
+
+on:
+  workflow_call:
+    inputs:
+      toolchain:
+        description: "Rust toolchain (e.g. stable, nightly)"
+        type: string
+        default: "stable"
+      components:
+        description: "Space-separated rustup components"
+        type: string
+        default: ""
+      cache-key:
+        description: "Cargo cache key suffix"
+        type: string
+        default: "default"
+      runs-on:
+        description: "Runner label"
+        type: string
+        default: "ubuntu-latest"
+    outputs:
+      rust-version:
+        description: "Installed Rust version"
+        value: ${{ jobs.setup.outputs.rust-version }}
+
+jobs:
+  setup:
+    name: Setup Rust
+    runs-on: ${{ inputs.runs-on }}
+    outputs:
+      rust-version: ${{ steps.rust.outputs.rustc-version }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust
+        id: rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: ${{ inputs.toolchain }}
+          components: ${{ inputs.components }}
+
+      - name: Setup sccache
+        uses: mozilla-actions/sccache-action@v0.0.7
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+        with:
+          key: ${{ inputs.cache-key }}

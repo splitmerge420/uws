@@ -1,0 +1,91 @@
+name: 🚀 Feature Request
+description: Propose a new command, provider, or capability.
+title: "[Feature]: "
+labels: ["enhancement"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for proposing an improvement to uws!
+        For questions or general discussion, please use [GitHub Discussions](https://github.com/splitmerge420/uws/discussions) instead.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What Problem Does This Solve?
+      description: Describe the pain point or limitation.
+      placeholder: "I often need to ... but uws doesn't support ..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed Solution
+      description: What command or feature would you like? Include the ideal CLI syntax.
+      placeholder: |
+        uws <service> <resource> <method> --params '...'
+      render: bash
+    validations:
+      required: true
+
+  - type: dropdown
+    id: provider
+    attributes:
+      label: Provider / API
+      description: Which provider or ecosystem does this involve?
+      options:
+        - Google Workspace — Gmail
+        - Google Workspace — Drive
+        - Google Workspace — Calendar
+        - Google Workspace — Docs / Sheets / Slides
+        - Google Workspace — Tasks / Keep
+        - Google Workspace — Chat / Meet
+        - Microsoft 365 — Outlook Mail
+        - Microsoft 365 — Outlook Calendar
+        - Microsoft 365 — OneDrive
+        - Microsoft 365 — Teams
+        - Microsoft 365 — To Do / Planner
+        - Microsoft 365 — OneNote / SharePoint
+        - Apple iCloud — Calendar
+        - Apple iCloud — Contacts
+        - Apple iCloud — Notes / Reminders
+        - Android Management
+        - Chrome Policy / Management
+        - New provider (Notion, Slack, Linear, Zoom, etc.)
+        - Aluminum OS / cross-provider abstraction
+        - MCP / AI Agent integration
+        - CLI / Developer experience
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: discovery-api
+    attributes:
+      label: API / Discovery Document Reference
+      description: Link to the API documentation or Discovery Document URL (for Google APIs).
+      placeholder: "https://developers.google.com/gmail/api/reference/rest"
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      description: Other tools, workarounds, or approaches you've tried.
+
+  - type: textarea
+    id: agent-use-case
+    attributes:
+      label: AI Agent Use Case (optional)
+      description: If this is primarily for use by AI agents, describe the agent's workflow.
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      options:
+        - label: I have searched existing issues and this is not a duplicate.
+          required: true
+        - label: I have checked the relevant API documentation.
+          required: false

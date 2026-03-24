@@ -1,0 +1,44 @@
+name: Needs Info
+
+on:
+  issues:
+    types: [labeled]
+  issue_comment:
+    types: [created]
+  schedule:
+    # Check daily at 08:00 UTC for stale "needs-info" items
+    - cron: "0 8 * * *"
+
+permissions:
+  issues: write
+
+jobs:
+  stale-needs-info:
+    name: Stale Needs-Info Issues
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/stale@v9
+        with:
+          # Only operate on issues (not PRs)
+          days-before-pr-stale: -1
+          days-before-pr-close: -1
+
+          # Issues labelled "needs-info" that get no response in 14 days are marked stale
+          days-before-issue-stale: 14
+          days-before-issue-close: 7
+
+          only-labels: "needs-info"
+          stale-issue-label: "stale"
+          close-issue-label: "closed: no-response"
+
+          stale-issue-message: >
+            This issue has been labelled **needs-info** for 14 days without a response.
+            It will be closed in 7 more days unless more information is provided.
+            If you have the information, please add a comment. Thank you!
+
+          close-issue-message: >
+            This issue was closed because it has been waiting on additional information for 21 days.
+            If you have the requested information, please feel free to reopen it.
+
+          exempt-issue-labels: "pinned,keep-open,enhancement"
+          remove-stale-when-updated: true

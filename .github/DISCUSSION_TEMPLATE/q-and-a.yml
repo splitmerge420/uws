@@ -1,0 +1,37 @@
+name: Q&A — Ask a Question
+description: Ask about usage, configuration, or how uws works
+labels: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Got a question? We're happy to help!**
+        Before asking, check the [README](../blob/main/README.md), [AGENTS.md](../blob/main/AGENTS.md),
+        and existing discussions.
+
+  - type: textarea
+    id: question
+    attributes:
+      label: Your question
+      description: What do you want to know?
+    validations:
+      required: true
+
+  - type: textarea
+    id: tried
+    attributes:
+      label: What have you already tried?
+      description: Commands you've run, docs you've read, things you've attempted.
+
+  - type: dropdown
+    id: context
+    attributes:
+      label: Context
+      options:
+        - Using uws as a human (CLI)
+        - Using uws with an AI agent (Claude, Copilot, Gemini, Manus)
+        - Building on top of uws / Aluminum OS
+        - Contributing to uws
+        - Other
+    validations:
+      required: true

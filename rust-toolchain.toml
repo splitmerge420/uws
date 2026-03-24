@@ -1,0 +1,11 @@
+# rust-toolchain.toml
+# Pins the Rust toolchain for consistent builds across all environments:
+# developer machines, CI, GitHub Codespaces, and Docker.
+#
+# To update: change the channel below, then run `rustup update`.
+
+[toolchain]
+channel = "1.85.0"
+components = ["rustfmt", "clippy", "rust-src", "llvm-tools-preview"]
+# Targets needed for cross-compilation (add as needed):
+# targets = ["x86_64-unknown-linux-musl", "aarch64-unknown-linux-gnu"]

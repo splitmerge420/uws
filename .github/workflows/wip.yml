@@ -1,0 +1,41 @@
+name: WIP Check
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened, ready_for_review]
+
+permissions:
+  pull-requests: write
+  statuses: write
+
+jobs:
+  wip:
+    name: WIP Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check for WIP in PR title or labels
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const pr = context.payload.pull_request;
+            const title = pr.title || '';
+            const labels = pr.labels.map(l => l.name);
+            const isDraft = pr.draft;
+
+            const wipPatterns = [/\bWIP\b/i, /\bwork.in.progress\b/i, /^\[WIP\]/i, /^WIP:/i];
+            const titleIsWip = wipPatterns.some(p => p.test(title));
+            const labelIsWip = labels.includes('wip') || labels.includes('do not merge');
+
+            if (isDraft) {
+              console.log('PR is a draft — WIP status is implicit.');
+              return;
+            }
+
+            if (titleIsWip || labelIsWip) {
+              core.setFailed(
+                'This PR is marked as WIP. Remove "WIP" from the title or the "wip"/"do not merge" label before merging.'
+              );
+            } else {
+              console.log('PR is not WIP — good to go!');
+            }

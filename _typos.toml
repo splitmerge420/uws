@@ -1,0 +1,38 @@
+# typos spell-check configuration
+# https://github.com/crate-ci/typos
+#
+# Allows domain-specific terms and proper nouns that typos
+# would otherwise flag as misspellings.
+
+[default]
+check-filename = true
+check-file = true
+
+[default.extend-words]
+# Aluminum OS — intentional product name
+Aluminium = "Aluminium"
+aluminium = "aluminium"
+
+# Technical / vendor terms
+Noosphere = "Noosphere"
+noosphere = "noosphere"
+Kintsugi = "Kintsugi"
+kintsugi = "kintsugi"
+Qdrant = "Qdrant"
+qdrant = "qdrant"
+ChromaDB = "ChromaDB"
+Chromadb = "Chromadb"
+chromadb = "chromadb"
+Dilithium = "Dilithium"     # PQC algorithm name
+Janus = "Janus"
+
+[files]
+# Skip binary and lock files
+extend-exclude = [
+  "*.lock",
+  "demo.gif",
+  "*.png",
+  "*.jpg",
+  "target/",
+  "node_modules/",
+]
