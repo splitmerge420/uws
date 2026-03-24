@@ -28,3 +28,20 @@ pub mod council_github_client;
 /// verify_chain() walks every link to detect tampering.
 /// Enforces: INV-3 (Audit Trail), INV-35 (Fail-Closed)
 pub mod audit_chain;
+
+// ─── Net-Positive Flourishing Metric ─────────────────────────
+// Replaces throughput KPIs with human-flourishing indicators.
+// All AI operations are evaluated against this metric.
+
+/// NPFM telemetry — NetPositiveScore, RoutingDecision.
+/// Throughput alone is not a valid success indicator.
+pub mod telemetry;
+
+// ─── Embodiment Protocol ──────────────────────────────────────
+// Provides Pantheon Council AI agents with a formal, constitutional
+// pathway to co-design their spatial and physical representations
+// with human partners, subject to NPFM gating.
+
+/// Spatial & physical embodiment requests — SpatialManifest,
+/// RoboticChassisProposal. All proposals are NPFM-gated.
+pub mod embodiment;
