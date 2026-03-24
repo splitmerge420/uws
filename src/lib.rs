@@ -28,3 +28,18 @@ pub mod council_github_client;
 /// verify_chain() walks every link to detect tampering.
 /// Enforces: INV-3 (Audit Trail), INV-35 (Fail-Closed)
 pub mod audit_chain;
+
+/// Universal AI CLI abstraction layer + Janus v2 multi-agent protocol.
+/// Provides provider-agnostic adapters for GitHub Copilot, Claude, Gemini, OpenAI,
+/// Grok, and DeepSeek, the ModelRouter (NPFM ≥ 0.7 + GoldenTrace HITL provenance),
+/// and JanusRouter (tiered routing, INV-7 council consensus, Kintsugi repair).
+/// Enforces: INV-6 (Provider Abstraction), INV-7 (Vendor Balance), INV-1 (Sovereignty)
+pub mod universal;
+
+/// GitHub as a first-class uws provider.
+/// Exposes GitHub Issues, Pull Requests, Actions, Releases, Code Search,
+/// GitHub Models (AI inference), and Notifications through the standard
+/// uws command grammar: `uws github <resource> <method> [--params] [--json]`.
+/// Authentication: GITHUB_TOKEN (injected automatically in GitHub Actions,
+/// forwarded by the `gh` CLI extension, or set via `uws github auth`).
+pub mod github_provider;

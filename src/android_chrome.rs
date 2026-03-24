@@ -3,6 +3,8 @@
 //
 // Licensed under the Apache License, Version 2.0
 
+#![allow(dead_code, unused_imports)]
+
 use anyhow::{anyhow, Result};
 use serde_json::Value;
 
@@ -178,7 +180,7 @@ pub async fn execute_android_chrome_request(
     }
 
     let json: Value = serde_json::from_str(&text)
-        .unwrap_or_else(|_| Value::String(text));
+        .unwrap_or(Value::String(text));
 
     Ok(json)
 }
@@ -200,4 +202,74 @@ pub fn print_android_chrome_services() {
     {
         println!("    {:<25} {}", entry.aliases[0], entry.description);
     }
+}
+
+/// Parse shared CLI flags (--params, --json, --method, --dry-run, --path).
+fn parse_flags(
+    args: &[String],
+) -> (Option<String>, Option<String>, Option<String>, bool, Option<String>) {
+    let mut params: Option<String> = None;
+    let mut body: Option<String> = None;
+    let mut method: Option<String> = None;
+    let mut dry_run = false;
+    let mut path: Option<String> = None;
+    let mut i = 0;
+    while i < args.len() {
+        match args[i].as_str() {
+            "--params" if i + 1 < args.len() => { params = Some(args[i + 1].clone()); i += 2; }
+            "--json"   if i + 1 < args.len() => { body   = Some(args[i + 1].clone()); i += 2; }
+            "--method" if i + 1 < args.len() => { method = Some(args[i + 1].clone()); i += 2; }
+            "--path"   if i + 1 < args.len() => { path   = Some(args[i + 1].clone()); i += 2; }
+            "--dry-run" => { dry_run = true; i += 1; }
+            _ => { i += 1; }
+        }
+    }
+    (params, body, method, dry_run, path)
+}
+
+/// Dispatch an Android or Chrome service command.
+///
+/// Uses the service's registered `base_url` and appends the `--path` override
+/// (or empty string for the service root).  The HTTP method defaults to POST
+/// when `--json` is present, GET otherwise.
+///
+/// # Examples
+/// ```text
+/// uws android --params '{"name":"enterprises/acme/devices"}' --path /enterprises/acme/devices
+/// uws chrome-mgmt --path /customers/acme/reports/printUsage --dry-run
+/// ```
+pub async fn handle_android_chrome_command(service_name: &str, rest_args: &[String]) -> Result<()> {
+    let entry = resolve_android_chrome_service(service_name)
+        .ok_or_else(|| anyhow!("Unknown Android/Chrome service: {service_name}"))?;
+
+    let (params, body, method_flag, dry_run, path_flag) = parse_flags(rest_args);
+
+    let action = rest_args.iter().find(|a| !a.starts_with('-')).map(|s| s.as_str()).unwrap_or("list");
+
+    let http_method = method_flag.unwrap_or_else(|| match action {
+        "create" | "post" => "POST".to_string(),
+        "update" | "patch" => "PATCH".to_string(),
+        "delete" | "remove" => "DELETE".to_string(),
+        _ => if body.is_some() { "POST".to_string() } else { "GET".to_string() },
+    });
+
+    let api_path = path_flag.unwrap_or_default();
+
+    // Android/Chrome services use a Google OAuth2 token (same as other Google services)
+    let token = std::env::var("GOOGLE_WORKSPACE_CLI_TOKEN")
+        .or_else(|_| std::env::var("GOOGLE_OAUTH_TOKEN"))
+        .unwrap_or_default();
+
+    let result = execute_android_chrome_request(
+        &http_method,
+        entry.base_url,
+        &api_path,
+        &token,
+        params.as_deref(),
+        body.as_deref(),
+        dry_run,
+    ).await?;
+
+    println!("{}", serde_json::to_string_pretty(&result)?);
+    Ok(())
 }

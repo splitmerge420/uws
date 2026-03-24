@@ -71,14 +71,77 @@ Google shipped [gws](https://github.com/googleworkspace/cli) — a brilliant CLI
 | OAuth2 auth model | **Apple iCloud** (CalDAV, CardDAV, CloudKit) |
 | JSON-first output | **Android** (Management API, Messages) |
 | AI agent SKILL.md files | **Chrome** (Management, Policy, Web Store, ChromeOS) |
-| Schema-driven discovery | **Multi-provider abstraction layer** (Aluminum) |
-| Model Armor safety layer | **Claude + Manus + Gemini + Copilot** agent runtime |
+| Schema-driven discovery | **GitHub** (Issues, PRs, Actions, Releases, Code Search, Models, Notifications) |
+| Model Armor safety layer | **Claude + Manus + Gemini + Grok + DeepSeek + Copilot** agent runtime |
+| Single CLI binary | **Janus v2 multi-model council** (INV-7, Kintsugi repair, GoldenTrace provenance) |
+
+---
+
+## GitHub Integration
+
+`uws` is purpose-built for GitHub. `GITHUB_TOKEN` is available automatically in every
+GitHub Actions workflow — no setup, no API keys, no configuration.
+
+```bash
+# In any GitHub Actions workflow — zero config:
+uws github-issues list   --params '{"owner":"${{ github.repository_owner }}","repo":"${{ github.event.repository.name }}"}'
+uws github-actions runs  list --params '{"owner":"...","repo":"...","status":"failure"}'
+uws github-models  chat  --json '{"model":"gpt-4o-mini","messages":[{"role":"user","content":"..."}]}'
+uws github-search  code  --params '{"q":"TODO repo:acme/api"}'
+```
+
+GitHub benefits from `uws` in multiple ways:
+
+| GitHub Product | How uws helps |
+|---|---|
+| **GitHub Actions** | `uses: splitmerge420/uws@v1` — run workspace commands in any workflow |
+| **GitHub CLI** | `gh extension install splitmerge420/uws` — `gh uws gmail list` from the terminal |
+| **GitHub Copilot** | `copilot-extension.json` registers `uws` as a Copilot tool for VS Code / GitHub.com |
+| **GitHub Models** | `uws github-models chat` — free AI inference, automatically used by Janus as fallback |
+| **GitHub Codespaces** | `.devcontainer/` — one-click cloud dev environment, `uws` pre-installed |
+| **GitHub Marketplace** | `action.yml` — listed as a reusable GitHub Action |
+| **GitHub Security** | `uws github-search code` — org-wide code scanning without leaving the CLI |
+
+
 
 ---
 
 ## Installation
 
-### From Source (Rust required)
+### Option 1 — GitHub CLI extension *(recommended for GitHub users)*
+
+```bash
+gh extension install splitmerge420/uws
+gh uws --help
+
+# GITHUB_TOKEN is forwarded automatically — start using GitHub provider immediately:
+gh uws github-issues list --params '{"owner":"YOUR_ORG","repo":"YOUR_REPO"}'
+```
+
+### Option 2 — One-command installer *(Linux, macOS, Windows WSL)*
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/splitmerge420/uws/main/install.sh | sh
+```
+
+Downloads the pre-built binary for your platform. Falls back to `cargo install` if
+no binary is available for your architecture.
+
+### Option 3 — GitHub Actions *(zero-install for CI/CD)*
+
+```yaml
+steps:
+  - name: Run uws command
+    uses: splitmerge420/uws@v1
+    with:
+      command: "github-issues list --params '{\"owner\":\"acme\",\"repo\":\"api\"}'"
+      github-token: ${{ secrets.GITHUB_TOKEN }}
+```
+
+No Rust toolchain needed in your workflow. The action downloads a pre-built binary,
+runs the command, and writes output to `$GITHUB_STEP_SUMMARY` as a formatted table.
+
+### Option 4 — From Source *(contributors)*
 
 ```bash
 git clone https://github.com/splitmerge420/uws
@@ -88,7 +151,14 @@ sudo cp target/release/uws /usr/local/bin/uws
 uws --version
 ```
 
-### Homebrew *(coming soon)*
+### Option 5 — GitHub Codespaces *(one-click cloud dev environment)*
+
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/splitmerge420/uws)
+
+Boots a fully configured environment with Rust, Python, `gh` CLI, and the uws dev
+binary all pre-installed. Start hacking in 90 seconds.
+
+### Option 6 — Homebrew *(coming soon)*
 
 ```bash
 brew install splitmerge420/tap/uws

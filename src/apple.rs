@@ -3,6 +3,8 @@
 //
 // Licensed under the Apache License, Version 2.0
 
+#![allow(dead_code, unused_imports)]
+
 use anyhow::{anyhow, Result};
 use serde_json::Value;
 
@@ -266,6 +268,117 @@ pub async fn handle_apple_auth_command(args: &[String]) -> Result<()> {
             println!("Subcommands:");
             println!("  setup    Print step-by-step Apple authentication guide");
             println!("  status   Check current authentication status");
+        }
+    }
+    Ok(())
+}
+
+/// Parse shared CLI flags (--params, --json, --method, --dry-run, --path).
+fn parse_flags(
+    args: &[String],
+) -> (Option<String>, Option<String>, Option<String>, bool, Option<String>) {
+    let mut params: Option<String> = None;
+    let mut body: Option<String> = None;
+    let mut method: Option<String> = None;
+    let mut dry_run = false;
+    let mut path: Option<String> = None;
+    let mut i = 0;
+    while i < args.len() {
+        match args[i].as_str() {
+            "--params" if i + 1 < args.len() => { params = Some(args[i + 1].clone()); i += 2; }
+            "--json"   if i + 1 < args.len() => { body   = Some(args[i + 1].clone()); i += 2; }
+            "--method" if i + 1 < args.len() => { method = Some(args[i + 1].clone()); i += 2; }
+            "--path"   if i + 1 < args.len() => { path   = Some(args[i + 1].clone()); i += 2; }
+            "--dry-run" => { dry_run = true; i += 1; }
+            _ => { i += 1; }
+        }
+    }
+    (params, body, method, dry_run, path)
+}
+
+/// Dispatch an Apple service command.
+///
+/// Routing is protocol-aware:
+/// - CalDAV services (`apple-calendar`, `apple-reminders`) → `execute_caldav_request`
+/// - CardDAV services (`apple-contacts`) → `execute_carddav_request`
+/// - CloudKit and SignIn services → print a not-yet-implemented notice
+///
+/// The HTTP method defaults to PROPFIND for CalDAV/CardDAV discovery, PUT for
+/// creates, and DELETE for deletes.  Use `--method` to override.
+///
+/// # Examples
+/// ```text
+/// uws apple-calendar --path /dav/1234/calendars/ --dry-run
+/// uws apple-contacts --path /carddav/1234/contacts/ --method PROPFIND
+/// ```
+pub async fn handle_apple_command(service_name: &str, rest_args: &[String]) -> Result<()> {
+    let entry = resolve_apple_service(service_name)
+        .ok_or_else(|| anyhow!("Unknown Apple service: {service_name}"))?;
+
+    let config = AppleAuthConfig::from_env();
+    let (params, body, method_flag, dry_run, path_flag) = parse_flags(rest_args);
+
+    let action = rest_args.iter().find(|a| !a.starts_with('-')).map(|s| s.as_str()).unwrap_or("list");
+    let http_method = method_flag.unwrap_or_else(|| match action {
+        "create" | "put"   => "PUT".to_string(),
+        "delete" | "remove" => "DELETE".to_string(),
+        "report"            => "REPORT".to_string(),
+        _ => "PROPFIND".to_string(),
+    });
+
+    let api_path = path_flag.unwrap_or_else(|| "/".to_string());
+
+    // For dry-run, skip auth requirements and just show request shape
+    if dry_run {
+        let info = serde_json::json!({
+            "dry_run": true,
+            "service": service_name,
+            "protocol": format!("{:?}", entry.protocol),
+            "method": http_method,
+            "path": api_path,
+            "body": body,
+            "provider": "apple"
+        });
+        println!("{}", serde_json::to_string_pretty(&info)?);
+        return Ok(());
+    }
+
+    match entry.protocol {
+        AppleProtocol::CalDAV => {
+            let apple_id = config.apple_id
+                .as_deref()
+                .ok_or_else(|| anyhow!("UWS_APPLE_ID not set"))?;
+            let app_password = config.app_password
+                .as_deref()
+                .ok_or_else(|| anyhow!("UWS_APPLE_APP_PASSWORD not set"))?;
+            let result = execute_caldav_request(
+                &http_method, &api_path, apple_id, app_password, body.as_deref(), dry_run,
+            ).await?;
+            println!("{}", serde_json::to_string_pretty(&result)?);
+        }
+        AppleProtocol::CardDAV => {
+            let apple_id = config.apple_id
+                .as_deref()
+                .ok_or_else(|| anyhow!("UWS_APPLE_ID not set"))?;
+            let app_password = config.app_password
+                .as_deref()
+                .ok_or_else(|| anyhow!("UWS_APPLE_APP_PASSWORD not set"))?;
+            let _ = params; // CardDAV doesn't use query params
+            let result = execute_carddav_request(
+                &http_method, &api_path, apple_id, app_password, body.as_deref(), dry_run,
+            ).await?;
+            println!("{}", serde_json::to_string_pretty(&result)?);
+        }
+        AppleProtocol::CloudKit | AppleProtocol::SignIn => {
+            let info = serde_json::json!({
+                "service": service_name,
+                "protocol": format!("{:?}", entry.protocol),
+                "status": "not_yet_implemented",
+                "note": "CloudKit and Sign in with Apple require native SDK integration. Use UWS_APPLE_CLIENT_ID / UWS_APPLE_TEAM_ID / UWS_APPLE_KEY_ID / UWS_APPLE_PRIVATE_KEY_FILE env vars.",
+                "dry_run": dry_run,
+                "path": api_path,
+            });
+            println!("{}", serde_json::to_string_pretty(&info)?);
         }
     }
     Ok(())

@@ -1,0 +1,136 @@
+# janus/janus_config.yaml
+# Janus v2 — Multi-Agent Council Configuration
+#
+# This file is the canonical runtime configuration for the Janus v2 protocol.
+# It is read by toolchain/janus_runner.py and referenced by the Rust
+# JanusRouter (src/universal/janus.rs uses default_council() which mirrors
+# the settings here).
+#
+# Structure mirrors janus/JANUS_V2_SPEC.md §Configuration.
+#
+# All values here are defaults.  Environment variables override them at runtime
+# (see janus_runner.py for the override logic).
+
+janus:
+  version: "2.0.0"
+  default_tier: 1
+  heartbeat_interval_seconds: 60
+  inv7_threshold: 0.47          # INV-7: no single model > 47% of consensus weight
+  ghost_seat_enabled: true      # S144 — Ghost Seat (unrepresented populations)
+  npfm_threshold: 0.70          # NPFM: minimum flourishing score to allow routing
+
+  # ── Council members ───────────────────────────────────────────────────────
+  # role:         constitutional seat in the council
+  # weight:       relative voting weight (normalised to 1.0 by Inv7Guard)
+  # fallback:     provider to try if this member is offline/degraded
+  # model:        default model identifier for this provider
+  # env_var:      environment variable carrying the API key
+  models:
+    claude:
+      role: governance
+      description: "Constitutional/governance oversight and ethics review"
+      weight: 1.0
+      fallback: gemini
+      model: claude-opus-4-5
+      endpoint: "https://api.anthropic.com/v1/messages"
+      env_var: ANTHROPIC_API_KEY
+
+    gemini:
+      role: substrate
+      description: "Deep domain knowledge and substrate-level analysis"
+      weight: 1.0
+      fallback: claude
+      model: gemini-2.0-flash
+      endpoint: "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent"
+      env_var: GEMINI_API_KEY
+
+    grok:
+      role: adversarial
+      description: "Contrarian review — challenges assumptions, detects blind spots"
+      weight: 0.8
+      fallback: deepseek
+      model: grok-3-mini-fast
+      endpoint: "https://api.x.ai/v1/chat/completions"
+      env_var: XAI_API_KEY
+
+    deepseek:
+      role: research
+      description: "Cross-domain research and novel connection synthesis"
+      weight: 0.7
+      fallback: gemini
+      model: deepseek-chat
+      endpoint: "https://api.deepseek.com/v1/chat/completions"
+      env_var: DEEPSEEK_API_KEY
+
+    copilot:
+      role: enterprise
+      description: "Market/enterprise context and production-readiness validation"
+      weight: 0.7
+      fallback: claude
+      model: gpt-4o
+      endpoint: "https://api.githubcopilot.com/chat/completions"
+      env_var: GITHUB_TOKEN
+
+  # ── Tier thresholds ───────────────────────────────────────────────────────
+  tiers:
+    tier1:
+      name: "Simple"
+      description: "Single model, conversational queries"
+      min_models: 1
+      max_models: 1
+      latency_target_ms: 500
+      hitl_required: false
+
+    tier2:
+      name: "Complex"
+      description: "Multi-perspective analysis requiring synthesis"
+      min_models: 2
+      max_models: 3
+      latency_target_ms: 3000
+      hitl_required: false
+      keywords:
+        - compare
+        - evaluate
+        - tradeoff
+        - architecture
+        - consensus
+        - policy
+        - governance
+        - "best approach"
+        - "pros and cons"
+        - "what should"
+        - recommend
+        - "multiple perspectives"
+
+    tier3:
+      name: "Critical"
+      description: "Irreversible or high-stakes decisions — full council + HITL"
+      min_models: 3
+      max_models: 5
+      latency_target_ms: 30000
+      hitl_required: true
+      keywords:
+        - "delete all"
+        - shutdown
+        - terminate
+        - irreversible
+        - "legal advice"
+        - "medical diagnosis"
+        - "financial risk"
+        - destroy
+        - wipe
+        - permanently
+
+  # ── Kintsugi repair ───────────────────────────────────────────────────────
+  kintsugi:
+    enabled: true
+    max_repair_attempts: 2
+    emit_seam_trace: true
+    degraded_threshold_ms: 5000   # if response > 5s, mark member as degraded
+
+  # ── Safe mode ─────────────────────────────────────────────────────────────
+  safe_mode:
+    trigger: "all_tier2_models_offline"
+    heartbeat_interval_seconds: 15
+    max_tier: 1
+    recovery_interval_seconds: 60

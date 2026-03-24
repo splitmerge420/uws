@@ -3,6 +3,8 @@
 //
 // Licensed under the Apache License, Version 2.0
 
+#![allow(dead_code, unused_imports)]
+
 use anyhow::{anyhow, Result};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -219,12 +221,11 @@ pub async fn execute_graph_request(
     }
 
     let json: Value = serde_json::from_str(&text)
-        .unwrap_or_else(|_| Value::String(text));
+        .unwrap_or(Value::String(text));
 
     Ok(json)
 }
 
-/// Handle the `ms-auth` command flow.
 pub async fn handle_ms_auth_command(args: &[String]) -> Result<()> {
     let subcommand = args.first().map(|s| s.as_str()).unwrap_or("help");
 
@@ -298,4 +299,97 @@ pub async fn handle_ms_auth_command(args: &[String]) -> Result<()> {
 
 fn urlencoding(s: &str) -> String {
     percent_encoding::utf8_percent_encode(s, percent_encoding::NON_ALPHANUMERIC).to_string()
+}
+
+/// Parsed CLI flags: (params, body, method_override, dry_run, path_override, format).
+type ProviderFlags = (Option<String>, Option<String>, Option<String>, bool, Option<String>, Option<String>);
+
+/// Parse shared CLI flags from a slice of string args.
+/// Extracts: --params, --json, --method, --dry-run, --path, --format.
+/// Returns (params, body, method_override, dry_run, path_override, format).
+fn parse_provider_flags(
+    args: &[String],
+) -> ProviderFlags {
+    let mut params: Option<String> = None;
+    let mut body: Option<String> = None;
+    let mut method: Option<String> = None;
+    let mut dry_run = false;
+    let mut path: Option<String> = None;
+    let mut format: Option<String> = None;
+    let mut i = 0;
+    while i < args.len() {
+        match args[i].as_str() {
+            "--params" if i + 1 < args.len() => { params = Some(args[i + 1].clone()); i += 2; }
+            "--json"   if i + 1 < args.len() => { body   = Some(args[i + 1].clone()); i += 2; }
+            "--method" if i + 1 < args.len() => { method = Some(args[i + 1].clone()); i += 2; }
+            "--path"   if i + 1 < args.len() => { path   = Some(args[i + 1].clone()); i += 2; }
+            "--format" if i + 1 < args.len() => { format = Some(args[i + 1].clone()); i += 2; }
+            "--dry-run" => { dry_run = true; i += 1; }
+            _ => { i += 1; }
+        }
+    }
+    (params, body, method, dry_run, path, format)
+}
+
+/// Dispatch a Microsoft 365 service command.
+///
+/// Routing rules:
+/// - `--path <PATH>` overrides the default API path for this service.
+/// - `--method <VERB>` overrides the inferred HTTP method.
+/// - HTTP method defaults to POST when `--json` is present, GET otherwise.
+/// - Common action aliases: `list` → GET, `create` → POST, `delete` → DELETE,
+///   `update` → PATCH, `get` → GET.
+///
+/// # Examples
+/// ```text
+/// uws ms-mail messages list --params '{"$top":10}'
+/// uws ms-mail --path /me/messages/sendMail --json '{"message":{...}}' --dry-run
+/// ```
+pub async fn handle_ms_command(service_name: &str, rest_args: &[String]) -> Result<()> {
+    let entry = resolve_ms_service(service_name)
+        .ok_or_else(|| anyhow!("Unknown Microsoft service: {service_name}"))?;
+
+    let (params, body, method_flag, dry_run, path_flag, _fmt) = parse_provider_flags(rest_args);
+
+    // Derive HTTP method: explicit flag > body present > action alias > GET
+    let action = rest_args.iter().find(|a| !a.starts_with('-')).map(|s| s.as_str()).unwrap_or("");
+    let http_method = method_flag.clone().unwrap_or_else(|| match action {
+        "create" | "send" | "post"   => "POST".to_string(),
+        "update" | "patch"           => "PATCH".to_string(),
+        "delete" | "remove"          => "DELETE".to_string(),
+        "put"                        => "PUT".to_string(),
+        _  => if body.is_some() { "POST".to_string() } else { "GET".to_string() },
+    });
+
+    // API path: explicit --path > service default
+    let api_path = path_flag.unwrap_or_else(|| entry.graph_path.to_string());
+
+    // For dry-run, skip auth requirements and show request shape directly
+    if dry_run {
+        let info = serde_json::json!({
+            "dry_run": true,
+            "method": http_method,
+            "url": format!("{}{}", MS_GRAPH_BASE, api_path),
+            "params": params,
+            "body": body,
+            "provider": "microsoft_graph"
+        });
+        println!("{}", serde_json::to_string_pretty(&info)?);
+        return Ok(());
+    }
+
+    let config = MsAuthConfig::from_env()?;
+    let token = config.token.as_deref().unwrap_or("");
+
+    let result = execute_graph_request(
+        &http_method,
+        &api_path,
+        token,
+        params.as_deref(),
+        body.as_deref(),
+        dry_run,
+    ).await?;
+
+    println!("{}", serde_json::to_string_pretty(&result)?);
+    Ok(())
 }
