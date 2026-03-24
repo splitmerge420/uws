@@ -48,7 +48,11 @@ impl fmt::Display for CouncilError {
                 write!(f, "POLICY DENIED [{}]: {}", policy, reason)
             }
             CouncilError::RequiresConstitutionalAuthority { action } => {
-                write!(f, "INV-5: Constitutional authority required for: {}", action)
+                write!(
+                    f,
+                    "INV-5: Constitutional authority required for: {}",
+                    action
+                )
             }
             CouncilError::GitHubApiError { status, message } => {
                 write!(f, "GitHub API Error ({}): {}", status, message)
@@ -155,12 +159,35 @@ impl ProvenanceTrailer {
 
 #[derive(Debug, Clone)]
 pub enum GitHubOperation {
-    CreateBranch { repo: String, branch: String },
-    CreateCommit { repo: String, message: String, files: Vec<String> },
-    CreatePullRequest { repo: String, title: String, base: String, head: String },
-    MergeRef { repo: String, base: String, head: String },
-    SetVisibility { repo: String, public: bool },
-    ShredSecret { repo: String, path: String, reason: String },
+    CreateBranch {
+        repo: String,
+        branch: String,
+    },
+    CreateCommit {
+        repo: String,
+        message: String,
+        files: Vec<String>,
+    },
+    CreatePullRequest {
+        repo: String,
+        title: String,
+        base: String,
+        head: String,
+    },
+    MergeRef {
+        repo: String,
+        base: String,
+        head: String,
+    },
+    SetVisibility {
+        repo: String,
+        public: bool,
+    },
+    ShredSecret {
+        repo: String,
+        path: String,
+        reason: String,
+    },
     // Explicitly NO: DeleteBranch, DeleteRepo, ForcePush (except shred)
 }
 
@@ -465,9 +492,7 @@ impl CouncilGitHubClient {
         // For now: simple in-memory log with placeholder hash
         let hash = format!(
             "{:016x}",
-            entry.timestamp.len() as u64
-                ^ entry.actor.len() as u64
-                ^ entry.operation.len() as u64
+            entry.timestamp.len() as u64 ^ entry.actor.len() as u64 ^ entry.operation.len() as u64
         );
         self.audit_log.push(entry);
         hash
@@ -527,7 +552,11 @@ fn operation_resource(op: &GitHubOperation) -> String {
             format!("{}/merge/{}..{}", repo, base, head)
         }
         GitHubOperation::SetVisibility { repo, public } => {
-            format!("{}/visibility/{}", repo, if *public { "public" } else { "private" })
+            format!(
+                "{}/visibility/{}",
+                repo,
+                if *public { "public" } else { "private" }
+            )
         }
         GitHubOperation::ShredSecret { repo, path, .. } => format!("{}/shred/{}", repo, path),
     }
@@ -561,8 +590,12 @@ mod tests {
     #[test]
     fn test_destructive_op_blocked() {
         let client = CouncilGitHubClient::new("splitmerge420".to_string(), test_actor());
-        assert!(client.blocked_operations.contains(&"delete_repo".to_string()));
-        assert!(client.blocked_operations.contains(&"force_push".to_string()));
+        assert!(client
+            .blocked_operations
+            .contains(&"delete_repo".to_string()));
+        assert!(client
+            .blocked_operations
+            .contains(&"force_push".to_string()));
     }
 
     #[test]
@@ -571,7 +604,10 @@ mod tests {
         assert_eq!(DataClass::from_path("secret_key.pem"), DataClass::ClassA);
         assert_eq!(DataClass::from_path("src/main.rs"), DataClass::ClassB);
         assert_eq!(DataClass::from_path("README.md"), DataClass::ClassC);
-        assert_eq!(DataClass::from_path("wallet_backup.json"), DataClass::ClassA);
+        assert_eq!(
+            DataClass::from_path("wallet_backup.json"),
+            DataClass::ClassA
+        );
     }
 
     #[test]
