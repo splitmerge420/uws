@@ -41,6 +41,11 @@ mod text;
 mod token_storage;
 pub(crate) mod validate;
 
+// Aluminum OS modules (library layer — swarm, ledger, telemetry)
+mod ledger;
+mod swarm;
+mod telemetry;
+
 use error::{print_error_json, GwsError};
 
 #[tokio::main]
@@ -130,6 +135,13 @@ async fn run() -> Result<(), GwsError> {
     if first_arg == "auth" {
         let auth_args: Vec<String> = args.iter().skip(2).cloned().collect();
         return auth_commands::handle_auth_command(&auth_args).await;
+    }
+
+    // Handle the `swarm` command (Aluminum OS Swarm Commander)
+    if first_arg == "swarm" {
+        let swarm_args: Vec<String> = args.iter().skip(2).cloned().collect();
+        return swarm::handle_swarm_command(&swarm_args)
+            .map_err(GwsError::Validation);
     }
 
     // Parse service name and optional version override

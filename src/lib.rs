@@ -28,3 +28,31 @@ pub mod council_github_client;
 /// verify_chain() walks every link to detect tampering.
 /// Enforces: INV-3 (Audit Trail), INV-35 (Fail-Closed)
 pub mod audit_chain;
+
+// ─── Swarm Commander ──────────────────────────────────────────────
+// Implements `uws swarm review --batch=<n>`: batch PR/dependency review
+// with a single NPFM dry-run check and cryptographic sign-off.
+// CLI entry point: handle_swarm_command(args)
+
+/// Swarm Commander — batch PR / dependency review with NPFM gating.
+/// Exposes: `run_swarm_review`, `handle_swarm_command`, `format_review_result`
+/// Enforces: INV-2 (Consent Gating), INV-3 (Audit Trail)
+pub mod swarm;
+
+// ─── Provenance Ledger ────────────────────────────────────────────
+// Maps the philosophical ProvenanceTrailer to the concrete GoldenTrace
+// git commit trailer.  Primary API: append_golden_trace_to_commit()
+
+/// Provenance ledger — ProvenanceTrailer → GoldenTrace mapping.
+/// Exposes: `append_golden_trace_to_commit`, `GoldenTrace`, `ProvenanceTrailer`
+/// Enforces: INV-3 (Audit Trail), INV-5 (Provenance)
+pub mod ledger;
+
+// ─── Telemetry / Systemic Linter ──────────────────────────────────
+// Static analysis pass that flags extractive / busywork anti-patterns and
+// reports NPFM score degradations.  Primary API: scan_for_busywork()
+
+/// Systemic linter — scan source files for busywork anti-patterns.
+/// Exposes: `scan_for_busywork`, `collect_warnings`, `LintWarning`
+/// Enforces: INV-1 (Anti-Busywork / Human Flourishing)
+pub mod telemetry;
