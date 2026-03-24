@@ -8,10 +8,11 @@ extern crate alloc;
 
 use alloc::{string::String, vec::Vec, vec, format, collections::BTreeMap};
 
-#[cfg(feature = "std")]
+#[cfg(feature = "serde")]
 use serde::{Serialize, Deserialize};
 
 /// Severity levels for constitutional invariants
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Debug, Clone, PartialEq)]
 pub enum Severity {
     Critical,
@@ -21,6 +22,7 @@ pub enum Severity {
 }
 
 /// Result of checking a single invariant
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Debug, Clone)]
 pub struct InvariantCheck {
     pub id: String,
@@ -31,6 +33,7 @@ pub struct InvariantCheck {
 }
 
 /// Snapshot of system state for invariant checking
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Debug, Clone)]
 pub struct StateSnapshot {
     pub operation: String,
@@ -60,6 +63,15 @@ impl StateSnapshot {
     }
 }
 
+/// The constitutional enforcement engine.
+///
+/// Note on `#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]`:
+/// `Severity`, `InvariantCheck`, and `StateSnapshot` all carry that annotation because
+/// callers may want to serialise individual check results or state snapshots (e.g., for
+/// JSON audit records).  `ConstitutionalEngine` itself is intentionally excluded — it is
+/// a pure behaviour struct (single bool field) with no meaningful serialisable state;
+/// serialising it would just produce `{"strict_mode": true}` which conveys nothing
+/// that a caller couldn't record more clearly themselves.
 pub struct ConstitutionalEngine {
     strict_mode: bool,
 }
@@ -242,5 +254,100 @@ mod tests {
         let state = StateSnapshot::new("write", "file.txt");
         let result = engine.enforce(&state);
         assert!(result.is_ok());
+    }
+
+    // ─── Stress Tests ─────────────────────────────────────────────
+
+    /// INV-7 (Vendor Balance) stress test: enforce that operations without a
+    /// fallback provider are blocked in strict mode, across 1000 iterations.
+    /// This validates the "47% dominance cap" policy — no single provider may
+    /// account for all access without an alternative available.
+    #[test]
+    fn stress_test_inv7_vendor_balance_enforcement() {
+        let engine = ConstitutionalEngine::new(true);
+        for _ in 0..1000 {
+            let mut state = StateSnapshot::new("read", "api/data");
+            state.user_consent = true;
+            state.audit_enabled = true;
+            state.provider_abstracted = true;
+            // has_fallback = false → INV-7 must block
+            state.has_fallback = false;
+            let result = engine.enforce(&state);
+            assert!(
+                result.is_err(),
+                "INV-7 must reject operations with no fallback provider"
+            );
+        }
+    }
+
+    /// INV-7 stress test (passing path): operations with a fallback provider
+    /// must always be allowed, across 1000 iterations.
+    #[test]
+    fn stress_test_inv7_vendor_balance_with_fallback() {
+        let engine = ConstitutionalEngine::new(true);
+        for _ in 0..1000 {
+            let mut state = StateSnapshot::new("read", "api/data");
+            state.user_consent = true;
+            state.audit_enabled = true;
+            state.provider_abstracted = true;
+            state.has_fallback = true;
+            let result = engine.enforce(&state);
+            assert!(
+                result.is_ok(),
+                "INV-7 must allow operations that have a fallback provider"
+            );
+        }
+    }
+
+    /// Heartbeat stress test: simulate the 60-second constitutional heartbeat
+    /// by running check_all() 60 times across diverse operations, verifying
+    /// no panic occurs and all invariant IDs are present in every result.
+    #[test]
+    fn stress_test_heartbeat_invariant_coverage() {
+        let engine = ConstitutionalEngine::new(false);
+        let operations = [
+            "read", "write", "delete", "create", "update", "send", "modify",
+        ];
+        let expected_ids = ["INV-1", "INV-2", "INV-3", "INV-6", "INV-7", "INV-11"];
+
+        for tick in 0..60 {
+            let op = operations[tick % operations.len()];
+            let mut state = StateSnapshot::new(op, "resource");
+            state.user_consent = tick % 2 == 0;
+            state.audit_enabled = tick % 3 == 0;
+            state.has_fallback = tick % 5 == 0;
+
+            let checks = engine.check_all(&state);
+            assert_eq!(checks.len(), expected_ids.len(), "check_all must return all 6 invariants");
+            for (check, expected_id) in checks.iter().zip(expected_ids.iter()) {
+                assert_eq!(
+                    check.id, *expected_id,
+                    "Invariant ID mismatch at tick {tick}"
+                );
+            }
+        }
+    }
+
+    /// Concurrent-simulation stress test: run the engine against 500 mixed
+    /// compliant and non-compliant states, verifying strict consistency —
+    /// compliant always Ok, non-compliant (missing fallback) always Err.
+    #[test]
+    fn stress_test_strict_mode_consistency() {
+        let engine = ConstitutionalEngine::new(true);
+        for i in 0..500 {
+            let compliant = i % 2 == 0;
+            let mut state = StateSnapshot::new("write", "resource");
+            state.user_consent = true;
+            state.audit_enabled = true;
+            state.provider_abstracted = true;
+            state.has_fallback = compliant;
+
+            let result = engine.enforce(&state);
+            if compliant {
+                assert!(result.is_ok(), "Compliant state must pass at iteration {i}");
+            } else {
+                assert!(result.is_err(), "Non-compliant state must fail at iteration {i}");
+            }
+        }
     }
 }

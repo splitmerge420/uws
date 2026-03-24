@@ -14,6 +14,9 @@ package policies.belter_rule
 name = "belter_rule"
 description = "Enforce structured logging and deny print-based logging (INV-30)"
 
+# Default-deny posture (INV-35)
+default allow = false
+
 # Rule: allow if using structured logging
 allow_if_structured_logging = (
     input.get('logging_type', '') in ['structured', 'json', 'syslog']

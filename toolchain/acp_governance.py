@@ -479,7 +479,15 @@ class AuditChain:
         is_valid = len(errors) == 0
         return is_valid, errors
 
-    def export(self, pretty: bool = True) -> str:
+    def verify_chain(self) -> Tuple[bool, List[str]]:
+        """
+        Alias for verify_integrity() — provided for API compatibility with the
+        Rust AuditChain and the integration test suite.
+
+        Returns:
+            Tuple of (is_valid, error_messages)
+        """
+        return self.verify_integrity()
         """
         Export the entire audit chain as JSON.
 

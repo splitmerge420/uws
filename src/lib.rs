@@ -28,3 +28,12 @@ pub mod council_github_client;
 /// verify_chain() walks every link to detect tampering.
 /// Enforces: INV-3 (Audit Trail), INV-35 (Fail-Closed)
 pub mod audit_chain;
+
+/// Zero Trust Integration Gate — "never trust, always verify."
+/// Every component must pass three sequential gates before integration:
+///   1. Logic   — ConstitutionalEngine strict-mode invariant checks
+///   2. Stress  — resilience ≥ 0.70, iterations ≥ 100, invariants held
+///   3. Council — non-empty INV-5 approval token from a named authority
+/// Every decision (allow or deny) is appended to an internal AuditChain.
+/// Enforces: INV-1, INV-2, INV-3, INV-5, INV-7, INV-35
+pub mod zero_trust_registry;

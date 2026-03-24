@@ -13,6 +13,9 @@ package policies.vendor_balance
 name = "vendor_balance"
 description = "Prevent single-vendor dependency and enforce provider diversity (INV-7)"
 
+# Default-deny posture (INV-35)
+default allow = false
+
 # Rule: allow if provider count is adequate (2 or more)
 allow_if_multi_provider = input.get('provider_count', 0) >= 2
 

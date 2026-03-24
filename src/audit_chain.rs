@@ -21,6 +21,9 @@ use std::collections::BTreeMap;
 use std::fmt;
 use std::time::{SystemTime, UNIX_EPOCH};
 
+#[cfg(feature = "sha3")]
+use sha3::{Sha3_256, Digest};
+
 // ─── Constants ────────────────────────────────────────────────
 
 const GENESIS_HASH: &str = "0000000000000000000000000000000000000000000000000000000000000000";
@@ -339,24 +342,34 @@ impl Default for AuditChain {
     }
 }
 
-// ─── Portable SHA3-256 Simulation ─────────────────────────────
+// ─── SHA3-256 Hash Implementation ─────────────────────────────
 //
-// NOTE: This is a portable hash function that simulates SHA3-256
-// using a simple but deterministic algorithm. In production, replace
-// with the `sha3` crate: sha3::Sha3_256.
+// When the `sha3` crate feature is enabled (default via the `std` feature),
+// uses the real NIST SHA3-256 algorithm for cryptographic security.
 //
-// The simulation is NOT cryptographically secure — it's structurally
-// correct (deterministic, collision-resistant for our use case) but
-// MUST be replaced before any adversarial deployment.
-//
-// TODO: Replace with `use sha3::{Sha3_256, Digest};` when sha3 crate
-// is added to Cargo.toml
+// GoldenTrace fallback: when `sha3` feature is unavailable (e.g., no_std
+// embedded targets), falls back to the FNV-1a portable simulation.
+// This preserves structural correctness at the cost of crypto strength —
+// always enable `sha3` for production deployments.
 
+#[cfg(feature = "sha3")]
 fn portable_sha3_256(input: &str) -> String {
-    // Portable hash: FNV-1a 64-bit, applied twice with rotation
-    // for 256-bit output (4 × 64-bit segments)
-    let bytes = input.as_bytes();
+    let mut hasher = Sha3_256::new();
+    hasher.update(input.as_bytes());
+    let result = hasher.finalize();
+    result.iter().fold(String::with_capacity(64), |mut acc, b| {
+        use std::fmt::Write;
+        let _ = write!(acc, "{:02x}", b);
+        acc
+    })
+}
 
+/// GoldenTrace fallback hash — FNV-1a 64-bit expanded to 256 bits.
+/// Used only when the `sha3` crate is unavailable (no_std / embedded targets).
+/// NOT cryptographically secure; for structural chain integrity only.
+#[cfg(not(feature = "sha3"))]
+fn portable_sha3_256(input: &str) -> String {
+    let bytes = input.as_bytes();
     let hash_segment = |seed: u64| -> u64 {
         let mut hash: u64 = 0xcbf29ce484222325u64.wrapping_add(seed);
         for &byte in bytes {
@@ -365,12 +378,10 @@ fn portable_sha3_256(input: &str) -> String {
         }
         hash
     };
-
     let h0 = hash_segment(0);
     let h1 = hash_segment(h0);
     let h2 = hash_segment(h1);
     let h3 = hash_segment(h2);
-
     format!("{:016x}{:016x}{:016x}{:016x}", h0, h1, h2, h3)
 }
 
