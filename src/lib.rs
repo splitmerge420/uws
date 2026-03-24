@@ -28,3 +28,12 @@ pub mod council_github_client;
 /// verify_chain() walks every link to detect tampering.
 /// Enforces: INV-3 (Audit Trail), INV-35 (Fail-Closed)
 pub mod audit_chain;
+
+// ─── Pantheon Council Layer ───────────────────────────────────────
+// Governance layer for multi-organization AI council representation.
+// All seats operate atop the neutral Aluminum OS substrate, governed
+// by the NPFM. No single corporate entity owns the foundational ledger.
+
+/// Pantheon Council swarm primitives — CouncilSeat enum and governance types.
+/// See ALUMINUM_OS_WHITEPAPER.md §5–6 for the full architectural rationale.
+pub mod pantheon;

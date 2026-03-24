@@ -15,6 +15,8 @@
 > **Not an officially supported product of Google, Microsoft, or Apple.**
 > Forked from [googleworkspace/cli](https://github.com/googleworkspace/cli) by Justin Poehnelt (Apache 2.0).
 
+**Built by a lone architect and a fleet of AI swarms—because true alignment with human flourishing requires incentives untouched by corporate extraction.**
+
 ---
 
 ## What Is uws?
