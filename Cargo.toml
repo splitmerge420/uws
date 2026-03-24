@@ -18,18 +18,44 @@ path = "src/main.rs"
 
 [features]
 default = ["std"]
-std = []
+std = ["dep:serde"]
 
 [dependencies]
-# constitutional_engine.rs uses serde behind cfg(feature = "std")
+# Serialization
 serde = { version = "1", features = ["derive"], optional = true }
+serde_json = "1"
 
-# Phase 2 (uncomment when ready):
-# sha3 = "0.10"              # Replace FNV-1a with real SHA3-256 in audit_chain.rs
-# serde_json = "1"           # JSON export for audit chain
-# reqwest = { version = "0.12", features = ["json"] }  # GitHub API calls
-# tokio = { version = "1", features = ["full"] }        # Async runtime
-# clap = { version = "4", features = ["derive"] }       # CLI argument parsing
+# Async runtime & networking
+tokio = { version = "1", features = ["full"] }
+reqwest = { version = "0.12", features = ["json", "stream"] }
+futures-util = "0.3"
+async-trait = "0.1"
+
+# CLI
+clap = { version = "4", features = ["derive"] }
+
+# Error handling
+anyhow = "1"
+thiserror = "1"
+
+# Cryptography & secrets
+aes-gcm = "0.10"
+base64 = "0.22"
+rand = "0.8"
+keyring = "3"
+
+# TUI
+crossterm = "0.29"
+ratatui = "0.30"
+
+# Utilities
+chrono = "0.4"
+dirs = "5"
+dotenvy = "0.15"
+percent-encoding = "2"
+derive_builder = "0.20"
+serde_yaml = "0.9"
+yup-oauth2 = "12"
 
 [dev-dependencies]
 # Tests use only std for now

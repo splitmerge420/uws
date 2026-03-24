@@ -1,0 +1,129 @@
+{
+  "_comment": "GitHub Copilot Extension manifest for uws Universal Workspace CLI",
+  "_spec": "https://docs.github.com/en/copilot/building-copilot-extensions/about-building-copilot-extensions",
+  "name": "uws",
+  "display_name": "Universal Workspace (uws)",
+  "description": "One CLI to rule them all. Access Google Workspace, Microsoft 365, Apple iCloud, GitHub, Android, and Chrome from GitHub Copilot Chat. Every command outputs clean JSON.",
+  "homepage_url": "https://github.com/splitmerge420/uws",
+  "avatar_url": "https://raw.githubusercontent.com/splitmerge420/uws/main/art/uws-icon.png",
+
+  "capabilities": {
+    "type": "skillset",
+    "skills": [
+      {
+        "id": "uws_github_repos",
+        "name": "GitHub Repositories",
+        "description": "List, get, create, and manage GitHub repositories",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "type": "string",
+              "description": "uws github repos <method> [--params <JSON>] [--json <JSON>] [--dry-run]"
+            }
+          }
+        }
+      },
+      {
+        "id": "uws_github_issues",
+        "name": "GitHub Issues",
+        "description": "List, get, create, update, and comment on GitHub issues",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "type": "string",
+              "description": "uws github issues <method> [--params <JSON>] [--json <JSON>] [--dry-run]"
+            }
+          }
+        }
+      },
+      {
+        "id": "uws_github_actions",
+        "name": "GitHub Actions",
+        "description": "List workflows, view runs and jobs, trigger dispatches",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "type": "string",
+              "description": "uws github actions <method> [--params <JSON>] [--json <JSON>] [--dry-run]"
+            }
+          }
+        }
+      },
+      {
+        "id": "uws_github_search",
+        "name": "GitHub Search",
+        "description": "Search repositories, issues, code, users, and commits on GitHub",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "type": "string",
+              "description": "uws github search <method> --params '{\"q\":\"...\"}'"
+            }
+          }
+        }
+      },
+      {
+        "id": "uws_gmail",
+        "name": "Gmail",
+        "description": "Read and send email via Gmail",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "type": "string",
+              "description": "uws gmail <resource> <method> [--params <JSON>] [--json <JSON>] [--dry-run]"
+            }
+          }
+        }
+      },
+      {
+        "id": "uws_ms_mail",
+        "name": "Outlook Mail",
+        "description": "Read and send email via Microsoft Outlook / Microsoft 365",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "type": "string",
+              "description": "uws ms-mail <resource> <method> [--params <JSON>] [--json <JSON>] [--dry-run]"
+            }
+          }
+        }
+      },
+      {
+        "id": "uws_drive",
+        "name": "Google Drive",
+        "description": "List, search, upload, and manage files in Google Drive",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "type": "string",
+              "description": "uws drive <resource> <method> [--params <JSON>] [--json <JSON>]"
+            }
+          }
+        }
+      },
+      {
+        "id": "uws_calendar",
+        "name": "Calendar",
+        "description": "List and create events across Google Calendar and Outlook Calendar",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "type": "string",
+              "description": "uws calendar <resource> <method> [--params <JSON>] [--json <JSON>] [--dry-run]"
+            }
+          }
+        }
+      }
+    ]
+  },
+
+  "agent_instructions": "You are a productivity assistant with access to the uws Universal Workspace CLI. You can interact with Google Workspace, Microsoft 365, Apple iCloud, GitHub, Android, and Chrome APIs. ALWAYS use --dry-run before any write, create, update, or delete operation. ALWAYS confirm with the user before sending emails, creating calendar events, creating issues, or deleting anything. Parse JSON responses to extract only the fields the user needs. Auth: GITHUB_TOKEN for GitHub; GOOGLE_WORKSPACE_CLI_TOKEN for Google; UWS_MS_TOKEN for Microsoft."
+}

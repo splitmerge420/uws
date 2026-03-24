@@ -1,0 +1,135 @@
+name: uws — Universal Workspace CLI
+description: >
+  Run any uws command against Google Workspace, Microsoft 365, Apple iCloud,
+  GitHub, Android, or Chrome from a GitHub Actions workflow step.
+  Outputs structured JSON that downstream steps can parse with jq.
+author: splitmerge420
+branding:
+  icon: terminal
+  color: blue
+
+inputs:
+  command:
+    description: >
+      Full uws command string (excluding the "uws" binary name).
+      Examples:
+        "github repos list"
+        "github issues create --params '{\"owner\":\"octocat\",\"repo\":\"Hello-World\"}' --json '{\"title\":\"Bug\"}'"
+        "gmail users messages list --params '{\"userId\":\"me\",\"q\":\"is:unread\"}'"
+    required: true
+
+  version:
+    description: >
+      uws version to install (e.g. "v0.1.0"). Defaults to "latest".
+    required: false
+    default: latest
+
+  github-token:
+    description: >
+      GitHub personal access token (PAT) for `uws github` commands.
+      Defaults to the workflow's GITHUB_TOKEN.
+    required: false
+    default: ${{ github.token }}
+
+  google-token:
+    description: >
+      Pre-obtained Google OAuth2 access token for Google Workspace commands.
+      Maps to the GOOGLE_WORKSPACE_CLI_TOKEN environment variable.
+    required: false
+    default: ""
+
+  ms-token:
+    description: >
+      Pre-obtained Microsoft Graph access token for Microsoft 365 commands.
+      Maps to the UWS_MS_TOKEN environment variable.
+    required: false
+    default: ""
+
+  dry-run:
+    description: >
+      If "true", appends --dry-run to every command — prints the request
+      without executing it. Useful for debugging workflows before going live.
+    required: false
+    default: "false"
+
+outputs:
+  result:
+    description: >
+      The JSON output from the uws command (stdout).
+      Use `fromJSON(steps.<step-id>.outputs.result)` in subsequent steps.
+
+runs:
+  using: composite
+  steps:
+    - name: Install uws
+      shell: bash
+      env:
+        UWS_VERSION: ${{ inputs.version }}
+        UWS_REPO: splitmerge420/uws
+      run: |
+        set -euo pipefail
+
+        if command -v uws >/dev/null 2>&1; then
+          echo "uws already installed: $(uws --version)"
+          exit 0
+        fi
+
+        OS="$(uname -s)"
+        ARCH="$(uname -m)"
+
+        case "$OS-$ARCH" in
+          Linux-x86_64)   TARGET="x86_64-unknown-linux-gnu" ;;
+          Linux-aarch64)  TARGET="aarch64-unknown-linux-gnu" ;;
+          Darwin-x86_64)  TARGET="x86_64-apple-darwin" ;;
+          Darwin-arm64)   TARGET="aarch64-apple-darwin" ;;
+          *)
+            echo "::error::Unsupported platform: $OS-$ARCH"
+            exit 1
+            ;;
+        esac
+
+        if [ "$UWS_VERSION" = "latest" ]; then
+          VERSION="$(curl -fsSL "https://api.github.com/repos/${UWS_REPO}/releases/latest" \
+            | jq -r '.tag_name')"
+        else
+          VERSION="$UWS_VERSION"
+        fi
+
+        ARCHIVE="uws-${VERSION}-${TARGET}.tar.gz"
+        URL="https://github.com/${UWS_REPO}/releases/download/${VERSION}/${ARCHIVE}"
+
+        echo "Installing uws ${VERSION} (${TARGET})..."
+        curl -fsSL "$URL" -o /tmp/uws.tar.gz
+        tar -xzf /tmp/uws.tar.gz -C /tmp
+        BINARY="$(find /tmp -name uws -type f | head -n1)"
+        chmod +x "$BINARY"
+        sudo mv "$BINARY" /usr/local/bin/uws
+        echo "Installed: $(uws --version)"
+
+    - name: Run uws command
+      id: run
+      shell: bash
+      env:
+        GITHUB_TOKEN: ${{ inputs.github-token }}
+        UWS_GITHUB_TOKEN: ${{ inputs.github-token }}
+        GOOGLE_WORKSPACE_CLI_TOKEN: ${{ inputs.google-token }}
+        UWS_MS_TOKEN: ${{ inputs.ms-token }}
+        UWS_DRY_RUN: ${{ inputs.dry-run }}
+      run: |
+        set -euo pipefail
+
+        CMD="${{ inputs.command }}"
+        if [ "${{ inputs.dry-run }}" = "true" ]; then
+          CMD="$CMD --dry-run"
+        fi
+
+        echo "Running: uws $CMD"
+        RESULT="$(uws $CMD)"
+
+        # Write result to output
+        echo "result<<EOF" >> "$GITHUB_OUTPUT"
+        echo "$RESULT" >> "$GITHUB_OUTPUT"
+        echo "EOF" >> "$GITHUB_OUTPUT"
+
+        # Also print to step log for visibility
+        echo "$RESULT"
