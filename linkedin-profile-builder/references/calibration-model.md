@@ -1,0 +1,3 @@
+# Calibration Model — Bayesian Confidence Framework
+
+Origin: ML Engineering Team fork (Calibrated model). Replaces arbitrary point-based scoring with probabilistic confidence estimation using calibrated priors from resume fraud research, likelihood ratios by evidence type, posterior calculation, profile-level aggregation via weighted geometric mean, data completeness indicators, confidence intervals, calibration loop design, and linguistic consistency analyzer. See full document in plugin repository.
