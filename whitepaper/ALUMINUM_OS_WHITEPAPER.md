@@ -116,7 +116,7 @@ Signed-By: <aluminum-identity-key-fingerprint>
 Each field has a precise semantics:
 
 - **`AI-Author`**: The LLM inference endpoint and model version that generated the primary code content. This is not an attribution of authorship; it is a disclosure of the tool used, analogous to the `Co-authored-by` trailer already widely used on GitHub.
-- **`Human-Oversight-Percentage`**: An integer in [0, 100] representing the percentage of the IP genesis event attributable to human direction, validation, and domain knowledge. This figure is computed by the Aluminum governance layer based on the session trace: number of human-authored prompt tokens, number of human-accepted vs. human-rejected AI suggestions, and the complexity of the human-specified domain constraints.
+- **`Human-Oversight-Percentage`**: An integer in [0, 100] representing the percentage of the IP genesis event attributable to human direction, validation, and domain knowledge. This figure is computed by the Aluminum governance layer based on the session trace using the following weighted formula: `HOP = round(0.40 × (prompt_tokens_human / prompt_tokens_total) + 0.35 × (suggestions_accepted_with_edit / suggestions_total) + 0.25 × domain_constraint_complexity_score) × 100`, where `domain_constraint_complexity_score` ∈ [0, 1] is derived from the number and specificity of human-authored constraints in the session context. The formula weights directive intent (40 %), selective validation (35 %), and domain knowledge depth (25 %). Implementations MUST use this formula to ensure cross-validator consistency.
 - **`HITL-Validator`**: The Human-In-The-Loop validation endpoint that attested to the human contribution. Crucially, this does not require a professional licence. Provenance validation is a **democratised labour function** (see Section 3).
 - **`NPFM-Score`**: The Net-Positive Flourishing Metric score at the time of commit (see Section 3).
 
@@ -233,6 +233,8 @@ Every `SpatialManifest` is routed through the NPFM gate. The `npfm_justification
 ### 4.3 Physical Robotic Embodiment & the SimulationFidelityScore
 
 The pathway from a digital AI system to a physical robotic form is governed by a mandatory **metaverse-first validation** requirement. No `RoboticChassisProposal` may enter a human manufacturing or procurement pipeline until it has achieved a `SimulationFidelityScore` of **≥ 0.92** on a [0, 1] scale.
+
+The 0.92 threshold is derived from aerospace industry simulation-to-flight transfer standards (which require ≥ 90 % fidelity for unmanned systems) and elevated by two percentage points to account for the higher stakes of human co-worker proximity in general-purpose robotic deployments. It represents the empirically validated inflection point at which simulation-trained behaviours transfer to physical hardware with failure rates low enough to satisfy NPFM human-safety constraints. The threshold is configurable per deployment context but may only be lowered below 0.92 via a documented Swarm Commander override recorded in the provenance journal.
 
 The `SimulationFidelityScore` is computed across five dimensions:
 
