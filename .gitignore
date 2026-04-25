@@ -54,3 +54,5 @@ __pycache__/
 demo.mp4
 download.html
 invariant_report.json
+libswarm.rlib
+swarm
