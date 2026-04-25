@@ -32,6 +32,8 @@ mod formatter;
 mod fs_util;
 mod generate_skills;
 mod helpers;
+mod ip_commands;
+mod ledger;
 mod oauth_config;
 mod schema;
 mod services;
@@ -130,6 +132,12 @@ async fn run() -> Result<(), GwsError> {
     if first_arg == "auth" {
         let auth_args: Vec<String> = args.iter().skip(2).cloned().collect();
         return auth_commands::handle_auth_command(&auth_args).await;
+    }
+
+    // Handle the `ip` command (Regenerative IP & Provenance Engine)
+    if first_arg == "ip" {
+        let ip_args: Vec<String> = args.iter().skip(2).cloned().collect();
+        return ip_commands::handle_ip_command(&ip_args).await;
     }
 
     // Parse service name and optional version override
