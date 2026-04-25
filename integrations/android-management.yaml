@@ -1,0 +1,28 @@
+name: android-management
+description: Android Management API and Android Messages (RCS) via Google Android Management API
+version: "1.0"
+
+scopes:
+  - "https://www.googleapis.com/auth/androidmanagement"
+
+data_handling_class: CLASS_B
+
+constitutional_invariants:
+  - INV-001   # User Sovereignty
+  - INV-002   # Consent Gating
+  - INV-003   # Audit Trail
+  - INV-004   # Data Classification
+  - INV-006   # Provider Abstraction
+  - INV-011   # Encryption at Rest
+  - INV-012   # Encryption in Transit
+  - INV-016   # Data Minimization
+  - INV-019   # Jurisdictional Compliance
+  - INV-020   # No Silent Sharing
+
+fallback_providers: []
+
+third_party_sharing: false
+
+jurisdictions:
+  - GDPR
+  - CCPA

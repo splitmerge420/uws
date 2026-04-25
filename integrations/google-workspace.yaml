@@ -1,0 +1,41 @@
+name: google-workspace
+description: Google Workspace APIs (Drive, Gmail, Calendar, Docs, Sheets, Slides, Tasks, People, Chat, Forms, Keep, Meet)
+version: "1.0"
+
+scopes:
+  - "https://www.googleapis.com/auth/drive"
+  - "https://www.googleapis.com/auth/gmail.modify"
+  - "https://www.googleapis.com/auth/calendar"
+  - "https://www.googleapis.com/auth/documents"
+  - "https://www.googleapis.com/auth/spreadsheets"
+  - "https://www.googleapis.com/auth/presentations"
+  - "https://www.googleapis.com/auth/tasks"
+  - "https://www.googleapis.com/auth/contacts"
+  - "https://www.googleapis.com/auth/chat.messages"
+
+data_handling_class: CLASS_B
+
+constitutional_invariants:
+  - INV-001   # User Sovereignty
+  - INV-002   # Consent Gating
+  - INV-003   # Audit Trail
+  - INV-004   # Data Classification
+  - INV-006   # Provider Abstraction
+  - INV-007   # Vendor Balance
+  - INV-011   # Encryption at Rest
+  - INV-012   # Encryption in Transit
+  - INV-016   # Data Minimization
+  - INV-017   # Right to Delete
+  - INV-018   # Data Portability
+  - INV-019   # Jurisdictional Compliance
+  - INV-020   # No Silent Sharing
+
+fallback_providers:
+  - microsoft-365
+  - apple-icloud
+
+third_party_sharing: false
+
+jurisdictions:
+  - GDPR
+  - CCPA

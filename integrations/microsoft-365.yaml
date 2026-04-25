@@ -1,0 +1,40 @@
+name: microsoft-365
+description: Microsoft 365 APIs via Microsoft Graph (Outlook Mail, Calendar, OneDrive, Teams, To Do, OneNote, SharePoint, Planner)
+version: "1.0"
+
+scopes:
+  - "Mail.ReadWrite"
+  - "Calendars.ReadWrite"
+  - "Files.ReadWrite"
+  - "Chat.ReadWrite"
+  - "Tasks.ReadWrite"
+  - "Notes.ReadWrite"
+  - "Sites.ReadWrite.All"
+  - "offline_access"
+
+data_handling_class: CLASS_B
+
+constitutional_invariants:
+  - INV-001   # User Sovereignty
+  - INV-002   # Consent Gating
+  - INV-003   # Audit Trail
+  - INV-004   # Data Classification
+  - INV-006   # Provider Abstraction
+  - INV-007   # Vendor Balance
+  - INV-011   # Encryption at Rest
+  - INV-012   # Encryption in Transit
+  - INV-016   # Data Minimization
+  - INV-017   # Right to Delete
+  - INV-018   # Data Portability
+  - INV-019   # Jurisdictional Compliance
+  - INV-020   # No Silent Sharing
+
+fallback_providers:
+  - google-workspace
+  - apple-icloud
+
+third_party_sharing: false
+
+jurisdictions:
+  - GDPR
+  - CCPA
