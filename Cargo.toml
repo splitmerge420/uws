@@ -18,21 +18,64 @@ path = "src/main.rs"
 
 [features]
 default = ["std"]
-std = []
+std = ["dep:serde"]
 
 [dependencies]
-# constitutional_engine.rs uses serde behind cfg(feature = "std")
+# Core serialisation — gated on "std" feature so the lib stays no_std-capable
 serde = { version = "1", features = ["derive"], optional = true }
 
-# Phase 2 (uncomment when ready):
-# sha3 = "0.10"              # Replace FNV-1a with real SHA3-256 in audit_chain.rs
-# serde_json = "1"           # JSON export for audit chain
-# reqwest = { version = "0.12", features = ["json"] }  # GitHub API calls
-# tokio = { version = "1", features = ["full"] }        # Async runtime
-# clap = { version = "4", features = ["derive"] }       # CLI argument parsing
+# CLI framework
+clap = { version = "4", features = ["derive", "string"] }
+
+# Async runtime
+tokio = { version = "1", features = ["full"] }
+
+# HTTP client
+reqwest = { version = "0.12", features = ["json", "multipart", "stream"] }
+
+# Data formats
+serde_json = "1"
+serde_yaml = "0.9"
+
+# Error handling
+anyhow = "1"
+thiserror = "2"
+
+# Time
+chrono = { version = "0.4", features = ["serde"] }
+
+# Crypto / encoding
+aes-gcm = "0.10"
+base64 = "0.22"
+rand = "0.8"
+
+# OS / filesystem
+dirs = "5"
+dotenvy = "0.15"
+
+# URL encoding
+percent-encoding = "2"
+
+# Terminal UI
+ratatui = "0.29"
+crossterm = "0.28"
+
+# Async utilities
+async-trait = "0.1"
+futures-util = "0.3"
+
+# Builder macros
+derive_builder = "0.20"
+
+# OS credential store
+keyring = "3"
+
+# Google OAuth2
+yup-oauth2 = "11"
 
 [dev-dependencies]
-# Tests use only std for now
+tempfile = "3"
+serial_test = "3"
 
 [profile.release]
 opt-level = 3

@@ -28,3 +28,18 @@ pub mod council_github_client;
 /// verify_chain() walks every link to detect tampering.
 /// Enforces: INV-3 (Audit Trail), INV-35 (Fail-Closed)
 pub mod audit_chain;
+
+// ─── Flourishing Telemetry Layer ──────────────────────────────────────────────
+
+/// Net-Positive Flourishing Metric (NPFM) — KPI aggregation and execution gate.
+/// Defines JobTier, AntiBusyworkFactor, and NetPositiveScore.
+/// Scores ≤ 0 block execution per the Fiduciary Duty Against Busywork.
+pub mod telemetry;
+
+// ─── Embodiment Layer ─────────────────────────────────────────────────────────
+
+/// Physical and spatial deployment gates.
+/// spatial::SpatialManifest — XR/spatial approval gated on positive NPFM.
+/// physical::RoboticChassisProposal — robotic approval gated on SimulationFidelityScore ≥ 0.90
+///   AND positive NPFM. Status: PendingSimulation → AwaitingFiduciaryApproval → Approved.
+pub mod embodiment;

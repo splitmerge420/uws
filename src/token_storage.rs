@@ -16,7 +16,7 @@ use std::collections::HashMap;
 use std::path::PathBuf;
 use std::sync::Arc;
 use tokio::sync::Mutex;
-use yup_oauth2::storage::{TokenInfo, TokenStorage, TokenStorageError};
+use yup_oauth2::storage::{TokenInfo, TokenStorage};
 
 /// A custom token storage implementation for `yup-oauth2` that encrypts
 /// the cached tokens at rest using the AES key derived from the OS keyring.
@@ -99,7 +99,7 @@ impl EncryptedTokenStorage {
 
 #[async_trait::async_trait]
 impl TokenStorage for EncryptedTokenStorage {
-    async fn set(&self, scopes: &[&str], token: TokenInfo) -> Result<(), TokenStorageError> {
+    async fn set(&self, scopes: &[&str], token: TokenInfo) -> anyhow::Result<()> {
         let mut map_lock = self.cache.lock().await;
 
         // Initialize cache if this is the first write
@@ -109,9 +109,7 @@ impl TokenStorage for EncryptedTokenStorage {
 
         if let Some(map) = map_lock.as_mut() {
             map.insert(Self::cache_key(scopes), token);
-            self.save_to_disk(map)
-                .await
-                .map_err(|e| TokenStorageError::Other(std::borrow::Cow::Owned(e.to_string())))?;
+            self.save_to_disk(map).await?;
         }
 
         Ok(())

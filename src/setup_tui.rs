@@ -25,7 +25,7 @@ use crossterm::{
 };
 use ratatui::{
     layout::{Constraint, Layout},
-    style::{Color, Modifier, Style},
+    style::{Color, Modifier, Style, Stylize},
     text::{Line, Span},
     widgets::{Block, Borders, List, ListItem, ListState, Paragraph},
     DefaultTerminal,
