@@ -32,6 +32,9 @@ use sha2::{Digest, Sha256};
 /// Minimum human contribution weight.  Enforced in [`ProvenanceTrailer::new`].
 pub const MIN_HUMAN_WEIGHT: f64 = 0.01;
 
+/// Floating-point tolerance used when comparing weight and share sums.
+const EPSILON: f64 = 1e-9;
+
 // ─── Revenue Split ─────────────────────────────────────────────────────────
 
 /// Describes how revenue derived from IP attributed to this commit should be
@@ -57,7 +60,7 @@ impl RevenueSplit {
             return Err("Revenue shares must be non-negative".to_string());
         }
         let commons_share = 1.0 - human_share - ai_share;
-        if commons_share < -1e-9 {
+        if commons_share < -EPSILON {
             return Err(format!(
                 "human_share ({human_share}) + ai_share ({ai_share}) exceeds 1.0"
             ));
@@ -152,7 +155,7 @@ impl ProvenanceTrailer {
                 "human_weight ({human_weight}) is below MIN_HUMAN_WEIGHT ({MIN_HUMAN_WEIGHT})"
             ));
         }
-        if human_weight + ai_weight > 1.0 + 1e-9 {
+        if human_weight + ai_weight > 1.0 + EPSILON {
             return Err(format!(
                 "human_weight ({human_weight}) + ai_weight ({ai_weight}) exceeds 1.0"
             ));
@@ -277,7 +280,7 @@ mod tests {
     fn accepts_minimum_human_weight() {
         let t = ProvenanceTrailer::new(MIN_HUMAN_WEIGHT, 0.5, make_split(), 42, None, None)
             .expect("should succeed at boundary");
-        assert!((t.core.human_weight - MIN_HUMAN_WEIGHT).abs() < f64::EPSILON);
+        assert!((t.core.human_weight - MIN_HUMAN_WEIGHT).abs() < EPSILON);
     }
 
     // ── Weight sum constraint ─────────────────────────────────────────────
