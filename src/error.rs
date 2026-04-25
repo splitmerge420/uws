@@ -16,6 +16,7 @@ use serde_json::json;
 use thiserror::Error;
 
 #[derive(Error, Debug)]
+#[allow(dead_code)] // Api/Auth/Discovery variants used in Phase-2 full-CLI modules
 pub enum GwsError {
     #[error("{message}")]
     Api {
