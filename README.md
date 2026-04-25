@@ -17,6 +17,10 @@
 
 ---
 
+> 📄 **[Aluminum OS White Paper](whitepaper/ALUMINUM_OS_WHITEPAPER.md)** — The authoritative technical and philosophical specification for the Regenerative IP Protocol, the Net-Positive Flourishing Metric, the Anti-Busywork governance layer, and the Embodiment Protocol. Start here to understand the full vision.
+
+---
+
 ## What Is uws?
 
 `uws` is a **universal, schema-driven command-line interface** that gives you — and your AI agents — structured, JSON-first access to every major productivity ecosystem from a single tool.
