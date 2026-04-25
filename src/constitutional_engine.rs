@@ -9,7 +9,8 @@ extern crate alloc;
 use alloc::{string::String, vec::Vec, vec, format, collections::BTreeMap};
 
 #[cfg(feature = "std")]
-use serde::{Serialize, Deserialize};
+#[allow(unused_imports)]
+use serde::{Deserialize, Serialize};
 
 /// Severity levels for constitutional invariants
 #[derive(Debug, Clone, PartialEq)]

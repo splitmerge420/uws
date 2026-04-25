@@ -28,3 +28,8 @@ pub mod council_github_client;
 /// verify_chain() walks every link to detect tampering.
 /// Enforces: INV-3 (Audit Trail), INV-35 (Fail-Closed)
 pub mod audit_chain;
+
+/// Pantheon — multi-agent governance layer.
+/// Contains the canonical CouncilSeat registry and swarm coordination primitives.
+/// All seats operate atop the neutral substrate governed by the NPFM.
+pub mod pantheon;
