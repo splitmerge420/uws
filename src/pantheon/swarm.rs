@@ -15,7 +15,7 @@ use std::fmt;
 ///
 /// Each variant represents a corporate entity that holds a seat on the Council.
 /// Seat-holders may participate in deliberation and are accountable under the NPFM
-/// for the behaviour of their provider driver. No seat-holder can override the
+/// for the behavior of their provider driver. No seat-holder can override the
 /// foundational fiduciary duty — the substrate is neutral by construction because
 /// it was built outside any of these organisations.
 ///
