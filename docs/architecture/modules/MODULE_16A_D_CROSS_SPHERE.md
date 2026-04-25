@@ -28,6 +28,32 @@ Core doctrine:
 
 The current build process is multi-agent and multi-surface. Future agents should understand the real execution environment, not just the abstract provider map.
 
+### GPT / OpenAI Reasoning + Execution Seat
+
+GPT is used as a verification, stress-test, architecture synthesis, GitHub execution, and agent-instruction layer. It is valuable for:
+
+- adversarial review of generated specs and PRs;
+- repo triage and PR cleanup;
+- converting broad architecture into scoped docs and skeleton modules;
+- writing GitHub comments / execution instructions for other agents;
+- cross-checking Claude, Grok, Copilot, Manus, and Notion outputs;
+- maintaining architectural coherence across parallel builds.
+
+Integration implication: OpenAI should be treated as both a first-class model-provider target and a reasoning / verification execution seat in the Pantheon workflow.
+
+### Claude / Anthropic Verification + Architecture Seat
+
+Claude is used as a parallel verification, code review, longform architecture, archival, and synthesis partner. It is especially valuable for:
+
+- constitutional analysis;
+- longform documentation;
+- code review and critique;
+- archive generation;
+- alternate implementation proposals;
+- stress-testing GPT and Copilot outputs.
+
+Integration implication: Anthropic should be modeled as a frontier model provider and as a high-value reasoning / verification seat. Claude-generated artifacts should be preserved with provenance and routed through the same harvest-before-merge discipline as other agents.
+
 ### Microsoft 365 Copilot / Tasks Beta
 
 Microsoft 365 Copilot, including Tasks Beta in the user's Microsoft 365 account, is an active artifact-generation and planning surface. It has produced massive architecture artifacts, module plans, and longform constitutional / provider analyses.
@@ -85,8 +111,8 @@ Future UWS work should preserve Notion as a first-class interoperability target,
 
 Primary targets:
 
-- OpenAI;
-- Anthropic;
+- OpenAI / GPT;
+- Anthropic / Claude;
 - Google Gemini / Vertex;
 - Microsoft 365 Copilot / Azure AI surfaces;
 - xAI / Grok where applicable;
@@ -162,6 +188,7 @@ Primary targets:
 - Microsoft 365 Copilot Tasks Beta planning / artifact loops;
 - Manus execution handoff loops;
 - Notion AI workspace / MCP UI loops;
+- GPT / Claude verification and stress-test loops;
 - future Janus / Pantheon council routing surfaces.
 
 Skeleton responsibilities:
@@ -171,6 +198,7 @@ Skeleton responsibilities:
 - prepare for tool permissioning, consent, provenance, and audit;
 - avoid a single-agent monoculture;
 - record execution provenance across Microsoft 365 Copilot, GitHub Copilot, Manus, Claude, GPT, Grok, Gemini, and Notion AI where available;
+- support parallel verification and stress-test passes across GPT and Claude before high-impact merges;
 - bound automated execution with cost, scope, and stop-condition metadata.
 
 Phase 1 output: protocol target list + docs.
@@ -194,8 +222,8 @@ Module 16A-D is the implementation-facing interoperability skeleton that gives t
 ## Acceptance Criteria
 
 - [ ] Module 16A-D is understood as interoperability, not cross-sphere governance.
-- [ ] OpenAI is explicitly included as a first-class model-provider target.
-- [ ] Anthropic is modeled as frontier model provider, not hyperscaler.
+- [ ] OpenAI / GPT is explicitly included as a first-class model-provider target and verification / execution seat.
+- [ ] Anthropic / Claude is modeled as frontier model provider and verification / architecture seat, not hyperscaler.
 - [ ] Microsoft 365 Copilot / Tasks Beta is recognized as a planning and artifact-generation surface.
 - [ ] GitHub Copilot / Coding Agent is recognized as a distinct repo-execution agent with variable continuity.
 - [ ] Manus is recognized as an execution layer with explicit cost / scope guardrails.
