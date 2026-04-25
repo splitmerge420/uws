@@ -32,6 +32,10 @@ mod formatter;
 mod fs_util;
 mod generate_skills;
 mod helpers;
+mod ms_graph;
+mod apple;
+mod android_chrome;
+mod github_provider;
 mod oauth_config;
 mod schema;
 mod services;
@@ -130,6 +134,48 @@ async fn run() -> Result<(), GwsError> {
     if first_arg == "auth" {
         let auth_args: Vec<String> = args.iter().skip(2).cloned().collect();
         return auth_commands::handle_auth_command(&auth_args).await;
+    }
+
+    // Handle `ms-auth` command (Microsoft 365 authentication)
+    if first_arg == "ms-auth" {
+        let ms_args: Vec<String> = args.iter().skip(2).cloned().collect();
+        return ms_graph::handle_ms_auth_command(&ms_args).await
+            .map_err(GwsError::Other);
+    }
+
+    // Handle `apple-auth` command (Apple iCloud authentication)
+    if first_arg == "apple-auth" {
+        let apple_args: Vec<String> = args.iter().skip(2).cloned().collect();
+        return apple::handle_apple_auth_command(&apple_args).await
+            .map_err(GwsError::Other);
+    }
+
+    // Route Microsoft 365 services (ms-mail, ms-calendar, ms-onedrive, ms-teams, …)
+    if ms_graph::resolve_ms_service(&first_arg).is_some() {
+        let rest: Vec<String> = args.iter().skip(2).cloned().collect();
+        return ms_graph::handle_ms_command(&first_arg, &rest).await
+            .map_err(GwsError::Other);
+    }
+
+    // Route Apple services (apple-calendar, apple-contacts, apple-reminders, …)
+    if apple::resolve_apple_service(&first_arg).is_some() {
+        let rest: Vec<String> = args.iter().skip(2).cloned().collect();
+        return apple::handle_apple_command(&first_arg, &rest).await
+            .map_err(GwsError::Other);
+    }
+
+    // Route Android/Chrome services (android-management, chrome-management, chrome-policy, …)
+    if android_chrome::resolve_android_chrome_service(&first_arg).is_some() {
+        let rest: Vec<String> = args.iter().skip(2).cloned().collect();
+        return android_chrome::handle_android_chrome_command(&first_arg, &rest).await
+            .map_err(GwsError::Other);
+    }
+
+    // Route GitHub services (github-issues, github-pulls, github-actions, …)
+    if github_provider::resolve_github_service(&first_arg).is_some() {
+        let rest: Vec<String> = args.iter().skip(2).cloned().collect();
+        return github_provider::handle_github_command(&first_arg, &rest).await
+            .map_err(GwsError::Other);
     }
 
     // Parse service name and optional version override
@@ -404,18 +450,18 @@ fn resolve_method_from_matches<'a>(
 }
 
 fn print_usage() {
-    println!("gws — Google Workspace CLI");
+    println!("uws — Universal Workspace CLI");
     println!();
     println!("USAGE:");
-    println!("    gws <service> <resource> [sub-resource] <method> [flags]");
-    println!("    gws schema <service.resource.method> [--resolve-refs]");
+    println!("    uws <service> <resource> [sub-resource] <method> [flags]");
+    println!("    uws schema <service.resource.method> [--resolve-refs]");
     println!();
     println!("EXAMPLES:");
-    println!("    gws drive files list --params '{{\"pageSize\": 10}}'");
-    println!("    gws drive files get --params '{{\"fileId\": \"abc123\"}}'");
-    println!("    gws sheets spreadsheets get --params '{{\"spreadsheetId\": \"...\"}}'");
-    println!("    gws gmail users messages list --params '{{\"userId\": \"me\"}}'");
-    println!("    gws schema drive.files.list");
+    println!("    uws drive files list --params '{{\"pageSize\": 10}}'");
+    println!("    uws gmail users messages list --params '{{\"userId\": \"me\"}}'");
+    println!("    uws ms-mail list --params '{{\"$top\": 10}}'");
+    println!("    uws apple-calendar --path /dav/1234/calendars/ --dry-run");
+    println!("    uws github-issues list --params '{{\"owner\":\"acme\",\"repo\":\"api\"}}'");
     println!();
     println!("FLAGS:");
     println!("    --params <JSON>       URL/Query parameters as JSON");
@@ -427,8 +473,9 @@ fn print_usage() {
     println!("    --page-all            Auto-paginate, one JSON line per page (NDJSON)");
     println!("    --page-limit <N>      Max pages to fetch with --page-all (default: 10)");
     println!("    --page-delay <MS>     Delay between pages in ms (default: 100)");
+    println!("    --dry-run             Preview request without executing");
     println!();
-    println!("SERVICES:");
+    println!("GOOGLE WORKSPACE SERVICES:");
     for entry in services::SERVICES {
         let name = entry.aliases[0];
         let aliases = if entry.aliases.len() > 1 {
@@ -436,34 +483,78 @@ fn print_usage() {
         } else {
             String::new()
         };
-        println!("    {:<20} {}{}", name, entry.description, aliases);
+        println!("    {:<25} {}{}", name, entry.description, aliases);
     }
     println!();
-    println!("ENVIRONMENT:");
+    println!("MICROSOFT 365 SERVICES:");
+    for entry in ms_graph::MS_SERVICES {
+        let name = entry.aliases[0];
+        let aliases = if entry.aliases.len() > 1 {
+            format!(" (also: {})", entry.aliases[1..].join(", "))
+        } else {
+            String::new()
+        };
+        println!("    {:<25} {}{}", name, entry.description, aliases);
+    }
+    println!("    {:<25} Microsoft 365 authentication (setup, login, status)", "ms-auth");
+    println!();
+    println!("APPLE ICLOUD SERVICES:");
+    for entry in apple::APPLE_SERVICES {
+        let name = entry.aliases[0];
+        let aliases = if entry.aliases.len() > 1 {
+            format!(" (also: {})", entry.aliases[1..].join(", "))
+        } else {
+            String::new()
+        };
+        println!("    {:<25} {}{}", name, entry.description, aliases);
+    }
+    println!("    {:<25} Apple iCloud authentication (setup, status)", "apple-auth");
+    println!();
+    println!("ANDROID & CHROME SERVICES:");
+    android_chrome::print_android_chrome_services();
+    println!();
+    println!("GITHUB SERVICES:");
+    for entry in github_provider::GITHUB_SERVICES {
+        let name = entry.aliases[0];
+        let aliases = if entry.aliases.len() > 1 {
+            format!(" (also: {})", entry.aliases[1..].join(", "))
+        } else {
+            String::new()
+        };
+        println!("    {:<25} {}{}", name, entry.description, aliases);
+    }
+    println!();
+    println!("ENVIRONMENT (Google):");
     println!("    GOOGLE_WORKSPACE_CLI_TOKEN               Pre-obtained OAuth2 access token (highest priority)");
     println!("    GOOGLE_WORKSPACE_CLI_CREDENTIALS_FILE    Path to OAuth credentials JSON file");
-    println!("    GOOGLE_WORKSPACE_CLI_CLIENT_ID           OAuth client ID (for gws auth login)");
-    println!(
-        "    GOOGLE_WORKSPACE_CLI_CLIENT_SECRET       OAuth client secret (for gws auth login)"
-    );
-    println!(
-        "    GOOGLE_WORKSPACE_CLI_CONFIG_DIR          Override config directory (default: ~/.config/gws)"
-    );
+    println!("    GOOGLE_WORKSPACE_CLI_CONFIG_DIR          Override config directory (default: ~/.config/uws)");
     println!("    GOOGLE_WORKSPACE_CLI_SANITIZE_TEMPLATE   Default Model Armor template");
-    println!(
-        "    GOOGLE_WORKSPACE_CLI_SANITIZE_MODE       Sanitization mode: warn (default) or block"
-    );
-    println!(
-        "    GOOGLE_WORKSPACE_PROJECT_ID              Override the GCP project ID for quota and billing"
-    );
+    println!("    GOOGLE_WORKSPACE_CLI_SANITIZE_MODE       Sanitization mode: warn (default) or block");
+    println!();
+    println!("ENVIRONMENT (Microsoft):");
+    println!("    UWS_MS_CLIENT_ID         Azure app client ID");
+    println!("    UWS_MS_CLIENT_SECRET     Azure app client secret");
+    println!("    UWS_MS_TENANT_ID         Azure AD tenant ID (default: common)");
+    println!("    UWS_MS_TOKEN             Pre-obtained Microsoft Graph token");
+    println!();
+    println!("ENVIRONMENT (Apple):");
+    println!("    UWS_APPLE_ID             Apple ID email");
+    println!("    UWS_APPLE_APP_PASSWORD   App-specific password for CalDAV/CardDAV");
+    println!("    UWS_APPLE_CLIENT_ID      Sign in with Apple client ID");
+    println!("    UWS_APPLE_TEAM_ID        Apple Developer team ID");
+    println!("    UWS_APPLE_KEY_ID         Apple private key ID");
+    println!("    UWS_APPLE_PRIVATE_KEY_FILE  Path to Apple .p8 private key");
+    println!();
+    println!("ENVIRONMENT (GitHub):");
+    println!("    GITHUB_TOKEN             GitHub token (set automatically in GitHub Actions)");
+    println!("    GH_TOKEN                 GitHub token (set by gh CLI)");
     println!();
     println!("COMMUNITY:");
-    println!("    Star the repo: https://github.com/googleworkspace/cli");
-    println!("    Report bugs / request features: https://github.com/googleworkspace/cli/issues");
-    println!("    Please search existing issues first; if one already exists, comment there.");
+    println!("    Star the repo: https://github.com/atlaslattice/uws");
+    println!("    Report bugs / request features: https://github.com/atlaslattice/uws/issues");
     println!();
     println!("DISCLAIMER:");
-    println!("    This is not an officially supported Google product.");
+    println!("    This is not an officially supported Google, Microsoft, or Apple product.");
 }
 
 fn is_help_flag(arg: &str) -> bool {
