@@ -31,12 +31,15 @@ mod executor;
 mod formatter;
 mod fs_util;
 mod generate_skills;
+pub mod golden_trace;
 mod helpers;
+pub mod lint_busywork;
 mod oauth_config;
 mod schema;
 mod services;
 mod setup;
 mod setup_tui;
+pub mod swarm;
 mod text;
 mod token_storage;
 pub(crate) mod validate;
@@ -130,6 +133,18 @@ async fn run() -> Result<(), GwsError> {
     if first_arg == "auth" {
         let auth_args: Vec<String> = args.iter().skip(2).cloned().collect();
         return auth_commands::handle_auth_command(&auth_args).await;
+    }
+
+    // Handle the `swarm` command
+    if first_arg == "swarm" {
+        let swarm_args: Vec<String> = args.iter().skip(2).cloned().collect();
+        return swarm::handle_swarm_command(&swarm_args).await;
+    }
+
+    // Handle the `lint` command
+    if first_arg == "lint" {
+        let lint_args: Vec<String> = args.iter().skip(2).cloned().collect();
+        return lint_busywork::handle_lint_command(&lint_args).await;
     }
 
     // Parse service name and optional version override
@@ -404,18 +419,22 @@ fn resolve_method_from_matches<'a>(
 }
 
 fn print_usage() {
-    println!("gws — Google Workspace CLI");
+    println!("uws — Universal Workspace CLI");
     println!();
     println!("USAGE:");
-    println!("    gws <service> <resource> [sub-resource] <method> [flags]");
-    println!("    gws schema <service.resource.method> [--resolve-refs]");
+    println!("    uws <service> <resource> [sub-resource] <method> [flags]");
+    println!("    uws schema <service.resource.method> [--resolve-refs]");
+    println!("    uws swarm review <pr-ref> [--repo owner/name]");
+    println!("    uws lint busywork [--dir <path>] [--format json|table] [--strict]");
     println!();
     println!("EXAMPLES:");
-    println!("    gws drive files list --params '{{\"pageSize\": 10}}'");
-    println!("    gws drive files get --params '{{\"fileId\": \"abc123\"}}'");
-    println!("    gws sheets spreadsheets get --params '{{\"spreadsheetId\": \"...\"}}'");
-    println!("    gws gmail users messages list --params '{{\"userId\": \"me\"}}'");
-    println!("    gws schema drive.files.list");
+    println!("    uws drive files list --params '{{\"pageSize\": 10}}'");
+    println!("    uws drive files get --params '{{\"fileId\": \"abc123\"}}'");
+    println!("    uws sheets spreadsheets get --params '{{\"spreadsheetId\": \"...\"}}'");
+    println!("    uws gmail users messages list --params '{{\"userId\": \"me\"}}'");
+    println!("    uws schema drive.files.list");
+    println!("    uws swarm review 42");
+    println!("    uws lint busywork --format table");
     println!();
     println!("FLAGS:");
     println!("    --params <JSON>       URL/Query parameters as JSON");
@@ -427,6 +446,12 @@ fn print_usage() {
     println!("    --page-all            Auto-paginate, one JSON line per page (NDJSON)");
     println!("    --page-limit <N>      Max pages to fetch with --page-all (default: 10)");
     println!("    --page-delay <MS>     Delay between pages in ms (default: 100)");
+    println!();
+    println!("BUILT-IN COMMANDS:");
+    println!("    {:<20} Manage OAuth credentials", "auth");
+    println!("    {:<20} Dispatch PR to multi-agent review (stub)", "swarm review");
+    println!("    {:<20} Scan for AntiBusyworkFactor patterns (v0)", "lint busywork");
+    println!("    {:<20} Show schema for a service method", "schema");
     println!();
     println!("SERVICES:");
     for entry in services::SERVICES {
@@ -442,12 +467,12 @@ fn print_usage() {
     println!("ENVIRONMENT:");
     println!("    GOOGLE_WORKSPACE_CLI_TOKEN               Pre-obtained OAuth2 access token (highest priority)");
     println!("    GOOGLE_WORKSPACE_CLI_CREDENTIALS_FILE    Path to OAuth credentials JSON file");
-    println!("    GOOGLE_WORKSPACE_CLI_CLIENT_ID           OAuth client ID (for gws auth login)");
+    println!("    GOOGLE_WORKSPACE_CLI_CLIENT_ID           OAuth client ID (for uws auth login)");
     println!(
-        "    GOOGLE_WORKSPACE_CLI_CLIENT_SECRET       OAuth client secret (for gws auth login)"
+        "    GOOGLE_WORKSPACE_CLI_CLIENT_SECRET       OAuth client secret (for uws auth login)"
     );
     println!(
-        "    GOOGLE_WORKSPACE_CLI_CONFIG_DIR          Override config directory (default: ~/.config/gws)"
+        "    GOOGLE_WORKSPACE_CLI_CONFIG_DIR          Override config directory (default: ~/.config/uws)"
     );
     println!("    GOOGLE_WORKSPACE_CLI_SANITIZE_TEMPLATE   Default Model Armor template");
     println!(

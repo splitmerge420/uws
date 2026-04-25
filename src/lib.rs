@@ -28,3 +28,18 @@ pub mod council_github_client;
 /// verify_chain() walks every link to detect tampering.
 /// Enforces: INV-3 (Audit Trail), INV-35 (Fail-Closed)
 pub mod audit_chain;
+
+// ─── PR #12 deliverables — exposed for integration testing ───────
+
+/// GoldenTrace provenance trailer formatter.
+/// Appends `GoldenTrace: <hash> <timestamp> <invariant-set-version>` trailers
+/// to commit messages and PR descriptions.
+pub mod golden_trace;
+
+/// Structured error types shared across the uws codebase.
+pub mod error;
+
+/// AntiBusyworkFactor (ABF) linter — detects work patterns without value.
+/// Exposed from the library so integration tests can exercise the ruleset
+/// without spawning a subprocess.
+pub mod lint_busywork;
