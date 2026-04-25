@@ -8,8 +8,17 @@ This document is the canonical Phase 1 architecture baseline. It distinguishes:
 
 1. **Execution baseline** — what must run now and remain mergeable.
 2. **Architectural baseline** — the full beginning / middle / end map, including intentional stubs and future extension points.
+3. **Skeleton code structure** — every major module family should have a visible home in Phase 1, even if some homes contain only compiling interfaces, stubs, TODOs, or docs.
 
 Good systems, like good stories, know where the middle and end are going even when later chapters are not fully written yet.
+
+### Phase 1 vs. Phase 1.5
+
+**Phase 1** means the complete skeleton architecture exists. It should include all major module families, even when implementation depth is uneven or fragmented. A module may be mature, stubbed, doc-only, or harvested from an older PR, but it should have a named place in the system.
+
+**Phase 1.5** means synthesis after the components exist: reconciling duplicate implementations, wiring modules together, replacing stubs with shared interfaces, tightening tests, and moving from visible skeleton to coherent integrated subsystem.
+
+Therefore, governance primitives such as House 12, Element 145 attachment points, ConsentKernel, PreFlightGate, PriorityEngine, MetabolicImpact, and data-dividend hooks belong in Phase 1 as visible skeleton architecture. Phase 1.5 is where those pieces become deeply integrated and enforced.
 
 ---
 
@@ -35,6 +44,7 @@ These areas belong in Phase 1 as mapped architecture, even when implementation d
 - INV registry and human-readable specs.
 - Zero Trust gate for new integrations.
 - Data-handling class, scope, and invariant declarations.
+- House 12 governance primitives as skeleton attachment points.
 - Source PR: #22.
 
 ### L2 Provenance / IP / royalty runtime
@@ -42,13 +52,15 @@ These areas belong in Phase 1 as mapped architecture, even when implementation d
 - `uws ip sign` and `uws ip monetize` provenance records.
 - GoldenTrace commit / PR trailers.
 - Royalty Oracle package attribution weighting.
+- INV-17 / data-dividend hooks as skeleton interfaces.
 - Live payout routing explicitly deferred.
 - Source PRs: #18, #21, #25 / #29.
 
 ### L3 Execution / provider surface
 
 - Current core providers: Google / Discovery, Microsoft 365, Apple / iCloud, Android / Chrome, GitHub.
-- Future providers should be mapped as extension slots: Slack, Linear, Notion, Figma, Stripe.
+- Future providers should be mapped as extension slots: Slack, Linear, Notion, Figma, Stripe, X / Tesla where appropriate.
+- Provider dispatch should expose future governance hooks without enforcing them prematurely.
 - Source PRs: #20 plus harvest notes from closed #14 / #16 / #17.
 
 ### L4 Agent control / Pantheon / Janus
@@ -56,6 +68,7 @@ These areas belong in Phase 1 as mapped architecture, even when implementation d
 - `uws swarm review` as v0 control surface.
 - Janus v2 router as future backend.
 - Pantheon Council roles, deliberation, bounded autonomy.
+- Element 145 runtime concepts as skeleton contracts: SphereQuery, RoutingDecision, TransparencyPacketV02.
 - Source PRs: #21, #28, harvest notes from closed #14 / #16.
 
 ### L5 CI / governance automation
@@ -70,6 +83,7 @@ These areas belong in Phase 1 as mapped architecture, even when implementation d
 - AntiBusyworkFactor.
 - SpatialManifest and RoboticChassisProposal.
 - SimulationFidelityScore gates.
+- MetabolicImpact accounting for water / power / heat as a Phase 1 skeleton field, with enforcement deferred to Phase 1.5+.
 - Source PR: #26, with harvest checks against closed #4 / #6 / #7.
 
 ### L7 Public narrative / whitepaper / Genesis condition
@@ -119,12 +133,14 @@ Harvest-before-merge checks:
 ## D. Recommended sequencing
 
 1. Stabilize execution spine: #20 -> #21 -> #22 -> #24.
-2. Merge or reconcile narrative docs: #27 + #28.
-3. Validate economic / provenance layer: #18 + #25 / #29.
-4. Validate NPFM / embodiment: #26.
-5. Convert broad future work from #2 / #14 / #16 / #17 into either:
+2. Make the full skeleton visible: governance primitives, Element 145 contracts, INV-17 hooks, L8 module homes.
+3. Merge or reconcile narrative docs: #27 + #28.
+4. Validate economic / provenance layer: #18 + #25 / #29.
+5. Validate NPFM / embodiment: #26.
+6. Convert broad future work from #2 / #14 / #16 / #17 into either:
    - isolated compiling stubs, or
    - documented architecture roadmap entries.
+7. Phase 1.5: synthesize and wire the pieces together after the skeleton exists.
 
 ---
 
@@ -135,9 +151,11 @@ Harvest-before-merge checks:
 - [ ] Zero Trust manifests exist for current integrations.
 - [ ] Kintsugi Weave reports without blocking merges.
 - [ ] Whitepaper documents the complete arc.
+- [ ] Governance primitives have visible skeleton homes, even if enforcement is deferred.
 - [ ] Future modules are visible as stubs / docs, not hidden in old PR bodies.
 - [ ] Closed PRs are treated as archived harvest sources, not forgotten branches.
 - [ ] Phase 1 can be explained to a new agent as a complete beginning / middle / end architecture.
+- [ ] Phase 1.5 is reserved for synthesis, integration, and enforcement after the components exist.
 
 ---
 
@@ -145,4 +163,4 @@ Harvest-before-merge checks:
 
 When implementing follow-up PRs, do not flatten the system into only the runnable kernel. Preserve the full architectural arc while keeping code changes scoped, compiling, and reversible.
 
-No broad rebrand work. No live financial / payout integration without explicit separate approval. No hard enforcement gates until the soft-reporting path has passed CI consistently.
+No broad rebrand work. No live financial / payout integration without explicit separate approval. No hard enforcement gates until the soft-reporting path has passed CI consistently. Phase 1 should expose skeleton architecture; Phase 1.5 should synthesize and enforce it.
