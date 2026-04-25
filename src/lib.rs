@@ -28,3 +28,8 @@ pub mod council_github_client;
 /// verify_chain() walks every link to detect tampering.
 /// Enforces: INV-3 (Audit Trail), INV-35 (Fail-Closed)
 pub mod audit_chain;
+
+// ─── Governance Runtime (House 12 Skeleton) ─────────────────────
+// Phase 1: exposes attachment points and typed interfaces only.
+// Phase 1.5: integrates enforcement into execution paths.
+pub mod governance;
