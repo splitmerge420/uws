@@ -100,7 +100,8 @@ async fn run() -> Result<(), GwsError> {
         return Ok(());
     }
 
-    if is_version_flag(&first_arg) {        println!("uws {}", env!("CARGO_PKG_VERSION"));
+    if is_version_flag(&first_arg) {
+        println!("uws {}", env!("CARGO_PKG_VERSION"));
         println!("Universal Workspace CLI — not affiliated with Google, Microsoft, or Apple.");
         return Ok(());
     }

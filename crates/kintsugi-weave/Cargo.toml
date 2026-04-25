@@ -1,0 +1,30 @@
+[package]
+name = "kintsugi-weave"
+version = "0.1.0"
+edition = "2021"
+description = "Kintsugi Weave — Regenerative CI engine: NPFM gate, HITL provenance validation, Swarm Commander"
+license = "MIT"
+repository = "https://github.com/atlaslattice/uws"
+readme = "README.md"
+
+[lib]
+name = "kintsugi_weave"
+path = "src/lib.rs"
+
+[[bin]]
+name = "kintsugi-weave"
+path = "src/main.rs"
+
+[dependencies]
+# CLI argument parsing
+clap = { version = "4", features = ["derive"] }
+
+# JSON output
+serde_json = "1"
+
+[dev-dependencies]
+# No extra test deps — all tests use std + the crate itself
+
+[profile.release]
+opt-level = 3
+strip = true

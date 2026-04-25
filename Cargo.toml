@@ -18,7 +18,9 @@ path = "src/main.rs"
 
 [features]
 default = ["std"]
-std = []
+# The "std" feature enables serde, which constitutional_engine.rs uses under
+# #[cfg(feature = "std")] — they must be co-enabled.
+std = ["dep:serde"]
 
 [dependencies]
 # constitutional_engine.rs uses serde behind cfg(feature = "std")

@@ -1,0 +1,172 @@
+# .github/workflows/kintsugi-weave.yml
+#
+# Kintsugi Weave — Regenerative CI engine
+#
+# Runs on every pull_request event. Executes the three Kintsugi Weave gates:
+#   1. NPFM gate           (stub — wired in PR #7)
+#   2. Provenance validate (real check for GoldenTrace-ID trailer; soft-fail)
+#   3. Swarm Commander     (stub — to be wired after swarm review lands)
+#
+# POLICY: This workflow is NON-BLOCKING. It produces a report comment on the PR
+# but DOES NOT set a failing check that blocks merge. Gates will be made
+# enforcing in a future iteration once the underlying implementations land.
+#
+# Followups before gates can be made enforcing:
+#   - PR #7  (NPFM implementation) must land before npfm-gate is real.
+#   - PR #12 (GoldenTrace) must land before provenance-validate is enforcing.
+#   - Swarm Commander integration must land before swarm-summary is real.
+
+name: Kintsugi Weave
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+# Cancel in-flight runs on the same PR when a new commit is pushed.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+  # Directory containing the kintsugi-weave crate.
+  WEAVE_CRATE_DIR: crates/kintsugi-weave
+
+jobs:
+  weave:
+    name: Kintsugi Weave Report
+    runs-on: ubuntu-latest
+    # Read PRs, write comments — minimum permissions.
+    permissions:
+      pull-requests: write
+      contents: read
+
+    steps:
+      # ── Checkout ────────────────────────────────────────────────────────────
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # ── Rust toolchain ──────────────────────────────────────────────────────
+      - name: Install Rust (stable)
+        uses: dtolnay/rust-toolchain@stable
+
+      # ── Build cache ─────────────────────────────────────────────────────────
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: ${{ env.WEAVE_CRATE_DIR }}
+          key: kintsugi-weave
+
+      # ── Build ───────────────────────────────────────────────────────────────
+      - name: Build kintsugi-weave (release)
+        working-directory: ${{ env.WEAVE_CRATE_DIR }}
+        run: cargo build --release
+
+      # ── Unit tests ──────────────────────────────────────────────────────────
+      - name: Run kintsugi-weave tests
+        working-directory: ${{ env.WEAVE_CRATE_DIR }}
+        run: cargo test --release
+
+      # ── NPFM Gate ───────────────────────────────────────────────────────────
+      # TODO(#7): Replace stub with real NPFM call once PR #7 lands.
+      - name: Run NPFM gate (stub)
+        working-directory: ${{ env.WEAVE_CRATE_DIR }}
+        id: npfm
+        run: |
+          result=$(./target/release/kintsugi-weave npfm-gate)
+          echo "npfm_result<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$result" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+          echo "NPFM gate result: $result"
+
+      # ── Provenance Validation ────────────────────────────────────────────────
+      # Checks for a GoldenTrace-ID trailer in the PR body.
+      # Soft-fail: missing trailer warns but does not block.
+      # TODO(#12): Switch to enforcing mode once GoldenTrace PR #12 lands.
+      - name: Run HITL provenance validation
+        working-directory: ${{ env.WEAVE_CRATE_DIR }}
+        id: provenance
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: |
+          result=$(./target/release/kintsugi-weave provenance-validate \
+            --pr-body "$PR_BODY")
+          echo "provenance_result<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$result" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+          echo "Provenance result: $result"
+
+      # ── Swarm Commander Summary ──────────────────────────────────────────────
+      # TODO: Replace stub with real Swarm Commander once integration lands.
+      - name: Run Swarm Commander summary (stub)
+        working-directory: ${{ env.WEAVE_CRATE_DIR }}
+        id: swarm
+        run: |
+          result=$(./target/release/kintsugi-weave swarm-summary)
+          echo "swarm_result<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$result" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+          echo "Swarm Commander result: $result"
+
+      # ── Generate Full Report ─────────────────────────────────────────────────
+      - name: Generate Weave report comment
+        working-directory: ${{ env.WEAVE_CRATE_DIR }}
+        id: report
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          comment=$(./target/release/kintsugi-weave format-comment \
+            --pr-body "$PR_BODY" \
+            --pr-number "$PR_NUMBER" \
+            --sha "$SHA")
+          echo "comment<<WEAVE_EOF" >> "$GITHUB_OUTPUT"
+          echo "$comment" >> "$GITHUB_OUTPUT"
+          echo "WEAVE_EOF" >> "$GITHUB_OUTPUT"
+
+      # ── Post PR Comment ──────────────────────────────────────────────────────
+      # Posts the weave report as a comment on the PR.
+      # Uses `actions/github-script` so we can find and update an existing
+      # comment rather than posting a new one every run.
+      - name: Post Weave report comment
+        uses: actions/github-script@v7
+        env:
+          COMMENT_BODY: ${{ steps.report.outputs.comment }}
+        with:
+          script: |
+            const marker = '<!-- kintsugi-weave-report -->';
+            const body = `${marker}\n${process.env.COMMENT_BODY}`;
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+            const existing = comments.find(c => c.body && c.body.includes(marker));
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body,
+              });
+              core.info(`Updated existing Kintsugi Weave comment #${existing.id}`);
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body,
+              });
+              core.info('Created new Kintsugi Weave comment');
+            }
+
+      # ── Summary ─────────────────────────────────────────────────────────────
+      - name: Write Job Summary
+        if: always()
+        env:
+          COMMENT_BODY: ${{ steps.report.outputs.comment }}
+        run: |
+          echo "## 🧵 Kintsugi Weave" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "${COMMENT_BODY}" >> "$GITHUB_STEP_SUMMARY"

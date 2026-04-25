@@ -28,3 +28,10 @@ pub mod council_github_client;
 /// verify_chain() walks every link to detect tampering.
 /// Enforces: INV-3 (Audit Trail), INV-35 (Fail-Closed)
 pub mod audit_chain;
+
+/// Kintsugi Weave — Regenerative CI engine.
+/// Gates: NPFM (stub → #7), provenance/GoldenTrace (real, soft-fail → #12),
+/// Swarm Commander (stub). Non-blocking in this iteration.
+///
+/// See `crates/kintsugi-weave/` for the standalone CLI binary and full docs.
+pub mod kintsugi_weave;
