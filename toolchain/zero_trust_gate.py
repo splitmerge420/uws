@@ -50,6 +50,8 @@ from typing import Any, Dict, List, Optional
 
 def _load_valid_invariant_ids() -> set[str]:
     """Return the set of valid INV IDs from the toolchain registry."""
+    import importlib.util
+
     registry_path = Path(__file__).parent / "invariants_registry.py"
     if not registry_path.exists():
         # Fallback: accept any INV-NNN or INV-NNNa format
@@ -57,9 +59,14 @@ def _load_valid_invariant_ids() -> set[str]:
     # Build the set from the registry keys (INV-1, INV-2, …) and
     # also accept the zero-padded form (INV-001, INV-002, …) used in specs/.
     try:
-        spec = {}
-        exec(compile(registry_path.read_text(), str(registry_path), "exec"), spec)  # nosec
-        registry: Dict[str, Any] = spec.get("INVARIANTS", {})
+        spec = importlib.util.spec_from_file_location(
+            "invariants_registry", str(registry_path)
+        )
+        if spec is None or spec.loader is None:
+            return set()
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)  # type: ignore[union-attr]
+        registry: Dict[str, Any] = getattr(module, "INVARIANTS", {})
         ids: set[str] = set()
         for key in registry:
             ids.add(key)          # original form: "INV-1"
