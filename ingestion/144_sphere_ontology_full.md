@@ -307,10 +307,10 @@ House 12 ████████ Deep Red     (690nm) ──── BRIGHT ★�
 ## CANONICAL REFERENCES
 
 - **This document:** Early ontology mapping, pre-deep-research
-- **System B structure:** [ingestion/verified_ontology.md](https://github.com/splitmerge420/uws/blob/uws-universal/ingestion/verified_ontology.md)
+- **System B structure:** [ingestion/verified_ontology.md](https://github.com/atlaslattice/uws/blob/uws-universal/ingestion/verified_ontology.md)
 - **Deeper archetype/deity mapping:** Phase 2 — Copilot's triadic cognition research
 - **Harmonic resonance theory:** Pending — [DISTRIBUTED_AGENCY_PRINCIPLES.md]
-- **Invariant registry:** [toolchain/invariants_registry.py](https://github.com/splitmerge420/uws/blob/uws-universal/toolchain/invariants_registry.py)
+- **Invariant registry:** [toolchain/invariants_registry.py](https://github.com/atlaslattice/uws/blob/uws-universal/toolchain/invariants_registry.py)
 
 ---
 

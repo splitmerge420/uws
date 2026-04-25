@@ -16,7 +16,7 @@ cross_refs:
 
 # uws — Universal Workspace CLI — Master Repo Reference
 
-> **Repo:** github.com/splitmerge420/uws
+> **Repo:** github.com/atlaslattice/uws
 > **Branch:** uws-universal | **Commits:** 154 | **Language:** Rust (95.7%)
 > **Forked from:** googleworkspace/cli (Apache 2.0)
 

@@ -6,16 +6,16 @@
 
 | Key | Fork | Stars | Type |
 |-----|------|-------|------|
-| official | splitmerge420/claude-plugins-official | 13.5K | Marketplace |
-| claude-code | splitmerge420/claude-code | 80K | Reference |
-| mcp | splitmerge420/servers | 81K | MCP Registry |
-| awesome | splitmerge420/awesome-claude-code | 29K | Curated Index |
-| composio | splitmerge420/awesome-claude-plugins | 1.2K | Curated Index |
-| ccpi | splitmerge420/claude-code-plugins-plus-skills | 1.7K | 340 plugins + 1367 skills |
-| metrics | splitmerge420/awesome-claude-plugins2 | — | Adoption Metrics |
-| cc-market | splitmerge420/cc-marketplace | — | Community Marketplace |
-| mcp-bridge | splitmerge420/claude-code-mcp | — | MCP Bridge |
-| ccplugins | splitmerge420/awesome-claude-code-plugins | — | Curated Index |
+| official | atlaslattice/claude-plugins-official | 13.5K | Marketplace |
+| claude-code | atlaslattice/claude-code | 80K | Reference |
+| mcp | atlaslattice/servers | 81K | MCP Registry |
+| awesome | atlaslattice/awesome-claude-code | 29K | Curated Index |
+| composio | atlaslattice/awesome-claude-plugins | 1.2K | Curated Index |
+| ccpi | atlaslattice/claude-code-plugins-plus-skills | 1.7K | 340 plugins + 1367 skills |
+| metrics | atlaslattice/awesome-claude-plugins2 | — | Adoption Metrics |
+| cc-market | atlaslattice/cc-marketplace | — | Community Marketplace |
+| mcp-bridge | atlaslattice/claude-code-mcp | — | MCP Bridge |
+| ccplugins | atlaslattice/awesome-claude-code-plugins | — | Curated Index |
 
 ## Commands
 

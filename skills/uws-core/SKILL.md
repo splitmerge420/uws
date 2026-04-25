@@ -22,7 +22,7 @@ data across all of a user's workspaces without needing separate integrations.
 
 ```bash
 # From source (requires Rust)
-git clone https://github.com/splitmerge420/uws
+git clone https://github.com/atlaslattice/uws
 cd uws
 cargo build --release
 sudo cp target/release/uws /usr/local/bin/uws
@@ -284,7 +284,7 @@ All commands support `--format` with these options:
 
 ## Repository
 
-- **GitHub**: https://github.com/splitmerge420/uws
+- **GitHub**: https://github.com/atlaslattice/uws
 - **Original gws project**: https://github.com/googleworkspace/cli
 - **License**: Apache 2.0
 - **Maintainer**: Daavud Sheldon

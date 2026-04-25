@@ -89,12 +89,12 @@
 
 | Resource | Location |
 |----------|----------|
-| 144-Sphere Ontology | https://github.com/splitmerge420/uws/blob/uws-universal/ingestion/verified_ontology.md |
-| Constitutional Engine | https://github.com/splitmerge420/uws/blob/uws-universal/src/constitutional_engine.rs |
-| CouncilGitHubClient | https://github.com/splitmerge420/uws/blob/uws-universal/src/council_github_client.rs |
-| AuditChain | https://github.com/splitmerge420/uws/blob/uws-universal/src/audit_chain.rs |
-| Integration Tests | https://github.com/splitmerge420/uws/blob/uws-universal/tests/test_integration_governance.py |
-| Session Log | https://github.com/splitmerge420/uws/blob/uws-universal/docs/session_log_2026-03-20.md |
+| 144-Sphere Ontology | https://github.com/atlaslattice/uws/blob/uws-universal/ingestion/verified_ontology.md |
+| Constitutional Engine | https://github.com/atlaslattice/uws/blob/uws-universal/src/constitutional_engine.rs |
+| CouncilGitHubClient | https://github.com/atlaslattice/uws/blob/uws-universal/src/council_github_client.rs |
+| AuditChain | https://github.com/atlaslattice/uws/blob/uws-universal/src/audit_chain.rs |
+| Integration Tests | https://github.com/atlaslattice/uws/blob/uws-universal/tests/test_integration_governance.py |
+| Session Log | https://github.com/atlaslattice/uws/blob/uws-universal/docs/session_log_2026-03-20.md |
 | Notion Task Queue | Page ID: 3260c1de-73d9-816e-83fa-d4e7fbe1090b |
 
 ---

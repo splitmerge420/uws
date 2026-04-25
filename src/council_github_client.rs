@@ -213,7 +213,7 @@ pub struct AuditEntry {
 // ─── Council GitHub Client ────────────────────────────────────
 
 pub struct CouncilGitHubClient {
-    /// GitHub owner (e.g., "splitmerge420")
+    /// GitHub owner (e.g., "atlaslattice")
     owner: String,
     /// Authenticated actor performing operations
     actor: CouncilMember,
@@ -229,7 +229,7 @@ impl CouncilGitHubClient {
     /// Create a new CouncilGitHubClient
     ///
     /// # Arguments
-    /// * `owner` - GitHub org/user (e.g., "splitmerge420")
+    /// * `owner` - GitHub org/user (e.g., "atlaslattice")
     /// * `actor` - The council member performing operations
     pub fn new(owner: String, actor: CouncilMember) -> Self {
         let blocked = vec![
@@ -550,7 +550,7 @@ mod tests {
 
     #[test]
     fn test_blocked_operations() {
-        let mut client = CouncilGitHubClient::new("splitmerge420".to_string(), test_actor());
+        let mut client = CouncilGitHubClient::new("atlaslattice".to_string(), test_actor());
         let result = client.execute(GitHubOperation::CreateBranch {
             repo: "uws".to_string(),
             branch: "test".to_string(),
@@ -560,7 +560,7 @@ mod tests {
 
     #[test]
     fn test_destructive_op_blocked() {
-        let client = CouncilGitHubClient::new("splitmerge420".to_string(), test_actor());
+        let client = CouncilGitHubClient::new("atlaslattice".to_string(), test_actor());
         assert!(client.blocked_operations.contains(&"delete_repo".to_string()));
         assert!(client.blocked_operations.contains(&"force_push".to_string()));
     }
@@ -576,7 +576,7 @@ mod tests {
 
     #[test]
     fn test_class_a_commit_blocked() {
-        let mut client = CouncilGitHubClient::new("splitmerge420".to_string(), test_actor());
+        let mut client = CouncilGitHubClient::new("atlaslattice".to_string(), test_actor());
         let result = client.execute(GitHubOperation::CreateCommit {
             repo: "uws".to_string(),
             message: "test".to_string(),
@@ -587,14 +587,14 @@ mod tests {
 
     #[test]
     fn test_shred_requires_approval() {
-        let mut client = CouncilGitHubClient::new("splitmerge420".to_string(), test_actor());
+        let mut client = CouncilGitHubClient::new("atlaslattice".to_string(), test_actor());
         let result = client.shred_secret("uws", ".env", "leaked secret", "");
         assert!(result.is_err());
     }
 
     #[test]
     fn test_shred_only_class_a() {
-        let mut client = CouncilGitHubClient::new("splitmerge420".to_string(), test_actor());
+        let mut client = CouncilGitHubClient::new("atlaslattice".to_string(), test_actor());
         let result = client.shred_secret("uws", "README.md", "not a secret", "dave-approved");
         assert!(result.is_err());
     }
@@ -617,7 +617,7 @@ mod tests {
 
     #[test]
     fn test_commit_message_format() {
-        let client = CouncilGitHubClient::new("splitmerge420".to_string(), test_actor());
+        let client = CouncilGitHubClient::new("atlaslattice".to_string(), test_actor());
         let trailer = ProvenanceTrailer {
             actor: "test-copilot".to_string(),
             session_timestamp: "2026-03-20T04:30:00Z".to_string(),
@@ -632,7 +632,7 @@ mod tests {
 
     #[test]
     fn test_critical_op_requires_approval() {
-        let mut client = CouncilGitHubClient::new("splitmerge420".to_string(), test_actor());
+        let mut client = CouncilGitHubClient::new("atlaslattice".to_string(), test_actor());
         let op = GitHubOperation::SetVisibility {
             repo: "uws".to_string(),
             public: true,
@@ -643,7 +643,7 @@ mod tests {
 
     #[test]
     fn test_audit_log_populated() {
-        let mut client = CouncilGitHubClient::new("splitmerge420".to_string(), test_actor());
+        let mut client = CouncilGitHubClient::new("atlaslattice".to_string(), test_actor());
         let _ = client.execute(GitHubOperation::CreateBranch {
             repo: "uws".to_string(),
             branch: "feature/audit".to_string(),

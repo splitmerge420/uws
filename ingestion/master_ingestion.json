@@ -1,7 +1,7 @@
 {
   "version": "1.0.0",
   "generated": "2026-03-16",
-  "description": "Master Ingestion Map — Maps splitmerge420 repos to 144 Sphere directories",
+  "description": "Master Ingestion Map — Maps atlaslattice repos to 144 Sphere directories",
   "notes": "This map classifies 200 repos into the 12x12 Lattice structure. Repos not directly mappable are assigned to the closest domain sphere.",
   "sphere_houses": {
     "house_01_mathematics": {

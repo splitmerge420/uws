@@ -121,7 +121,7 @@ impl MsAuthConfig {
         }
 
         let client_id = std::env::var("UWS_MS_CLIENT_ID")
-            .map_err(|_| anyhow!("UWS_MS_CLIENT_ID not set. See: https://github.com/splitmerge420/uws#microsoft-auth"))?;
+            .map_err(|_| anyhow!("UWS_MS_CLIENT_ID not set. See: https://github.com/atlaslattice/uws#microsoft-auth"))?;
 
         let tenant_id = std::env::var("UWS_MS_TENANT_ID")
             .unwrap_or_else(|_| "common".to_string());

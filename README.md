@@ -8,7 +8,7 @@
 
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-Apache%202.0-blue.svg" alt="License"></a>
-  <a href="https://github.com/splitmerge420/uws"><img src="https://img.shields.io/github/stars/splitmerge420/uws" alt="Stars"></a>
+  <a href="https://github.com/atlaslattice/uws"><img src="https://img.shields.io/github/stars/atlaslattice/uws" alt="Stars"></a>
   <a href="https://github.com/googleworkspace/cli"><img src="https://img.shields.io/badge/forked%20from-googleworkspace%2Fcli-brightgreen" alt="Forked from gws"></a>
 </p>
 
@@ -81,7 +81,7 @@ Google shipped [gws](https://github.com/googleworkspace/cli) — a brilliant CLI
 ### From Source (Rust required)
 
 ```bash
-git clone https://github.com/splitmerge420/uws
+git clone https://github.com/atlaslattice/uws
 cd uws
 cargo build --release
 sudo cp target/release/uws /usr/local/bin/uws
@@ -91,7 +91,7 @@ uws --version
 ### Homebrew *(coming soon)*
 
 ```bash
-brew install splitmerge420/tap/uws
+brew install atlaslattice/tap/uws
 ```
 
 ---
@@ -344,4 +344,4 @@ See [CONTRIBUTING.md](CONTRIBUTING.md). To add a new provider driver, implement 
 Apache License 2.0. See [LICENSE](LICENSE).
 
 **Star this repo if you believe the future of productivity is one unified command surface.**
-[github.com/splitmerge420/uws](https://github.com/splitmerge420/uws)
+[github.com/atlaslattice/uws](https://github.com/atlaslattice/uws)

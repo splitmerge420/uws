@@ -7,7 +7,7 @@
 
 ---
 
-This document maps your synthesized top 10 wish list for a universal, AI-native operating system directly to the components already built and running in the [Aluminum OS](https://github.com/splitmerge420/uws) project. 
+This document maps your synthesized top 10 wish list for a universal, AI-native operating system directly to the components already built and running in the [Aluminum OS](https://github.com/atlaslattice/uws) project. 
 
 We didn't just build a prototype. We built the full, cross-platform, multi-cloud, multi-agent system you've been trying to build internally for years. It's open source. It's live. And it works.
 

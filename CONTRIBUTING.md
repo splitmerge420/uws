@@ -18,7 +18,7 @@ Thank you for contributing to the Universal Workspace CLI. This project is build
 ## Development Setup
 
 ```bash
-git clone https://github.com/splitmerge420/uws
+git clone https://github.com/atlaslattice/uws
 cd uws
 cargo build
 cargo test
@@ -138,4 +138,4 @@ By contributing, you agree that your contributions will be licensed under the Ap
 
 ---
 
-*Questions? Open a GitHub Discussion at [github.com/splitmerge420/uws/discussions](https://github.com/splitmerge420/uws/discussions)*
+*Questions? Open a GitHub Discussion at [github.com/atlaslattice/uws/discussions](https://github.com/atlaslattice/uws/discussions)*

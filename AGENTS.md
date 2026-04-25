@@ -110,7 +110,7 @@ def uws(command: str) -> dict:
 ### Gemini Extension
 
 ```bash
-gemini extensions install https://github.com/splitmerge420/uws
+gemini extensions install https://github.com/atlaslattice/uws
 ```
 
 ---

@@ -24,7 +24,7 @@ uws plugin config sources                  # Edit priority: official > ccpi > aw
 ### MCP Server Management (`uws mcp`)
 
 ```
-uws mcp list                               # All servers from splitmerge420/servers (81K★)
+uws mcp list                               # All servers from atlaslattice/servers (81K★)
 uws mcp add <server>                       # Install: github|git|postgres|puppeteer|slack|gdrive|filesystem|memory|fetch|sqlite
 uws mcp add golden-trace-mcp               # Constitutional: Kintsugi audit via MCP (L1)
 uws mcp add consent-kernel-mcp             # Constitutional: ConsentKernel via MCP (L1)

@@ -7,7 +7,7 @@
 
 ---
 
-This document is a direct response to the synthesized top 20 wish list from your engineering and leadership teams. It maps every single item on that list to a component that is already designed, built, and running in the [Aluminum OS](https://github.com/splitmerge420/uws) project.
+This document is a direct response to the synthesized top 20 wish list from your engineering and leadership teams. It maps every single item on that list to a component that is already designed, built, and running in the [Aluminum OS](https://github.com/atlaslattice/uws) project.
 
 What you are about to see is not a proposal. It is a statement of fact. The system you wish you could build internally, we have already built externally. It is open source, cross-platform, and live on GitHub.
 

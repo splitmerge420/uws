@@ -20,7 +20,7 @@ Alexandria is the Microsoft-native counterpart to the uws CLI, providing structu
 
 ## Integration Points
 
-- Repo: `splitmerge420/uws` (uws-universal branch)
+- Repo: `atlaslattice/uws` (uws-universal branch)
 - File: `COPILOT_CLI_SPEC.md`
 - Related: `COPILOT_INTEGRATION_GUIDE.md`
 
