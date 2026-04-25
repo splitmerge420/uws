@@ -24,6 +24,50 @@ Core doctrine:
 - Phase 1 exposes skeleton homes for each target;
 - Phase 1.5 synthesizes and normalizes shared driver traits, manifests, auth, observability, and routing.
 
+## Active Agent Execution Stack
+
+The current build process is multi-agent and multi-surface. Future agents should understand the real execution environment, not just the abstract provider map.
+
+### Microsoft Copilot / Tasks Beta
+
+Microsoft Copilot, including Tasks Beta in Microsoft 365, is an active execution layer for parallel GitHub-oriented builds. It has been essential for generating PRs, repo cleanup, provider dispatch work, and longform architecture artifacts.
+
+Integration implication: Microsoft 365 / Copilot should be treated not only as a productivity target, but also as an agent execution substrate. UWS should eventually expose clear patterns for:
+
+- task creation and tracking;
+- PR-scoped execution instructions;
+- Copilot-generated artifact review;
+- audit/provenance trails for agent-produced code.
+
+### Manus Execution Layer
+
+Manus remains a valuable external execution layer for large build runs, repo generation, and implementation acceleration.
+
+Operational caution: Manus can balloon costs quickly if execution is too trigger-happy. A prior build burst consumed approximately $400 in credits over roughly two days. Future Manus use should include:
+
+- explicit task budgets;
+- bounded PR scopes;
+- stop conditions;
+- checkpoint reviews before spawning large build trees;
+- cost telemetry where possible.
+
+### Notion AI Neutral Workspace / MCP UI
+
+Notion AI is used as a neutral workspace and UI layer for MCP-oriented integrations across models. It has produced multiple longform codebases and integration plans for this project and may contain valuable implementation artifacts.
+
+Integration implication: Notion should be treated as both:
+
+1. a productivity / knowledge workspace target; and
+2. a neutral interface layer for multi-model MCP workflows.
+
+Future UWS work should preserve Notion as a first-class interoperability target, especially for:
+
+- artifact staging;
+- longform architecture synthesis;
+- MCP workspace orchestration;
+- human-readable execution dashboards;
+- cross-model handoff records.
+
 ## Module 16A — AI Model Provider Interoperability
 
 Primary targets:
@@ -31,6 +75,7 @@ Primary targets:
 - OpenAI;
 - Anthropic;
 - Google Gemini / Vertex;
+- Microsoft Copilot / Azure AI surfaces;
 - xAI / Grok where applicable;
 - DeepSeek and other frontier / regional models where policy allows.
 
@@ -69,11 +114,12 @@ Phase 1.5 output: cloud driver trait and routing metadata model.
 Primary targets:
 
 - Microsoft 365;
+- Microsoft Copilot Tasks Beta;
 - Google Workspace;
 - Apple iCloud;
 - Android / Chrome;
 - GitHub;
-- Notion;
+- Notion / Notion AI;
 - Slack / Linear / Figma / Stripe as future extension slots.
 
 Skeleton responsibilities:
@@ -81,7 +127,9 @@ Skeleton responsibilities:
 - keep UWS as a schema-driven JSON-first command surface;
 - normalize mail, calendar, files, notes, tasks, repo, and identity operations;
 - avoid hard vendor lock-in;
-- preserve provider-native strengths while exposing a common command layer.
+- preserve provider-native strengths while exposing a common command layer;
+- support neutral workspace handoffs through Notion where useful;
+- support PR/task execution handoffs through Copilot and GitHub where useful.
 
 Phase 1 output: visible target map and existing provider dispatch alignment.
 Phase 1.5 output: normalized command schema and provider capability manifests.
@@ -94,6 +142,10 @@ Primary targets:
 - A2A;
 - OpenAPI / JSON-RPC;
 - local tool protocols;
+- GitHub PR / issue comment instruction loops;
+- Microsoft Copilot Tasks Beta execution loops;
+- Manus execution handoff loops;
+- Notion AI workspace / MCP UI loops;
 - future Janus / Pantheon council routing surfaces.
 
 Skeleton responsibilities:
@@ -101,7 +153,9 @@ Skeleton responsibilities:
 - define how external agents discover capabilities;
 - expose future `AgentCard` / manifest equivalents;
 - prepare for tool permissioning, consent, provenance, and audit;
-- avoid a single-agent monoculture.
+- avoid a single-agent monoculture;
+- record execution provenance across Copilot, Manus, Claude, GPT, Grok, Gemini, and Notion AI where available;
+- bound automated execution with cost, scope, and stop-condition metadata.
 
 Phase 1 output: protocol target list + docs.
 Phase 1.5 output: normalized agent protocol bridge and routing policy.
@@ -126,7 +180,11 @@ Module 16A-D is the implementation-facing interoperability skeleton that gives t
 - [ ] Module 16A-D is understood as interoperability, not cross-sphere governance.
 - [ ] OpenAI is explicitly included as a first-class model-provider target.
 - [ ] Anthropic is modeled as frontier model provider, not hyperscaler.
+- [ ] Microsoft Copilot / Tasks Beta is recognized as an agent execution substrate as well as a productivity surface.
+- [ ] Manus is recognized as an execution layer with explicit cost / scope guardrails.
+- [ ] Notion AI is recognized as a neutral workspace and MCP-oriented UI target.
 - [ ] Hyperscalers are modeled separately from model families.
 - [ ] Productivity / OS surfaces remain part of UWS core scope.
 - [ ] Protocol interoperability includes MCP and A2A attachment points.
+- [ ] Agent execution loops include provenance, budget, stop-condition, and handoff metadata.
 - [ ] No provider SDK or live auth is introduced without a focused adapter PR.
