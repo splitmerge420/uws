@@ -1,72 +1,132 @@
-# Module 16A-D — Cross-Sphere Accountability Modules
+# Module 16A-D — Interoperability Target Layer
 
 Status: Phase 1 skeleton / Phase 1.5 synthesis target
-Source context: ADR-145-DPI v3.0, INV-13, INV-14, INV-14a, INV-16 reserved lineage
+Source context: UWS provider architecture, ADR-145-DPI v3.0 provider doctrine, Phase 1 baseline
+
+## Correction Note
+
+Earlier text incorrectly classified Module 16A-D as the cross-sphere accountability module family. That was a taxonomy error.
+
+The intended Module 16A-D family is the **interoperability/provider target layer**: building UWS / Aluminum OS into a sovereign command surface that can interoperate across OpenAI, Anthropic, Google, Microsoft, AWS, Apple, Android/Chrome, GitHub, Notion, and adjacent targets.
+
+Cross-sphere accountability remains important, but should live under governance / invariants / ADR-145 extraction rather than occupying the Module 16A-D slot.
 
 ## Purpose
 
-Module 16A-D provides the module spine for cross-sphere accountability. It converts the Phase 3 constitutional doctrine into Phase 1 skeleton architecture: named modules, boundaries, and future integration points.
+Module 16A-D provides the interoperability spine. Its job is to make providers and agent ecosystems behave like device drivers behind the Aluminum / UWS kernel.
 
-## Module 16A — Sphere144 Mapping Registry
+Core doctrine:
 
-Purpose: define authoritative sphere mappings for invariants, provider decisions, and routed actions.
+- no provider is irreplaceable;
+- no subscription is a hard dependency;
+- the kernel routes, providers execute;
+- OpenAI, Anthropic, Google, Microsoft, AWS, and other targets are integration surfaces, not sovereign owners of the system;
+- Phase 1 exposes skeleton homes for each target;
+- Phase 1.5 synthesizes and normalizes shared driver traits, manifests, auth, observability, and routing.
+
+## Module 16A — AI Model Provider Interoperability
+
+Primary targets:
+
+- OpenAI;
+- Anthropic;
+- Google Gemini / Vertex;
+- xAI / Grok where applicable;
+- DeepSeek and other frontier / regional models where policy allows.
 
 Skeleton responsibilities:
-- map invariants to primary and secondary spheres;
-- prevent retroactive narrowing of sphere touches;
-- expose a lookup surface for governance and routing;
-- prepare for Sheldonbrain 144-sphere ontology integration.
 
-Phase 1 output: registry structs / docs.
-Phase 1.5 output: validation against canonical Sphere144 taxonomy.
+- define model-family routing concepts;
+- distinguish model provider from hyperscaler infrastructure provider;
+- prepare for INV-7c model family caps;
+- expose future hooks for prompt / context / tool-call normalization;
+- keep provider-specific SDK code out of the core kernel until adapters are explicit.
 
-## Module 16B — Multi-Sphere Decision Classifier
+Phase 1 output: docs + provider target list + optional adapter stubs.
+Phase 1.5 output: shared `ModelProviderDriver` / `AgentProviderDriver` trait and normalized request envelope.
 
-Purpose: classify decisions under INV-13 multi-sphere discipline.
+## Module 16B — Cloud / Hyperscaler Interoperability
 
-Decision classes:
-- Class A: single-sphere impact;
-- Class B: multi-sphere aligned incentives;
-- Class C: multi-sphere conflicting incentives;
-- Class D: multi-sphere irreversible commitment.
+Primary targets:
 
-Phase 1 output: enum + placeholder classifier.
-Phase 1.5 output: classifier integrated with provider dispatch and governance preflight.
+- Microsoft Azure / Azure AI Foundry;
+- Google Cloud / Vertex AI / GKE;
+- AWS / Bedrock / AgentCore;
+- optional neutral infrastructure targets.
 
-## Module 16C — Indiana Pattern Detector
+Skeleton responsibilities:
 
-Purpose: detect single-sphere optimization that externalizes ecology, civic, community, or health impacts.
+- expose provider caps and combined hyperscaler cap attachment points;
+- prepare for cost / carbon / water / trust telemetry;
+- separate cloud routing from model-family routing;
+- prepare for confidential compute / attestation adapters.
 
-Detection signals:
-- economic impact presented without environmental analysis;
-- zoning / deployment process faster than community engagement cycle;
-- water or energy projections absent;
-- community opposition dismissed as NIMBYism rather than treated as cross-sphere accounting.
+Phase 1 output: cloud target docs + dispatch attachment points.
+Phase 1.5 output: cloud driver trait and routing metadata model.
 
-Phase 1 output: anti-pattern doc + detector skeleton.
-Phase 1.5 output: scoring model and governance warning output.
+## Module 16C — Productivity / OS Surface Interoperability
 
-## Module 16D — Symbiotic Infrastructure Preference
+Primary targets:
 
-Purpose: implement the INV-14a preference layer for symbiotic compute infrastructure.
+- Microsoft 365;
+- Google Workspace;
+- Apple iCloud;
+- Android / Chrome;
+- GitHub;
+- Notion;
+- Slack / Linear / Figma / Stripe as future extension slots.
 
-Preference is a tie-breaker only. Quality, cost, latency, consent, and safety remain hard constraints.
+Skeleton responsibilities:
 
-Phase 1 output: preference doc + routing hook.
-Phase 1.5 output: optional routing bias when multiple providers / regions are equivalent.
+- keep UWS as a schema-driven JSON-first command surface;
+- normalize mail, calendar, files, notes, tasks, repo, and identity operations;
+- avoid hard vendor lock-in;
+- preserve provider-native strengths while exposing a common command layer.
+
+Phase 1 output: visible target map and existing provider dispatch alignment.
+Phase 1.5 output: normalized command schema and provider capability manifests.
+
+## Module 16D — Protocol / Agent Interoperability
+
+Primary targets:
+
+- MCP;
+- A2A;
+- OpenAPI / JSON-RPC;
+- local tool protocols;
+- future Janus / Pantheon council routing surfaces.
+
+Skeleton responsibilities:
+
+- define how external agents discover capabilities;
+- expose future `AgentCard` / manifest equivalents;
+- prepare for tool permissioning, consent, provenance, and audit;
+- avoid a single-agent monoculture.
+
+Phase 1 output: protocol target list + docs.
+Phase 1.5 output: normalized agent protocol bridge and routing policy.
 
 ## Integration Points
 
-- `src/governance/priority.rs`
-- `src/governance/impact.rs`
-- `src/governance/attachment_points.rs`
-- future `src/governance/sphere.rs`
-- future `src/governance/patterns.rs`
-- future provider routing / AdaptiveRouter layer
+- `src/main.rs` dispatch layer;
+- `src/github_provider.rs` and existing provider modules;
+- future `src/providers/` target skeletons;
+- future `src/protocols/` target skeletons;
+- `src/governance/attachment_points.rs` for consent / preflight / impact hooks;
+- `docs/architecture/PHASE_1_BASELINE.md`.
+
+## Relationship to ADR-145
+
+ADR-145-DPI v3.0 supplies the constitutional doctrine for provider caps, model-family caps, hyperscaler abstraction, local-first preference, cost/resource transparency, trust attestation, and cross-sphere accounting.
+
+Module 16A-D is the implementation-facing interoperability skeleton that gives those doctrines a place to attach.
 
 ## Acceptance Criteria
 
-- [ ] Module 16A-D has a visible documentation home.
-- [ ] Phase 1 baseline references the module family.
-- [ ] Rust skeleton homes exist for sphere mapping and anti-pattern detection.
-- [ ] No hard enforcement is introduced until Phase 1.5 synthesis.
+- [ ] Module 16A-D is understood as interoperability, not cross-sphere governance.
+- [ ] OpenAI is explicitly included as a first-class model-provider target.
+- [ ] Anthropic is modeled as frontier model provider, not hyperscaler.
+- [ ] Hyperscalers are modeled separately from model families.
+- [ ] Productivity / OS surfaces remain part of UWS core scope.
+- [ ] Protocol interoperability includes MCP and A2A attachment points.
+- [ ] No provider SDK or live auth is introduced without a focused adapter PR.
