@@ -76,10 +76,11 @@ fn abf001_silent_on_meaningful_commits() {
 
 #[test]
 fn abf002_fires_on_51_files_all_whitespace_diff() {
-    // 51 changed files; diff is 100% whitespace-only changed lines
-    let files: Vec<&str> = (0..51).map(|_| "src/file.rs").collect();
+    // 51 uniquely-named changed files; diff is 100% whitespace-only changed lines
+    let files: Vec<String> = (0..51).map(|i| format!("src/module_{i}.rs")).collect();
+    let files_ref: Vec<&str> = files.iter().map(|s| s.as_str()).collect();
     let diff: Vec<&str> = (0..200).map(|_| "+   ").collect(); // all whitespace additions
-    let input = make_input(vec![], files, diff);
+    let input = make_input(vec![], files_ref, diff);
     let findings = scan(&input, &default_rules());
     assert!(
         findings.iter().any(|f| f.rule_id == "ABF-002"),
@@ -89,10 +90,11 @@ fn abf002_fires_on_51_files_all_whitespace_diff() {
 
 #[test]
 fn abf002_silent_on_50_files_threshold() {
-    // Exactly 50 files — should not fire (threshold is >50)
-    let files: Vec<&str> = (0..50).map(|_| "src/file.rs").collect();
+    // Exactly 50 uniquely-named files — should not fire (threshold is >50)
+    let files: Vec<String> = (0..50).map(|i| format!("src/module_{i}.rs")).collect();
+    let files_ref: Vec<&str> = files.iter().map(|s| s.as_str()).collect();
     let diff: Vec<&str> = (0..200).map(|_| "+   ").collect();
-    let input = make_input(vec![], files, diff);
+    let input = make_input(vec![], files_ref, diff);
     let findings = scan(&input, &default_rules());
     assert!(
         !findings.iter().any(|f| f.rule_id == "ABF-002"),

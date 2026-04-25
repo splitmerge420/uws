@@ -407,18 +407,18 @@ pub async fn handle_lint_command(args: &[String]) -> Result<(), GwsError> {
     }
 }
 
-async fn handle_busywork(matches: &ArgMatches) -> Result<(), GwsError> {
-    let dir: PathBuf = matches
+async fn handle_busywork(cli_matches: &ArgMatches) -> Result<(), GwsError> {
+    let dir: PathBuf = cli_matches
         .get_one::<String>("dir")
         .map(PathBuf::from)
         .unwrap_or_else(|| std::env::current_dir().unwrap_or_else(|_| PathBuf::from(".")));
 
-    let format = matches
+    let format = cli_matches
         .get_one::<String>("format")
         .map(|s| s.as_str())
         .unwrap_or("json");
 
-    let strict = matches.get_flag("strict");
+    let strict = cli_matches.get_flag("strict");
 
     let input = build_scan_input_from_dir(&dir);
     let rules = default_rules();
@@ -527,8 +527,11 @@ fn extract_changed_files(diff_lines: &[String]) -> Vec<String> {
 fn diff_whitespace_ratio(diff_lines: &[String]) -> (usize, usize) {
     let changed: Vec<&String> = diff_lines
         .iter()
-        .filter(|l| l.starts_with('+') || l.starts_with('-'))
-        .filter(|l| !l.starts_with("+++") && !l.starts_with("---"))
+        .filter(|l| {
+            (l.starts_with('+') || l.starts_with('-'))
+                && !l.starts_with("+++")
+                && !l.starts_with("---")
+        })
         .collect();
     let total = changed.len();
     let whitespace = changed
@@ -544,16 +547,9 @@ fn is_pure_version_bump(msg: &str) -> bool {
 
     // Patterns: "v1.2.3", "1.2.3", "bump to 1.2.3", "release 1.2.3",
     //           "bump version", "version bump", "chore: bump", "chore(release)"
-    let semver_only = lower
-        .trim_start_matches('v')
-        .split('.')
-        .count()
-        == 3
-        && lower
-            .trim_start_matches('v')
-            .replace('.', "")
-            .chars()
-            .all(|c| c.is_ascii_digit());
+    let stripped = lower.trim_start_matches('v');
+    let semver_only = stripped.split('.').count() == 3
+        && stripped.replace('.', "").chars().all(|c| c.is_ascii_digit());
 
     let bump_keywords = [
         "bump version",
