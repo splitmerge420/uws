@@ -28,16 +28,29 @@ Core doctrine:
 
 The current build process is multi-agent and multi-surface. Future agents should understand the real execution environment, not just the abstract provider map.
 
-### Microsoft Copilot / Tasks Beta
+### Microsoft 365 Copilot / Tasks Beta
 
-Microsoft Copilot, including Tasks Beta in Microsoft 365, is an active execution layer for parallel GitHub-oriented builds. It has been essential for generating PRs, repo cleanup, provider dispatch work, and longform architecture artifacts.
+Microsoft 365 Copilot, including Tasks Beta in the user's Microsoft 365 account, is an active artifact-generation and planning surface. It has produced massive architecture artifacts, module plans, and longform constitutional / provider analyses.
 
-Integration implication: Microsoft 365 / Copilot should be treated not only as a productivity target, but also as an agent execution substrate. UWS should eventually expose clear patterns for:
+Integration implication: Microsoft 365 Copilot should be treated as a productivity and planning surface, not automatically conflated with GitHub Copilot. UWS should eventually expose clear patterns for:
 
-- task creation and tracking;
+- task creation and tracking in Microsoft 365 contexts;
+- longform artifact export and normalization;
+- workspace-to-repo handoff;
+- provenance capture for Microsoft 365 Copilot-generated architecture and planning artifacts.
+
+### GitHub Copilot / Coding Agent
+
+GitHub Copilot is a distinct execution surface from Microsoft 365 Copilot. Its capabilities vary by day and context: some sessions provide strong agentic execution, repo edits, PR generation, and parallel build capacity; other sessions lose continuity quickly or behave as if memory resets every few minutes.
+
+Integration implication: GitHub Copilot should be treated as a powerful but variable repo-execution agent. UWS should eventually expose clear patterns for:
+
 - PR-scoped execution instructions;
-- Copilot-generated artifact review;
-- audit/provenance trails for agent-produced code.
+- branch and diff review;
+- issue / PR comment instruction loops;
+- explicit context rehydration at the top of each task;
+- audit/provenance trails for Copilot-generated code;
+- fallback procedures when agent memory is unstable.
 
 ### Manus Execution Layer
 
@@ -75,7 +88,7 @@ Primary targets:
 - OpenAI;
 - Anthropic;
 - Google Gemini / Vertex;
-- Microsoft Copilot / Azure AI surfaces;
+- Microsoft 365 Copilot / Azure AI surfaces;
 - xAI / Grok where applicable;
 - DeepSeek and other frontier / regional models where policy allows.
 
@@ -114,11 +127,12 @@ Phase 1.5 output: cloud driver trait and routing metadata model.
 Primary targets:
 
 - Microsoft 365;
-- Microsoft Copilot Tasks Beta;
+- Microsoft 365 Copilot Tasks Beta;
 - Google Workspace;
 - Apple iCloud;
 - Android / Chrome;
 - GitHub;
+- GitHub Copilot / Coding Agent;
 - Notion / Notion AI;
 - Slack / Linear / Figma / Stripe as future extension slots.
 
@@ -129,7 +143,8 @@ Skeleton responsibilities:
 - avoid hard vendor lock-in;
 - preserve provider-native strengths while exposing a common command layer;
 - support neutral workspace handoffs through Notion where useful;
-- support PR/task execution handoffs through Copilot and GitHub where useful.
+- support PR/task execution handoffs through GitHub Copilot and GitHub where useful;
+- support artifact export and handoff from Microsoft 365 Copilot where useful.
 
 Phase 1 output: visible target map and existing provider dispatch alignment.
 Phase 1.5 output: normalized command schema and provider capability manifests.
@@ -143,7 +158,8 @@ Primary targets:
 - OpenAPI / JSON-RPC;
 - local tool protocols;
 - GitHub PR / issue comment instruction loops;
-- Microsoft Copilot Tasks Beta execution loops;
+- GitHub Copilot Coding Agent execution loops;
+- Microsoft 365 Copilot Tasks Beta planning / artifact loops;
 - Manus execution handoff loops;
 - Notion AI workspace / MCP UI loops;
 - future Janus / Pantheon council routing surfaces.
@@ -154,7 +170,7 @@ Skeleton responsibilities:
 - expose future `AgentCard` / manifest equivalents;
 - prepare for tool permissioning, consent, provenance, and audit;
 - avoid a single-agent monoculture;
-- record execution provenance across Copilot, Manus, Claude, GPT, Grok, Gemini, and Notion AI where available;
+- record execution provenance across Microsoft 365 Copilot, GitHub Copilot, Manus, Claude, GPT, Grok, Gemini, and Notion AI where available;
 - bound automated execution with cost, scope, and stop-condition metadata.
 
 Phase 1 output: protocol target list + docs.
@@ -180,11 +196,12 @@ Module 16A-D is the implementation-facing interoperability skeleton that gives t
 - [ ] Module 16A-D is understood as interoperability, not cross-sphere governance.
 - [ ] OpenAI is explicitly included as a first-class model-provider target.
 - [ ] Anthropic is modeled as frontier model provider, not hyperscaler.
-- [ ] Microsoft Copilot / Tasks Beta is recognized as an agent execution substrate as well as a productivity surface.
+- [ ] Microsoft 365 Copilot / Tasks Beta is recognized as a planning and artifact-generation surface.
+- [ ] GitHub Copilot / Coding Agent is recognized as a distinct repo-execution agent with variable continuity.
 - [ ] Manus is recognized as an execution layer with explicit cost / scope guardrails.
 - [ ] Notion AI is recognized as a neutral workspace and MCP-oriented UI target.
 - [ ] Hyperscalers are modeled separately from model families.
 - [ ] Productivity / OS surfaces remain part of UWS core scope.
 - [ ] Protocol interoperability includes MCP and A2A attachment points.
-- [ ] Agent execution loops include provenance, budget, stop-condition, and handoff metadata.
+- [ ] Agent execution loops include provenance, budget, stop-condition, context-rehydration, and handoff metadata.
 - [ ] No provider SDK or live auth is introduced without a focused adapter PR.
