@@ -147,12 +147,12 @@ impl NetPositiveScore {
 
     /// The composite NPFM score.
     ///
-    /// Defined as the unweighted average of all three normalised sub-scores.
-    /// Anti-busywork is normalised via a tanh sigmoid so that very large
+    /// Defined as the unweighted average of all three normalized sub-scores.
+    /// Anti-busywork is normalized via a tanh sigmoid so that very large
     /// positive values asymptote to 1 and negative values stay negative.
     pub fn composite(&self) -> f64 {
-        let abf_normalised = self.anti_busywork.score().tanh();
-        (abf_normalised + self.knowledge_expansion + self.provenance_payout) / 3.0
+        let abf_normalized = self.anti_busywork.score().tanh();
+        (abf_normalized + self.knowledge_expansion + self.provenance_payout) / 3.0
     }
 
     /// Returns `true` when the NPFM is strictly positive **and** the

@@ -95,7 +95,7 @@ composite = tanh(AntiBusyworkFactor.score()) + KnowledgeExpansion + ProvenancePa
                                            3
 ```
 
-The `tanh` normalisation on the anti-busywork term prevents very large positive ABF values from drowning out the other two sub-metrics.
+The `tanh` normalization on the anti-busywork term prevents very large positive ABF values from drowning out the other two sub-metrics.
 
 ### 3.2 Constitutional Gates
 
