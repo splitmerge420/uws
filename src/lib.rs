@@ -11,6 +11,12 @@
 // ─── Constitutional Governance Layer ─────────────────────────────
 // These modules enforce the 39 Constitutional Invariants at runtime.
 
+/// Zero Trust Integration Gate — pre-execution gate for all external
+/// integration calls (provider auth, network egress, file writes).
+/// On failure: block + audit log entry.
+/// Enforces: INV-004 (Zero Trust), INV-003 (Audit Trail), INV-005 (Fail-Closed)
+pub mod zero_trust;
+
 /// Constitutional enforcement engine — runtime invariant checking.
 /// Checks: INV-1 (Sovereignty), INV-2 (Consent), INV-3 (Audit),
 ///         INV-6 (Provider Abstraction), INV-7 (Vendor Balance),
