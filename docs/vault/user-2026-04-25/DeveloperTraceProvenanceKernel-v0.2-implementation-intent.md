@@ -2,9 +2,7 @@
 
 Status: vaulted design clarification
 Date: 2026-04-25
-Source: Convenor / user refinement after Grok v0.2
 Related:
-- `docs/vault/grok-2026-04-25/DeveloperTraceProvenanceKernel-v0.2.md`
 - `docs/vault/user-2026-04-25/DeveloperTraceProvenanceKernel-v0.2-resolution-inputs.md`
 
 ## Purpose

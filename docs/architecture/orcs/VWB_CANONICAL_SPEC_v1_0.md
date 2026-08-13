@@ -2,7 +2,6 @@
 
 Status: Canonical anchor draft / Phase 1 regulatory-facing baseline
 Date: 2026-04-26
-Source: GPT synthesis from Convenor direction, Claude critique, Gemini prototype review, and ORCS/VWB proof-bundle analysis
 
 ## 1. Purpose
 

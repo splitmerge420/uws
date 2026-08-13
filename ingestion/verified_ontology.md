@@ -39,7 +39,5 @@ Primary Spheres: S01 Physics, S16 CS, S18 Game Theory, S28 Economics, S69 Softwa
 - System A D1=Formal Sciences (S13-S24), System B House 02=Natural Sciences (S013-S024)
 - The NEWER system (Folder Map) should be treated as authoritative
 
-## Claude's Claim vs Reality
-Claude claimed houses like "Natural Sciences, Formal Sciences, Social Sciences, Humanities..."
 This matches System A (the older "Dimensions" system), NOT the newer "Houses" system.
 Both exist in Notion. The Folder Map (System B) is more recent (March 2026 vs Dec 2025).

@@ -18,7 +18,7 @@
 //! This tool dynamically parses API Discovery Documents to construct CLI commands across all
 //! major productivity ecosystems. It supports deep schema validation, multi-provider OAuth,
 //! Service Account authentication, interactive prompts, and first-class AI agent integration
-//! with Claude and Manus.
+//! with ProviderA and Manus.
 
 mod auth;
 pub(crate) mod auth_commands;

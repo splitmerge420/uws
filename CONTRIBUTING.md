@@ -67,7 +67,6 @@ Steps:
 
 ## Adding an AI Agent Skill
 
-Skills are Markdown files that tell AI agents (Claude, Manus, Gemini) how to use a specific service.
 
 Structure:
 

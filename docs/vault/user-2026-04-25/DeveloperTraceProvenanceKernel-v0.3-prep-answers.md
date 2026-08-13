@@ -4,7 +4,6 @@ Status: vaulted design input
 Date: 2026-04-25
 Source: Convenor / user
 Related:
-- `docs/vault/grok-2026-04-25/DeveloperTraceProvenanceKernel-v0.2.md`
 - `docs/vault/user-2026-04-25/DeveloperTraceProvenanceKernel-v0.2-implementation-intent.md`
 
 ## 1. Trigger Threshold

@@ -6,7 +6,6 @@
 
 ## Forked Ecosystem → uws Command Surface
 
-This document maps every integrable pattern from the 10 forked Claude plugin repos to uws CLI commands. See `aluminum-os/plugins/ECOSYSTEM_MERGE.md` for the full layer-mapped inventory and `aluminum-os/plugins/CONTRADICTION_RESOLUTION.md` for the 14 identified contradictions.
 
 ### Plugin Management (`uws plugin`)
 
@@ -30,7 +29,6 @@ uws mcp add golden-trace-mcp               # Constitutional: Kintsugi audit via 
 uws mcp add consent-kernel-mcp             # Constitutional: ConsentKernel via MCP (L1)
 uws mcp add council-mcp                    # Constitutional: Pantheon Council routing (L3)
 uws mcp add sheldonbrain-mcp               # Constitutional: 144-sphere RAG (L3)
-uws mcp bridge claude-code                 # Activate claude-code-mcp CLI↔MCP bridge
 uws mcp status                             # Health check all connected servers
 ```
 
@@ -39,15 +37,10 @@ uws mcp status                             # Health check all connected servers
 Maps 10 community orchestrators to Janus v2 modes:
 
 ```
-uws janus start --mode autonomous          # ← Auto-Claude pattern (Tier 3-4 autonomy)
-uws janus start --topology parallel         # ← Claude Squad / Happy Coder pattern
-uws janus start --topology swarm            # ← Claude Swarm pattern
-uws janus start --mode code_first           # ← claude-code-flow pattern
 uws janus start --mode lightweight          # ← sudocode pattern
 uws janus start --mode ralph                # ← Ralph technique (canonical: ClaytonFarr playbook)
 uws janus start --mode production           # ← The Agentic Startup pattern
 uws janus start --runtime native            # ← TSK Rust-based delegation
-uws janus decompose <task>                  # ← Claude Task Master hierarchical decomposition
 uws janus heartbeat                         # 60s health check across all active agents
 uws janus council status                    # Pantheon Council seat status + INV-7 compliance
 ```
@@ -67,7 +60,6 @@ uws sec tdd-guard enable                   # TDD Guard file operation monitoring
 ```
 uws session recall <query>                 # recall full-text search (L5 fallback)
 uws session brain <query>                  # Sheldonbrain RAG query (L3 primary)
-uws session restore [--format checkpoint]  # claude-code-tools / claudekit restore
 uws session history                        # cchistory session browser
 uws session analyze                        # Vibe-Log session analysis
 ```
@@ -75,10 +67,6 @@ uws session analyze                        # Vibe-Log session analysis
 ### Configuration (`uws config`)
 
 ```
-uws config project                         # CLAUDE.md project-level (L5)
-uws config global                          # SuperClaude global config (L2)
-uws config profile switch <name>           # ClaudeCTX profile switching (L5)
-uws config doctor                          # claude-rules-doctor dead rules check
 ```
 
 ### Monitoring (`uws monitor`)
@@ -95,7 +83,6 @@ uws monitor leaderboard                    # viberank community stats
 ```
 uws devops ansible <playbook>              # CCPI ansible-playbook-creator
 uws devops iac generate                    # cc-devops-skills IaC generation
-uws devops container launch                # Container Use (Dagger) / run-claude-docker
 uws devops ci run                          # /run-ci slash command equivalent
 uws devops release                         # /release slash command equivalent
 ```
@@ -124,10 +111,7 @@ uws git branch update                      # /update-branch-name with prefixes
 
 ## Slash Command Mapping
 
-All 50+ community slash commands from awesome-claude-code are preserved and accessible via two paths:
 
-1. **Native**: `/command-name` within Claude Code sessions (unchanged)
-2. **uws**: `uws <category> <action>` in any terminal (extends reach beyond Claude Code)
 
 Neither path is deleted. The dual-access is the golden seam per no-delete policy.
 

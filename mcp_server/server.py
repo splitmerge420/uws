@@ -4,7 +4,7 @@ Aluminum OS — MCP Server for uws (Universal Workspace CLI)
 
 This server exposes the entire uws command surface over the
 Model Context Protocol (MCP), enabling any MCP-compliant agent
-(Copilot, Claude, Manus, Gemini) to discover and invoke all
+(Copilot, ProviderA, Manus, Gemini) to discover and invoke all
 12,000-20,000+ unified operations.
 
 Architecture:

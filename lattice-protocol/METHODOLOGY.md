@@ -18,7 +18,6 @@ Adversarial Multi-AI Consensus Building (AMACB) uses competing large language mo
 
 2. **Rapid iteration.** A framework that would take months of back-channel diplomacy to evolve through objection-response cycles can be iterated in hours.
 
-3. **Ideological triangulation through model selection.** Different AI models carry different institutional biases. Google Gemini (government/defense-adjacent), xAI Grok (libertarian/anti-establishment), and Anthropic Claude (safety-focused/analytical) produce genuinely different objection profiles.
 
 4. **Human arbitration.** The human operator catches conflation errors the AIs miss, makes value judgments the AIs defer on, and applies political instinct no model can replicate.
 
@@ -38,7 +37,6 @@ Adversarial Multi-AI Consensus Building (AMACB) uses competing large language mo
 
 ### Case Study: Lattice Protocol v10.0
 
-**Participants:** Google Gemini, xAI Grok, Anthropic Claude, CCP policy simulation, NSC red team simulation, human arbiter.
 
 **Evolution:**
 - V1 (4/10): "Leveraged Buyout" — rejected by CCP sim as neocolonial
@@ -57,7 +55,6 @@ Adversarial Multi-AI Consensus Building (AMACB) uses competing large language mo
 **Key AI corrections (not caught by human):**
 - CCP sim rejected early framing as neocolonial extraction
 - Gemini identified 100% reversion kills ROI
-- Grok persona collapse revealed Starlink vendor lock-in risk
 - CCP sim demanded respect for PBOC oversight
 
 ### Applications Beyond Geopolitics

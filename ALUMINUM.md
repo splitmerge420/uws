@@ -16,7 +16,6 @@ This is the same architectural pattern that Kubernetes uses to abstract cloud pr
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                    Human / AI Agent                         │
-│              (Claude, Manus, Gemini, Copilot)               │
 └──────────────────────────┬──────────────────────────────────┘
                            │
                     uws command surface
@@ -26,7 +25,6 @@ This is the same architectural pattern that Kubernetes uses to abstract cloud pr
 │                   ALUMINUM KERNEL                           │
 │  ┌─────────────┐  ┌──────────────┐  ┌───────────────────┐  │
 │  │  Identity   │  │    Memory    │  │  Agent Runtime    │  │
-│  │  Substrate  │  │  Substrate   │  │  (Claude/Manus/   │  │
 │  │  (one user, │  │  (one graph, │  │   Gemini/Copilot) │  │
 │  │  all clouds)│  │  all data)   │  │                   │  │
 │  └─────────────┘  └──────────────┘  └───────────────────┘  │
@@ -118,7 +116,6 @@ The `uws` fork establishes the pattern:
 - Clear command grammar
 - Auth model (OAuth2 per provider)
 - JSON-first output for AI agents
-- SKILL.md files for Claude, Manus, Gemini
 
 **Deliverable:** `uws` — the multi-ecosystem CLI. **Status: In progress.**
 
@@ -146,7 +143,6 @@ The `uws` fork establishes the pattern:
 - Implement the **provider abstraction layer** — `--provider` flag routes to the correct backend
 - Implement the **identity substrate** — one login, all providers
 - Implement the **memory substrate** — cross-session context, cross-provider search
-- Implement the **agent runtime** — `alum ai "<prompt>"` dispatches to Claude/Manus/Gemini
 
 **Deliverable:** `alum` binary. Provider-agnostic commands working.
 
@@ -216,14 +212,12 @@ alum ai "summarize my unread emails"
         ├── Calls: uws ms-mail messages list --params '{"$filter":"isRead eq false"}'
         │
         ▼
-  Aggregates results → sends to Claude/Manus/Gemini
         │
         ▼
   Returns: natural language summary
 ```
 
 Supported AI backends:
-- **Claude** (Anthropic) — `ANTHROPIC_API_KEY`
 - **Manus** — native integration via SKILL.md
 - **Gemini** (Google) — `GEMINI_API_KEY`
 - **Copilot** (Microsoft) — via Graph AI endpoints
@@ -258,7 +252,6 @@ Traditional operating systems abstract hardware. Aluminum abstracts **productivi
 
 Just as Linux kernel drivers let you write `read()` and `write()` without caring whether the storage is NVMe, SATA, or NFS — Aluminum lets you write `alum drive list` without caring whether the files are in Google Drive, OneDrive, or iCloud.
 
-The AI agent (Claude, Manus, Gemini) becomes the **shell** of this OS. The user's intent is the **program**. The provider drivers are the **device drivers**. And Aluminum is the **kernel**.
 
 This is the architecture that makes the AI-native OS real.
 

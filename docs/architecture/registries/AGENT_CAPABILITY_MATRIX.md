@@ -11,7 +11,6 @@ Microsoft 365 Copilot != GitHub Copilot
 - M365 Copilot → research, synthesis, artifact export
 - GitHub Copilot → code, PRs, repo execution
 - GPT → synthesis + GitHub execution
-- Claude → constitutional + critique
 
 ## Principle
 

@@ -74,4 +74,3 @@ GITHUB COPILOT AGENT SKILLS (VS Code):
 SOURCE: https://code.visualstudio.com/docs/copilot/customization/agent-skills
 - Agent Skills teach GitHub Copilot specialized capabilities
 - Work across VS Code, GitHub Copilot CLI, and other surfaces
-- This is exactly what our SKILL.md files do for Claude/Manus

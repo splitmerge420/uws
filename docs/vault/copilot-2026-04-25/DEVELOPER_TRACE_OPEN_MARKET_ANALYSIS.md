@@ -80,9 +80,7 @@ Primary data sources may include:
 Primary consumers may include:
 
 - GPT / OpenAI;
-- Claude / Anthropic;
 - Gemini / Google;
-- Grok / xAI;
 - Nova / Amazon;
 - DeepSeek;
 - other model families under caps and consent rules.
@@ -99,11 +97,8 @@ The same trace, consented and provenance-tagged, available to multiple competing
 - neutral infrastructure improves trust and participation;
 - contributors have stronger incentives to provide high-signal data.
 
-## Relationship to Grok Protocol
 
-This analysis complements the Grok-authored `INV-17-Developer-Trace-Provenance-v1.0.md` proposal.
 
-Grok supplied the protocol skeleton and tiered Last Starfighter compensation model.
 
 Copilot supplied the explicit open-market critique:
 

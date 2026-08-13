@@ -2,10 +2,7 @@
 
 Status: vaulted design input
 Date: 2026-04-25
-Source: Convenor / user response to Grok pressure test
 Related:
-- `docs/vault/grok-2026-04-25/DeveloperTraceProvenanceKernel-v0.1.md`
-- `docs/vault/grok-2026-04-25/DeveloperTraceProvenanceKernel-v0.1-pressure-test.md`
 
 ## Purpose
 

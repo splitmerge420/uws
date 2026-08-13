@@ -36,8 +36,6 @@ Artifacts may be:
 | 6 | `dividend_model_v1.txt` | economic model source | INV-17 Digital Dividend model v1. |
 | 7 | `dividend_model_v2.txt` | economic model source | Corrected three-tier INV-17 model. |
 | 8 | `SESSION_README.txt` | session manifest | Copilot session contents and key invariants. |
-| 9 | `claude-critique-1-lowball-analysis.txt` | critique source | Claude critique of dividend baseline / lowball analysis. |
-| 10 | `claude-critique-2-three-pass-analysis.txt` | critique source | Claude three-pass critique of §17 v2. |
 
 ## Current Integration Status
 
@@ -52,7 +50,6 @@ Already distilled into active architecture docs:
 Still to integrate:
 
 - full dividend model v1/v2 raw code;
-- Claude critique artifacts;
 - session readme / manifest;
 - full raw bundle copies if needed.
 
@@ -73,8 +70,6 @@ Still to integrate:
 - `raw/dividend_model_v1.py`
 - `raw/dividend_model_v2.py`
 - `raw/SESSION_README.md`
-- `raw/claude-critique-1-lowball-analysis.md`
-- `raw/claude-critique-2-three-pass-analysis.md`
 
 ## Short Form
 

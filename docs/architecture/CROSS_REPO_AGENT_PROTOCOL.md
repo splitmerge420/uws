@@ -11,7 +11,6 @@ Define how multiple AI agents collaborate across repositories without losing con
 ## Agent Roles (Observed)
 
 - GPT → synthesis, verification, repo structuring
-- Claude → architecture, critique, archival
 - Microsoft 365 Copilot → longform planning
 - GitHub Copilot → code execution (variable memory)
 - Manus → large-scale execution (cost-sensitive)
@@ -45,7 +44,6 @@ Every execution agent must receive:
 
 ### 3. Parallel Verification
 
-High-impact changes should be reviewed by at least two agents (e.g., GPT + Claude).
 
 ### 4. Cost Control
 

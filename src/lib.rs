@@ -16,20 +16,3 @@
 ///         INV-6 (Provider Abstraction), INV-7 (Vendor Balance),
 ///         INV-11 (Encryption at Rest)
 pub mod constitutional_engine;
-
-/// Council GitHub operations client — constitutional wrapper around GitHub API.
-/// Blocks destructive operations. Enforces data classification (Class A/B/C).
-/// Appends provenance trailers to all commits.
-/// Enforces: INV-1, INV-2, INV-3, INV-5, INV-6, INV-7, INV-11, INV-35
-pub mod council_github_client;
-
-/// Append-only SHA3-256 hash-chained audit log.
-/// NO modify/delete API exists on this struct — by design.
-/// verify_chain() walks every link to detect tampering.
-/// Enforces: INV-3 (Audit Trail), INV-35 (Fail-Closed)
-pub mod audit_chain;
-
-// ─── Governance Runtime (House 12 Skeleton) ─────────────────────
-// Phase 1: exposes attachment points and typed interfaces only.
-// Phase 1.5: integrates enforcement into execution paths.
-pub mod governance;

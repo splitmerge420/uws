@@ -2,7 +2,6 @@
 
 **Session Date:** Friday, March 20, 2026  
 **Session Time:** 8:30 AM UTC  
-**Council-Actor:** claude-opus-4.6  
 **Session ID:** 2026-03-20  
 
 ## Session Overview
@@ -42,8 +41,6 @@ Full 24-hour session review covering comprehensive toolchain and governance upda
 
 ## Session Participants
 
-- **Primary Council Actor:** Claude Opus 4.6
-- **Co-Author:** Claude Opus 4.6 <noreply@anthropic.com>
 
 ## Notes
 

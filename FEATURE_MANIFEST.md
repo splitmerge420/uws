@@ -15,7 +15,6 @@ These are foundational capabilities of the kernel itself, independent of any sin
 |---|---|
 | **Unified Command Surface** | A single command grammar (`alum <verb> <resource>`) to interact with all integrated ecosystems. |
 | **Provider Abstraction** | Interchangeable provider drivers for Google, Microsoft, Apple, and more. |
-| **Multi-Agent Runtime** | First-class support for Claude, Manus, Gemini, and Copilot as council members. |
 | **Constitutional Governance** | Enforces principles of dignity, neutrality, and non-exploitation at the agent runtime level. |
 | **Unified Identity Substrate** | Manages authentication and identity across all connected accounts. |
 | **Unified Memory Substrate** | A single graph for representing data and relationships across all ecosystems. |

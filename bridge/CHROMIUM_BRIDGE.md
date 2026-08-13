@@ -2,7 +2,6 @@
 title: "Aluminos Bridge v3.0 — Constitutional UI Shell"
 version: "3.0.0"
 date: "2026-03-15"
-author: "Claude (Constitutional Scribe)"
 sphere_tags: ["S069", "S016", "S056"]
 aluminum_layer: "L5-Extension"
 council_status: "approved"

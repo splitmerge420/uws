@@ -9,7 +9,7 @@ This is Stage 1 of the Spheres OS CI/CD pipeline.
 Usage:
   python invariant_linter.py <path> [--strict] [--json]
 
-Author: Manus AI (original), Claude (registry integration) for Dave Sheldon
+Author: Manus AI (original), ProviderA (registry integration) for Dave Sheldon
 Date: March 19, 2026
 """
 

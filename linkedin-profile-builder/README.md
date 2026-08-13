@@ -1,6 +1,5 @@
 # LinkedIn Profile Builder & Trust Auditor
 
-A conversational plugin for Claude that builds professional LinkedIn profiles, mines forgotten credentials, and verifies profile accuracy — for individuals, organizations, and platform trust.
 
 ## What It Does
 

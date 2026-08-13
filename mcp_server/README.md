@@ -1,6 +1,5 @@
 # Aluminum OS — MCP Server
 
-This directory contains the Model Context Protocol (MCP) server that exposes the entire `uws` command surface to any MCP-compliant AI agent, including Microsoft Copilot, Claude, Manus, and Gemini.
 
 ## Quick Start
 
@@ -8,7 +7,6 @@ This directory contains the Model Context Protocol (MCP) server that exposes the
 # HTTP mode (for Copilot Studio, remote agents)
 python3 mcp_server/server.py --transport http --port 8787
 
-# stdio mode (for local agents like Claude Desktop)
 python3 mcp_server/server.py --transport stdio
 ```
 
@@ -35,7 +33,6 @@ python3 mcp_server/server.py --transport stdio
 ## Architecture
 
 ```
-Agent (Copilot/Claude/Manus/Gemini)
   │
   ▼
 MCP Client

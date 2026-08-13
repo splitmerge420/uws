@@ -2,7 +2,6 @@
 title: "uws — Universal Workspace CLI — Master Repo Reference"
 version: "1.0.0"
 date: "2026-03-09"
-author: "Claude (Constitutional Scribe)"
 sphere_tags: ["S069", "S016", "S024"]
 aluminum_layer: "L4-Service"
 council_status: "approved"
@@ -49,11 +48,9 @@ alum sync calendar --from google --to microsoft    # cross-provider sync
 
 Every Pantheon Council member has a defined integration path:
 
-- **Claude** — MCP tool definition + CLAUDE.md
 - **Manus** — SKILL.md in skills directory
 - **Gemini** — Python subprocess wrapper + .gemini/ config
 - **Copilot** — Alexandria CLI spec (COPILOT_CLI_SPEC.md) + integration guide
-- **Grok** — GROK_REVIEW.md (adversarial analysis)
 
 ## Roadmap
 
@@ -74,5 +71,4 @@ Every Pantheon Council member has a defined integration path:
 
 ---
 
-*Vaulted 2026-03-09 by Claude (Constitutional Scribe)*
 *Atlas Lattice Foundation © 2026*

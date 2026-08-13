@@ -8,7 +8,6 @@ Copilot reviewed all 5 core documents via GitHub raw URLs and concluded:
 2. **ALUMINUM.md** = the kernel (OS layer)
 3. **COPILOT_CLI_SPEC.md** = Alexandria, the Microsoft provider backend
 4. **AGENTS.md** = the council layer (multi-agent runtime)
-5. **CLAUDE.md** = the Anthropic side (tooling, safety, command grammar)
 
 ## Copilot's Verdict
 

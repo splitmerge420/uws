@@ -6,16 +6,8 @@
 
 | Key | Fork | Stars | Type |
 |-----|------|-------|------|
-| official | splitmerge420/claude-plugins-official | 13.5K | Marketplace |
-| claude-code | splitmerge420/claude-code | 80K | Reference |
 | mcp | splitmerge420/servers | 81K | MCP Registry |
-| awesome | splitmerge420/awesome-claude-code | 29K | Curated Index |
-| composio | splitmerge420/awesome-claude-plugins | 1.2K | Curated Index |
-| ccpi | splitmerge420/claude-code-plugins-plus-skills | 1.7K | 340 plugins + 1367 skills |
-| metrics | splitmerge420/awesome-claude-plugins2 | — | Adoption Metrics |
 | cc-market | splitmerge420/cc-marketplace | — | Community Marketplace |
-| mcp-bridge | splitmerge420/claude-code-mcp | — | MCP Bridge |
-| ccplugins | splitmerge420/awesome-claude-code-plugins | — | Curated Index |
 
 ## Commands
 
@@ -30,7 +22,6 @@ uws plugin stats [<name>]                 # Adoption metrics
 uws plugin config sources                 # Priority order
 uws mcp list                              # MCP servers
 uws mcp add <server>                      # Add MCP server
-uws mcp bridge claude-code                # CLI↔MCP bridge
 ```
 
 ## Constitutional Gate
@@ -40,7 +31,6 @@ Every install passes through: INV-1 (consent), INV-7 (47% source cap), INV-33 (r
 ## Layer Mapping
 
 - L1: ConstitutionalGate + GoldenTrace
-- L2: PluginLoader (sandbox), claude-code reference
 - L3: CCPI skills → Janus v2, Subagents → Council
 - L4: MCP servers + MCP bridge
 - L5: Marketplaces + curated indexes + CLI surface

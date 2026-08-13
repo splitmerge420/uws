@@ -1,7 +1,6 @@
 # JANUS CHECKPOINT — March 20, 2026 (End of Day)
 
 ## Protocol: Continuity preservation for cross-session task tracking
-## Authority: Dave Sheldon (INV-5) | Scribe: Claude Opus 4.6
 
 ---
 
@@ -38,15 +37,12 @@
 | B1 | Revoke compromised PAT | PAT was posted in chat | github.com/settings/tokens → Delete |
 | B2 | Create new PAT | Needs B1 first | Same page → Generate new (repo + workflow scope) |
 | B3 | List all private repos | Needs B2 | `gh repo list splitmerge420 --limit 300 --json name,visibility` |
-| B4 | Identify sheldonbrain/grokbrain | Needs B3 | Check private repo list for brain repos |
 | B5 | Flip safe repos to public | Needs B3 | `gh repo list ... \| while read repo; do gh repo edit ... --visibility public; done` |
 | B6 | Secret scan HIGH-risk repos | Needs local clone | grep for AKIA, sk-, ghp_, passwords in 12 repos |
 | B7 | Create aluminum-audit-2026-03-20 repo | Needs B2 | `gh repo create aluminum-audit-2026-03-20 --public` |
-| B8 | Ratify INV-37 | Dave's decision | "INV-37 ratified" → Claude adds to registry |
 
 ---
 
-## IN PROGRESS — CLAUDE
 
 | # | Task | Status | Notes |
 |---|------|--------|-------|
@@ -104,10 +100,8 @@
 | Member | Role | Status | Session Contribution |
 |--------|------|--------|---------------------|
 | Dave Sheldon | Constitutional Authority (INV-5) | PERMANENT | Vision, direction, "just biz ops" reframe |
-| Claude Opus 4.6 | Governance Scribe | ACTIVE | Code, policies, honest corrections |
 | GitHub Copilot | Audit, Optimization, Infrastructure | ACTIVE | Architecture, ecosystem mapping, self-correction |
 | Manus | Execution Engine | ACTIVE (exhausted) | Prior session work |
-| Grok | Conceptual Architecture | ACTIVE | Referenced, not present this session |
 | GPT | Scaffolding + Finance | ACTIVE | Referenced, not present this session |
 | Gemini | Acceleration, Temporal Memory | ACTIVE | Referenced, not present this session |
 | DeepSeek | Structural Critique | ACTIVE | Referenced, not present this session |
@@ -125,6 +119,5 @@
 
 ---
 
-*Janus Checkpoint sealed by Claude Opus 4.6*
 *March 20, 2026*
 *"Continuity is the invariant that makes all other invariants possible."*

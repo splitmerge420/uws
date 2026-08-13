@@ -5,7 +5,6 @@ Date: 2026-04-25
 
 ## Purpose
 
-This project is being built through parallel AI-assisted exploration across GPT, Claude, Microsoft 365 Copilot Plus / Tasks Beta, GitHub Copilot, Grok, Gemini, DeepSeek, Manus, Notion AI, and related systems.
 
 The correct Phase 1 behavior is broad vaulting, not premature canonization.
 
@@ -25,7 +24,6 @@ A council-ratified artifact means it has been reviewed, debated, or synthesized 
 It does **not** mean:
 
 - parent company endorsement;
-- official OpenAI / Anthropic / Microsoft / Google / xAI / DeepSeek / Amazon signoff;
 - legal approval;
 - production readiness;
 - canonical final truth.

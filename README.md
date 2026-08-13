@@ -72,7 +72,6 @@ Google shipped [gws](https://github.com/googleworkspace/cli) — a brilliant CLI
 | JSON-first output | **Android** (Management API, Messages) |
 | AI agent SKILL.md files | **Chrome** (Management, Policy, Web Store, ChromeOS) |
 | Schema-driven discovery | **Multi-provider abstraction layer** (Aluminum) |
-| Model Armor safety layer | **Claude + Manus + Gemini + Copilot** agent runtime |
 
 ---
 
@@ -245,7 +244,6 @@ uws ms-onedrive drive root search --params '{"q": "budget"}' --format table
 
 ## AI Agent Integration
 
-### Claude (Anthropic)
 
 ```json
 {
@@ -261,7 +259,6 @@ uws ms-onedrive drive root search --params '{"q": "budget"}' --format table
 }
 ```
 
-See [CLAUDE.md](CLAUDE.md) for the full Claude integration guide.
 
 ### Manus
 

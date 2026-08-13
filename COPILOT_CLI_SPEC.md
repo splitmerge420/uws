@@ -89,7 +89,6 @@ The proposed command surface provides logical grouping for all Microsoft service
 Alexandria, `uws`, and Aluminum OS must share a unified configuration schema to ensure seamless interoperability. This will be defined in a separate `CONFIG_SCHEMA.md` document, but will cover:
 
 - **Provider Credentials:** Encrypted storage for Google, Microsoft, Apple, and other provider auth tokens.
-- **Agent Identities:** Keys and identifiers for Manus, Claude, Gemini, Copilot, and other council members.
 - **RAG Endpoints:** Connection details for the Pinecone/RAG substrate.
 - **Constitutional Hashes:** A cryptographic hash of the canonical constitutional principles to ensure runtime integrity.
 

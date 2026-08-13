@@ -7,7 +7,6 @@ Owner: Atlas Lattice / Aluminum OS council workflow
 
 This document aligns the main Atlas Lattice repositories into a coherent build topology. The goal is to prevent public/private repo fragmentation, preserve prior work as harvestable strata, and make it clear which repository owns which layer of the system.
 
-This map is intentionally practical: it reflects how the system is actually being built across GPT, Claude, Microsoft 365 Copilot, GitHub Copilot, Manus, Notion AI, Grok, Gemini, and DeepSeek.
 
 ---
 

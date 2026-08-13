@@ -6,7 +6,7 @@ impl DeepSeekProvider {
     }
 
     // TODO: implement DeepSeek OpenAI-compatible API routing.
-    // TODO: support Anthropic-compatible endpoint if validated.
+    // TODO: support ProviderA-compatible endpoint if validated.
     // TODO: support Thinking / Non-Thinking mode metadata after verification.
     // TODO: track model-family routing and cost telemetry.
 }

@@ -2,7 +2,6 @@
 title: "Janus v2 — Constitutional Multi-Agent Protocol"
 version: "2.0.0"
 date: "2026-03-20"
-author: "Claude (Constitutional Scribe)"
 sphere_tags: ["S069", "S016", "S144"]
 aluminum_layer: "L3-Engine"
 council_status: "approved"
@@ -23,11 +22,9 @@ Janus is the multi-agent orchestration protocol for Aluminum OS. Named for the R
 
 ```
 User Query → UWS CLI → Janus Router
-                          ├── Claude (Governance) — constitutional routing
                           ├── Gemini (Substrate) — deep domain analysis  
                           ├── DeepSeek (Research) — cross-domain connections
                           ├── Copilot (Enterprise) — market validation
-                          ├── Grok (Adversarial) — contrarian review
                           └── Ghost Seat (S144) — unrepresented populations
                        ↓
                   Consensus Engine (INV-7 enforced)
@@ -75,7 +72,6 @@ Every 60 seconds, Janus emits a heartbeat trace:
   "event_type": "action",
   "payload": {
     "type": "heartbeat",
-    "models_available": ["claude", "gemini", "grok"],
     "models_degraded": [],
     "models_offline": ["deepseek", "copilot"],
     "consensus_ready": true,
@@ -104,15 +100,12 @@ janus:
   inv7_threshold: 0.47
   ghost_seat_enabled: true
   models:
-    claude:
       role: governance
       weight: 1.0
       fallback: gemini
     gemini:
       role: substrate
       weight: 1.0
-      fallback: claude
-    grok:
       role: adversarial
       weight: 0.8
       fallback: deepseek
@@ -123,7 +116,6 @@ janus:
     copilot:
       role: enterprise
       weight: 0.7
-      fallback: claude
 ```
 
 ---

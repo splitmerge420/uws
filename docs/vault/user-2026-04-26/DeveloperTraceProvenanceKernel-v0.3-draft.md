@@ -2,7 +2,6 @@
 
 Status: Draft / vaulted synthesis
 Date: 2026-04-26
-Source: GPT synthesis from Convenor answers + Grok v0.2
 
 ## Purpose
 

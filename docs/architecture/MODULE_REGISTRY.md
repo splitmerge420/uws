@@ -51,7 +51,6 @@ Phase 1 means every major module family has a named home. Phase 1.5 means synthe
 
 | Module | Name | Owner Repo | Status | Notes |
 |---|---|---|---|---|
-| 16A | AI Model Provider Interoperability | `uws` | code-skeleton | OpenAI, Anthropic, Gemini, DeepSeek. |
 | 16B | Cloud / Hyperscaler Interoperability | `uws` | code-skeleton | AWS, Azure, GCP. |
 | 16C | Productivity / OS Surface Interoperability | `uws` | planned | M365, Google Workspace, Apple, Android/Chrome, GitHub, Notion. |
 | 16D | Protocol / Agent Interoperability | `uws` | planned | MCP, A2A, GitHub loops, Copilot, Manus, Notion AI. |
@@ -106,5 +105,4 @@ Private repos are source material, not automatic public inputs. Before extractio
 - [ ] Add `src/ledger/` skeleton.
 - [ ] Add `src/financial_context/` skeleton.
 - [ ] Add ADR-145 extraction docs for INV-13 / INV-17 / Indiana Pattern.
-- [ ] Reconcile Claude module naming with this registry.
 - [ ] Reconcile Microsoft 365 Copilot Phase 3 artifacts with this registry.

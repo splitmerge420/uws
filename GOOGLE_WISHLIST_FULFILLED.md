@@ -148,7 +148,6 @@ impl SyncEngine {
 
 **Your Wish:** A specialized `AgentRuntime` that manages LLM tokens, context windows, and "skill" execution as if they were CPU cycles.
 
-**Our Reality:** The `AgentRuntime` is a process scheduler for LLMs. It manages the entire council of agents (Grok, Claude, Manus, GPT, Gemini, Copilot, etc.), tracks token budgets, prioritizes tasks, and manages a shared context window. It's an OS scheduler for intelligence, not for silicon.
 
 ```rust
 // src/fusion_engine.rs
@@ -178,7 +177,6 @@ pub struct AgentRuntime {
 
 impl NaturalLanguageShell {
     // Parse natural language into one or more FusionOperations
-    // This is where Grok (voice) does its work
     pub fn parse(&self, input: &str) -> Vec<FusionOperation> { ... }
 }
 ```

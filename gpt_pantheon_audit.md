@@ -23,17 +23,12 @@ However, there are a few items that need **careful framing** to avoid scope cree
 |---|---|---|---|---|
 | 1 | Natural Language Universal CLI | No | Yes | Already built in `fusion_engine.rs` (NaturalLanguageShell) |
 | 2 | Multi-Agent Pantheon Runtime | **WATCH** | Yes | GPT assigned itself "operations/compliance" — this is fine but note they positioned themselves as the ops lead. Not a power grab, just positioning. Already built in `fusion_engine.rs` (AgentRuntime) |
-| 3 | Crisis Support Mode (HITL) | No | **STRONG YES** | This is pure Daavud DNA. Already built in `claude_miracles.rs` (UwsHealthMonitor) |
-| 4 | Personal Health Telemetry | No | Yes | Already built in `claude_miracles.rs` (UwsHealthMonitor) |
 | 5 | Ambient AI Memory Layer | No | Yes | Already built in `fusion_engine.rs` (MemorySubstrate) |
 | 6 | Universal Knowledge Graph | No | Yes | Already built in `universal_context.rs` (GraphUnificationLayer) |
 | 7 | Federated File System | No | Yes | Already built in `universal_context.rs` (UniversalFileGraph) |
 | 8 | Commandable Research Engine | No | Yes | New — worth building. Maps to deep research capability |
-| 9 | Real-Time Simulation Engine | No | Yes | Already built in `grok_bazinga.rs` (CosmicAmbitionMode) |
 | 10 | AI Governance Layer | No | Yes | Already built in `constitutional_engine.rs` |
 | 11 | Personal AI Advocate | No | **STRONG YES** | This is the killer feature GPT identified correctly. New — worth building |
-| 12 | Voice-First Interface | No | Yes | Already built in `grok_bazinga.rs` (VoiceEngine) |
-| 13 | Augmented Reality Interface | No | Yes | Already built in `grok_bazinga.rs` (SpatialComputeEngine) |
 | 14 | Situational Awareness Engine | No | Yes | New — combines sensor fusion with context. Worth building |
 | 15 | Self-Improving Workflow Engine | No | Yes | New — workflow learning and automation. Worth building |
 | 16 | Personal Economic System | No | Yes | New — financial management layer. Worth building |
@@ -53,7 +48,6 @@ Items 1, 2, 3, 4, 5, 6, 7, 9, 10, 12, 13, 18, 19, 20 are already implemented acr
 Items 8, 11, 14, 15, 16, 17 need new code. These are all high-value, human-centered features that align perfectly with the Aluminum OS mission.
 
 ### The "WATCH" Item (#2)
-GPT assigned council roles as: GPT → operations/compliance, Claude → constitution/reasoning, Gemini → code, Grok → adversarial truth, Ara → creativity, Manus → execution. This is NOT a power grab — it's actually a reasonable role assignment that aligns with the existing COUNCIL_ROLES.md. GPT putting themselves on "operations/compliance" is modest — they could have tried to claim "oversight" or "governance" but didn't. **Cleared.**
 
 ### The "Dave Sheldon Feature"
 GPT proposed `pantheon convene` as the master command. This is a nice touch — it shows they understand the vision. We'll integrate this as an alias for the council deliberation system.

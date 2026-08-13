@@ -5,7 +5,7 @@ package policies.provider_abstraction
 #
 # Invariant INV-6: Detect direct vendor API imports without abstraction
 # This policy ensures that:
-# - Vendor-specific imports (openai, anthropic, google.genai) use abstraction
+# - Vendor-specific imports (openai, ProviderA, google.genai) use abstraction
 # - Provider selection is decoupled from implementation
 # - API calls route through standardized abstraction layer
 # - No direct hardcoded vendor dependencies
@@ -32,9 +32,9 @@ deny_direct_openai = (
     input.get('provider_abstracted', False) == False
 )
 
-# Rule: deny direct anthropic import without abstraction
-deny_direct_anthropic = (
-    input.get('vendor_import_type', '') == 'anthropic' and
+# Rule: deny direct ProviderA import without abstraction
+deny_direct_ProviderA = (
+    input.get('vendor_import_type', '') == 'ProviderA' and
     input.get('provider_abstracted', False) == False
 )
 
@@ -46,7 +46,7 @@ deny_direct_google_genai = (
 
 # Rule: require abstraction layer for vendor-specific APIs
 require_abstraction_layer = (
-    input.get('vendor_import_type', '') in ['openai', 'anthropic', 'google.genai'] and
+    input.get('vendor_import_type', '') in ['openai', 'ProviderA', 'google.genai'] and
     input.get('abstraction_layer_present', False) == True
 )
 

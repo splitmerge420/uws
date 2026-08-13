@@ -98,7 +98,7 @@ class PythonAnalyzer:
         "INV-7": {
             "name": "Vendor Balance",
             "patterns": [
-                r"(?:openai|anthropic|google|xai)\.",  # Direct vendor API calls
+                r"(?:openai|ProviderA|google|ProviderB)\.",  # Direct vendor API calls
             ],
             "must_have_guard": r"fallback|alternative|vendor_balance|multi_provider",
         },

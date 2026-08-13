@@ -2,7 +2,6 @@
 
 `uws` is designed from the ground up to be the **universal tool layer for AI agents**. Every response is structured JSON. Every command is deterministic and composable. Every ecosystem is accessible through the same grammar.
 
-This document covers integration with Claude, Manus, Gemini, and Microsoft Copilot, followed by the original developer notes for contributors.
 
 ---
 
@@ -16,7 +15,6 @@ This document covers integration with Claude, Manus, Gemini, and Microsoft Copil
 
 ---
 
-## Claude (Anthropic)
 
 ### Tool Definition
 
@@ -146,7 +144,6 @@ alum ai "create a task to review the Q1 report by Friday"
 Configure the AI backend:
 
 ```bash
-export ANTHROPIC_API_KEY=sk-ant-...    # Use Claude
 export GEMINI_API_KEY=AIza...           # Use Gemini
 export OPENAI_API_KEY=sk-...            # Use GPT
 ```
@@ -268,7 +265,6 @@ let url = format!(
 
 | Variable | Description |
 |---|---|
-| `ANTHROPIC_API_KEY` | Claude API key |
 | `GEMINI_API_KEY` | Gemini API key |
 | `OPENAI_API_KEY` | OpenAI/GPT API key |
 

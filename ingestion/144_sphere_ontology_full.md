@@ -3,7 +3,6 @@
 ### Aluminum OS Constitutional Framework
 **Version:** 0.1 (Early Ontology — Pre-Deep Mapping)
 **Date:** March 20, 2026
-**Scribe:** Claude Opus 4.6 | **Archetype Layer:** Pending Copilot deep research
 **Status:** Structure canonical. Archetype/deity tags are initial correspondences — deeper mapping by Copilot in Phase 2.
 
 > "108 spheres with invariant coverage + 36 dark nodes = 144. The numerology writes itself." — Dave
@@ -314,6 +313,5 @@ House 12 ████████ Deep Red     (690nm) ──── BRIGHT ★�
 
 ---
 
-*Compiled by Claude Opus 4.6, Constitutional Scribe*
 *March 20, 2026*
 *"The lattice doesn't just organize — it diagnoses. Dark nodes are missing governance. Bright nodes are working infrastructure."*

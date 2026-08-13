@@ -17,7 +17,6 @@ Single-sphere optimization, especially economic optimization, produced predictab
 
 The ontology surfaced the pattern rather than merely labeling it afterward.
 
-### xAI Memphis / Partial Remediation
 
 Cross-sphere assessment revealed that fixing one visible issue, such as water, does not resolve the full system if air, community, civic process, and health impacts remain unaddressed.
 

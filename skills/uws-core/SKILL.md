@@ -13,7 +13,6 @@ structured, JSON-first access to **all major productivity ecosystems**:
 | **Android** | Android Management API, Google Messages (RCS) |
 | **Chrome** | Chrome Management, Chrome Policy, Chrome Web Store, ChromeOS Devices |
 
-AI agents (Claude, Manus, Gemini) use `uws` as a universal tool layer to read and write
 data across all of a user's workspaces without needing separate integrations.
 
 ---
@@ -151,9 +150,7 @@ uws chrome-policy resolve --json '{"policyTargetKey": {"targetResource": "orguni
 
 ## AI Agent Integration
 
-### For Claude (Anthropic)
 
-Add `uws` to your Claude tool configuration. The CLI outputs clean JSON on stdout,
 making it trivially parseable by any LLM.
 
 ```json
@@ -173,7 +170,6 @@ making it trivially parseable by any LLM.
 }
 ```
 
-**Claude system prompt addition:**
 ```
 You have access to the `uws` tool which gives you read/write access to the user's
 Google Workspace, Microsoft 365, Apple iCloud, Android, and Chrome accounts.
@@ -264,7 +260,6 @@ uws ms-onedrive search query --params '{"q": "budget"}'
 | `UWS_APPLE_TEAM_ID` | Apple Developer team ID |
 | `UWS_APPLE_KEY_ID` | Apple private key ID |
 | `UWS_APPLE_PRIVATE_KEY_FILE` | Path to Apple .p8 private key |
-| `ANTHROPIC_API_KEY` | Claude API key for AI agent skills |
 | `GEMINI_API_KEY` | Gemini API key for AI agent skills |
 
 ---

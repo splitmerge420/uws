@@ -25,7 +25,6 @@ This document is the canonical, cross-document synthesis of the five foundationa
 2.  `ALUMINUM.md` (the kernel architecture)
 3.  `COPILOT_CLI_SPEC.md` (the Alexandria / Microsoft provider spec)
 4.  `AGENTS.md` (the multi-agent runtime)
-5.  `CLAUDE.md` (the Anthropic/Claude integration guide)
 
 ---
 
@@ -34,7 +33,6 @@ This document is the canonical, cross-document synthesis of the five foundationa
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                    Human / AI Agent                         │
-│              (Claude, Manus, Gemini, Copilot)               │
 └──────────────────────────┬──────────────────────────────────┘
                            │
                     uws / Alexandria command surface
@@ -44,7 +42,6 @@ This document is the canonical, cross-document synthesis of the five foundationa
 │                   ALUMINUM KERNEL                           │
 │  ┌─────────────┐  ┌──────────────┐  ┌───────────────────┐  │
 │  │  Identity   │  │    Memory    │  │  Agent Runtime    │  │
-│  │  Substrate  │  │  Substrate   │  │  (Claude/Manus/   │  │
 │  │  (one user, │  │  (one graph, │  │   Gemini/Copilot) │  │
 │  │  all clouds)│  │  all data)   │  │                   │  │
 │  └─────────────┘  └──────────────┘  └───────────────────┘  │
@@ -164,9 +161,7 @@ pub trait ProviderDriver: Send + Sync {
 
 ## 7. The Agent Runtime & Multi-Agent Integration
 
-Aluminum's agent runtime is the bridge between the command surface and AI models. It supports Claude, Manus, Gemini, and Copilot out of the box.
 
-### Tool Definition (Claude Example)
 
 ```json
 {
@@ -211,7 +206,6 @@ User (Daavud)
 ### Shared Configuration (`~/.config/uws/config.toml`)
 
 - **Provider Credentials:** Encrypted storage for Google, Microsoft, Apple auth tokens.
-- **Agent Identities:** API keys for Manus, Claude, Gemini, Copilot.
 - **RAG Endpoints:** Connection details for the Pinecone/RAG substrate.
 - **Constitutional Hashes:** A cryptographic hash of the canonical constitutional principles.
 
@@ -223,7 +217,6 @@ Traditional operating systems abstract hardware. Aluminum abstracts **productivi
 
 Just as Linux kernel drivers let you write `read()` and `write()` without caring whether the storage is NVMe, SATA, or NFS — Aluminum lets you write `alum drive list` without caring whether the files are in Google Drive, OneDrive, or iCloud.
 
-The AI agent (Claude, Manus, Gemini) becomes the **shell** of this OS. The user's intent is the **program**. The provider drivers are the **device drivers**. And Aluminum is the **kernel**.
 
 This is the architecture that makes the AI-native OS real.
 

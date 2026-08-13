@@ -1,6 +1,5 @@
 # Contributing
 
-This plugin was built through Adversarial Multi-AI Consensus Building (AMACB) then stress-tested by six simulated Anthropic engineering teams. Rather than picking a winner, we integrated all six perspectives.
 
 ## The Six Perspectives
 

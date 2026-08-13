@@ -37,7 +37,6 @@ Action: preserve both and create a module-alias registry. Do not rewrite legacy 
 
 ### 3. Council role divergence is not a hard conflict
 
-Claude, GPT, Copilot, Grok, Gemini, DeepSeek, Manus, and Notion AI may have slightly different titles across sessions.
 
 The canonical layer should track capabilities and operational roles, not freeze poetic seat names too early.
 
